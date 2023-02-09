@@ -1,0 +1,4 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: carbonio-tasks-ce
+Upstream-Contact: Zextras <packages@zextras.com>
+Source: https://github.com/Zextras/carbonio-tasks-ce
