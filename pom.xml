@@ -10,18 +10,39 @@ SPDX-License-Identifier: AGPL-3.0-only
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <licenses>
+    <license>
+      <comments>Copyright (C) 2023 Zextras, https://www.zextras.com</comments>
+      <name>AGPL-3.0-only</name>
+    </license>
+  </licenses>
+
   <groupId>com.zextras.carbonio.tasks</groupId>
   <artifactId>carbonio-tasks-ce</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-1</version>
+  <packaging>pom</packaging>
 
   <name>carbonio-tasks-ce</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://www.github.com/Zextras/carbonio-tasks-ce</url>
+
+  <modules>
+    <module>boot</module>
+    <module>core</module>
+  </modules>
 
   <properties>
+    <!-- Dependencies -->
+
+
+    <!-- Plugins -->
+    <maven-assembly.version>3.4.2</maven-assembly.version>
+    <maven-compiler.version>3.10.1</maven-compiler.version>
+
+    <!-- Other properties -->
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <java-compiler.version>11</java-compiler.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
 
   <dependencies>
@@ -33,49 +54,4 @@ SPDX-License-Identifier: AGPL-3.0-only
     </dependency>
   </dependencies>
 
-  <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 </project>
