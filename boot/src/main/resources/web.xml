@@ -1,0 +1,72 @@
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+<!--
+  <context-param>
+    <param-name>resteasy.scan</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>system</param-name>
+    <param-value>system-context</param-value>
+  </context-param>
+  <listener>
+    <listener-class>
+      org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
+    </listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>Carbonio Tasks</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher</servlet-class>
+
+    <init-param>
+      <param-name>system</param-name>
+      <param-value>system-init</param-value>
+    </init-param>
+
+  </servlet>
+
+
+  <servlet>
+    <servlet-name>Carbonio Tasks</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <load-on-startup>1</load-on-startup>
+
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>com.zextras.carbonio.tasks.RESTTasks</param-value>
+    </init-param>
+
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Carbonio Tasks</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+  -->
+
+  <!--
+  <context-param>
+    <param-name>system</param-name>
+    <param-value>system-context</param-value>
+  </context-param>
+
+  <servlet>
+    <servlet-name>Resteasy</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher</servlet-class>
+
+    <init-param>
+      <param-name>system</param-name>
+      <param-value>system-init</param-value>
+    </init-param>
+
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Resteasy</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+  -->
+</web-app>
