@@ -1,13 +1,16 @@
+// SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+//
+// SPDX-License-Identifier: AGPL-3.0-only
+
 package com.zextras.carbonio.tasks;
 
-import com.zextras.carbonio.tasks.controllers.HealthController;
 import com.zextras.carbonio.tasks.controllers.HealthControllerImpl;
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.Set;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
-@ApplicationPath("/")
+@ApplicationPath("/rest")
 public class RESTTasks extends Application {
 
   @Override

@@ -28,6 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <dependencies>
 
+    <!-- Injector -->
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
@@ -39,18 +40,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>graphql-java-servlet</artifactId>
     </dependency>
 
-    <!-- RESTEasy -->
+    <!-- RESTEasy core -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-core</artifactId>
-      <version>${resteasy.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxb-provider</artifactId>
-      <version>${resteasy.version}</version>
-    </dependency>
   </dependencies>
 
 </project>

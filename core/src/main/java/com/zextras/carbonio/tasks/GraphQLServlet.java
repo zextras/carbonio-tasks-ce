@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+//
+// SPDX-License-Identifier: AGPL-3.0-only
+
 package com.zextras.carbonio.tasks;
 
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
@@ -16,16 +20,17 @@ public class GraphQLServlet extends GraphQLHttpServlet {
   protected GraphQLConfiguration getConfiguration() {
 
     String schema = "type Query{hello: String}";
-
     SchemaParser schemaParser = new SchemaParser();
     TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
 
-    RuntimeWiring runtimeWiring = newRuntimeWiring()
-        .type("Query", builder -> builder.dataFetcher("hello", new StaticDataFetcher("world")))
-        .build();
+    RuntimeWiring runtimeWiring =
+        newRuntimeWiring()
+            .type("Query", builder -> builder.dataFetcher("hello", new StaticDataFetcher("world")))
+            .build();
 
     SchemaGenerator schemaGenerator = new SchemaGenerator();
     return GraphQLConfiguration.with(
-        schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)).build();
+            schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring))
+        .build();
   }
 }

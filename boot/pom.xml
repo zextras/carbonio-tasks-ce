@@ -45,16 +45,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>jetty-servlet</artifactId>
     </dependency>
 
-    <!-- RESTEasy + servlet initializer -->
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxb-provider</artifactId>
-    </dependency>
+    <!-- RESTEasy servlet initializer -->
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
