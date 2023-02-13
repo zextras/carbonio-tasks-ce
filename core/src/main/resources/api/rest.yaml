@@ -1,0 +1,86 @@
+# SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+openapi: 3.0.2
+info:
+  title: preview
+  description: Carbonio Tasks service
+  version: 0.0.1
+paths:
+  /health/:
+    get:
+      tags:
+        - health
+      summary: Health
+      description: >-
+        Checks if the service and its dependencies (mandatory or optional) are available.
+        It returns a descriptive json containing the list of the dependencies health
+      operationId: health
+      responses:
+        200:
+          $ref: '#/components/responses/200DependenciesHealth'
+        502:
+          $ref: '#/components/responses/502BadGateway'
+  /health/ready/:
+    get:
+      tags:
+        - health
+      summary: Health Ready
+      description: Checks if the service is up and all the mandatory dependencies are reachable
+      operationId: health_ready
+      responses:
+        204:
+          $ref: '#/components/responses/204NoContent'
+        502:
+          $ref: '#/components/responses/502BadGateway'
+  /health/live/:
+    get:
+      tags:
+        - health
+      summary: Health Live
+      description: Checks if the service is up and running
+      operationId: health_live
+      responses:
+        204:
+          $ref: '#/components/responses/204NoContent'
+        503:
+          $ref: '#/components/responses/503ServiceUnavailable'
+components:
+  responses:
+    200DependenciesHealth:
+      description: Return a descriptive json containing the list of the dependency statuses
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceDependenciesHealth'
+    204NoContent:
+      description: OK
+    502BadGateway:
+      description: Bad gateway
+    503ServiceUnavailable:
+        description: Service unavailable
+
+  schemas:
+    ServiceDependenciesHealth:
+      type: object
+      properties:
+        ready:
+          type: boolean
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceDependencyHealth'
+    ServiceDependencyHealth:
+      type: object
+      properties:
+        name:
+          type: string
+        ready:
+          type: boolean
+        live:
+          type: boolean
+        type:
+          enum:
+            - OPTIONAL
+            - REQUIRED
