@@ -29,4 +29,3 @@ repos:
     rev: v2.6.0
     hooks:
       - id: pretty-format-java
-        args: [--autofix]
