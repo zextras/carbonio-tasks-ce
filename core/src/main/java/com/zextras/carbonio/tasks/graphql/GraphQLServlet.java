@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-package com.zextras.carbonio.tasks;
+package com.zextras.carbonio.tasks.graphql;
 
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
 
@@ -13,19 +13,28 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import graphql.schema.idl.TypeRuntimeWiring;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
+/** This class is only a placeholder to start the servlet correctly */
 public class GraphQLServlet extends GraphQLHttpServlet {
 
   @Override
   protected GraphQLConfiguration getConfiguration() {
-
-    String schema = "type Query{hello: String}";
+    InputStream schema = getClass().getResourceAsStream("/api/schema.graphql");
     SchemaParser schemaParser = new SchemaParser();
     TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
 
+    Map<String, Object> projectInfo = new HashMap<>();
+    projectInfo.put("name", "carbonio-tasks-ce");
+    projectInfo.put("version", "0.0.1");
     RuntimeWiring runtimeWiring =
         newRuntimeWiring()
-            .type("Query", builder -> builder.dataFetcher("hello", new StaticDataFetcher("world")))
+            .type(
+                TypeRuntimeWiring.newTypeWiring("Query")
+                    .dataFetcher("getProjectInfo", new StaticDataFetcher(projectInfo)))
             .build();
 
     SchemaGenerator schemaGenerator = new SchemaGenerator();

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-package com.zextras.carbonio.tasks.controllers;
+package com.zextras.carbonio.tasks.rest.controllers;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

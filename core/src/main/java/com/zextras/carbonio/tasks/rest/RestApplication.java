@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-package com.zextras.carbonio.tasks;
+package com.zextras.carbonio.tasks.rest;
 
-import com.zextras.carbonio.tasks.controllers.HealthControllerImpl;
+import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
 import java.util.Collections;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @ApplicationPath("/rest")
-public class RESTTasks extends Application {
+public class RestApplication extends Application {
 
   @Override
   public Set<Class<?>> getClasses() {

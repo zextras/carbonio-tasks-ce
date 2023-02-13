@@ -5,8 +5,8 @@
 package com.zextras.carbonio.tasks.config;
 
 import com.google.inject.AbstractModule;
-import com.zextras.carbonio.tasks.controllers.HealthController;
-import com.zextras.carbonio.tasks.controllers.HealthControllerImpl;
+import com.zextras.carbonio.tasks.rest.controllers.HealthController;
+import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
 
 public class TasksModule extends AbstractModule {
 

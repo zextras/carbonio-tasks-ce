@@ -5,6 +5,8 @@
 package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
+import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
+import com.zextras.carbonio.tasks.rest.RestApplication;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -62,7 +64,7 @@ public class JettyServer {
     servletContextHandler.setContextPath("/rest/");
     ServletHolder servletHolder =
         servletContextHandler.addServlet(HttpServlet30Dispatcher.class, "/*");
-    servletHolder.setInitParameter("javax.ws.rs.Application", RESTTasks.class.getName());
+    servletHolder.setInitParameter("javax.ws.rs.Application", RestApplication.class.getName());
     return servletContextHandler;
   }
 }
