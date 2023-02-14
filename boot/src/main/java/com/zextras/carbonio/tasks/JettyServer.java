@@ -5,6 +5,7 @@
 package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
+import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
 import org.eclipse.jetty.server.Handler;
@@ -43,8 +44,8 @@ public class JettyServer {
       server = new Server();
       try (ServerConnector connector = new ServerConnector(server)) {
         connector.setDefaultProtocol("HTTP/1.1");
-        connector.setHost("127.78.0.16");
-        connector.setPort(10_000);
+        connector.setHost(Service.IP);
+        connector.setPort(Service.PORT);
         server.addConnector(connector);
       }
       // Create a ContextHandlerCollection to hold multiple context handlers.
