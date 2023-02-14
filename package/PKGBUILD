@@ -1,0 +1,123 @@
+# SPDX-FileCopyrightText: 2022 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+targets=(
+  "ubuntu"
+  "centos"
+)
+pkgname="carbonio-tasks-ce"
+pkgver="0.0.1"
+pkgrel="1"
+pkgdesc="Carbonio Tasks"
+pkgdesclong=(
+  "Carbonio Tasks"
+)
+maintainer="Zextras <packages@zextras.com>"
+arch="amd64"
+license=("spdx:AGPL-3.0-only")
+section="admin"
+priority="optional"
+url="https://www.zextras.com/"
+depends=(
+  "service-discover"
+  "pending-setups"
+  "carbonio-openjdk"
+)
+sources=(
+  "carbonio-tasks"
+  "carbonio-tasks.hcl"
+  "carbonio-tasks.service"
+  "carbonio-tasks-pending-setup"
+  "carbonio-tasks-setup"
+  "carbonio-tasks-sidecar.service"
+  "carbonio-tasks.jar"
+  "intentions.json"
+  "policies.json"
+  "service-protocol.json"
+)
+hashsums=(
+  "7135cf2a9b330e0b8f22d59e0dc553dc350418bb554cb28cc0fb33c2579825da"
+  "f2778df8b28cbe98a99f07f0f64b4d99b5d9a9d321ae99c0a2b88ed77a195174"
+  "d5ccbb18bb7f30cde59cf84d0eb8c49c5091675ed8dd1ee82d1bbff28f8782be"
+  "2b95446703d3502f9782b690b7350e1ac2ad7a48dc603d0b380d4e36e2a09016"
+  "f5251be5f0b8eaa7f9e81f447a36f39b7ec70cf127fe4393f99e14aa57fa6a6d"
+  "ee799c0a123155de85e29710662d0cb835f64d60b06bb640dd50abbd30d22b80"
+  "skip"
+  "6915995b96568ffc4f207b74b126908231e0a4df12a97d83f07307258640cc2d"
+  "9f837e3573888b27c2ee3723414982bfa55388564de5e3d801cb55e8e6836b32"
+  "a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e"
+)
+backup=(
+    "/etc/zextras/service-discover/carbonio-tasks.hcl"
+)
+
+package() {
+  cd "${srcdir}"
+
+  install -Dm 755 carbonio-tasks \
+    "${pkgdir}/usr/bin/carbonio-tasks"
+
+  install -Dm 755 carbonio-tasks-setup \
+    "${pkgdir}/usr/bin/carbonio-tasks-setup"
+
+  install -Dm 755 carbonio-tasks.jar \
+    "${pkgdir}/usr/share/carbonio/carbonio-tasks.jar"
+
+  install -Dm 644 carbonio-tasks.service \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
+
+  install -Dm 644 carbonio-tasks-sidecar.service \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+
+  install -Dm 644 carbonio-tasks.hcl \
+    "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
+
+  install -Dm 644 carbonio-tasks-pending-setup \
+    "${pkgdir}/etc/zextras/pending-setups.d/carbonio-tasks.sh"
+
+  install -Dm 644 intentions.json \
+    "${pkgdir}/etc/carbonio/tasks/service-discover/intentions.json"
+
+  install -Dm 644 policies.json \
+    "${pkgdir}/etc/carbonio/tasks/service-discover/policies.json"
+
+  install -Dm 644 service-protocol.json \
+    "${pkgdir}/etc/carbonio/tasks/service-discover/service-protocol.json"
+}
+
+postinst() {
+  getent group 'carbonio-tasks' >/dev/null ||
+    groupadd -r 'carbonio-tasks'
+  getent passwd 'carbonio-tasks' >/dev/null ||
+    useradd -r -M -g 'carbonio-tasks' -s /sbin/nologin 'carbonio-tasks'
+
+  mkdir -p "/var/log/carbonio/tasks/"
+  chown carbonio-tasks:carbonio-tasks "/var/log/carbonio/tasks"
+
+  if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload >/dev/null 2>&1 || :
+    systemctl enable carbonio-tasks.service >/dev/null 2>&1 || :
+    systemctl enable carbonio-tasks-sidecar.service >/dev/null 2>&1 || :
+  fi
+
+  echo "======================================================"
+  echo "Carbonio Tasks installed successfully!                "
+  echo "You must run pending-setups to configure it correctly."
+  echo "======================================================"
+}
+
+prerm() {
+  if [ -d /run/systemd/system ]; then
+    systemctl --no-reload disable carbonio-tasks.service >/dev/null 2>&1 || :
+    systemctl --no-reload disable carbonio-tasks-sidecar.service >/dev/null 2>&1 || :
+    systemctl stop carbonio-tasks.service >/dev/null 2>&1 || :
+    systemctl stop carbonio-tasks-sidecar.service >/dev/null 2>&1 || :
+  fi
+}
+
+postrm() {
+  if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload >/dev/null 2>&1 || :
+  fi
+}
