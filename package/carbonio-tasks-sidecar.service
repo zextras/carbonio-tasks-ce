@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2022 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+[Unit]
+Description=Carbonio Tasks sidecar proxy
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/consul connect envoy \
+    -token-file /etc/carbonio/tasks/service-discover/token \
+    -admin-bind localhost:0 \
+    -sidecar-for carbonio-tasks
+Restart=on-failure
+RestartSec=15
+User=carbonio-tasks
+KillMode=process
+KillSignal=SIGKILL
+LimitNOFILE=65536
+TimeoutSec=120
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target
