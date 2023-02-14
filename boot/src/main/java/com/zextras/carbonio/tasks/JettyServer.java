@@ -24,8 +24,20 @@ public class JettyServer {
     this.graphQLServlet = graphQLServlet;
   }
 
+  /**
+   * Creates a new jetty {@link Server} instance with two servlets:
+   *
+   * <ul>
+   *   <li>{@link GraphQLServlet}: necessary to handle the GraphQL requests
+   *   <li>{@link HttpServlet30Dispatcher}: necessary to handle the REST requests such as the health
+   *       APIs
+   * </ul>
+   *
+   * @throws Exception if something goes wrong during the stop of the server
+   */
   public void start() throws Exception {
 
+    // Unfortunately the jetty server is not AutoClosable, so I can't use try-with-resources
     Server server = null;
     try {
       server = new Server();
@@ -43,13 +55,17 @@ public class JettyServer {
 
       server.start();
       server.join();
-    } catch (Exception exception) {
-      System.out.println("Service stopped unexpectedly: " + exception.getMessage());
+
     } finally {
-      server.stop();
+      if (server != null) {
+        server.stop();
+      }
     }
   }
 
+  /**
+   * @return an {@link ServletContextHandler} associated to a {@link GraphQLServlet} instance.
+   */
   private Handler createGraphQLHandler() {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
     servletContextHandler.setContextPath("/graphql/");
@@ -59,6 +75,10 @@ public class JettyServer {
     return servletContextHandler;
   }
 
+  /**
+   * @return an {@link ServletContextHandler} associated to a {@link HttpServlet30Dispatcher}
+   *     instance.
+   */
   private Handler createRESTHandler() {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
     servletContextHandler.setContextPath("/rest/");

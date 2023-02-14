@@ -21,6 +21,10 @@ import java.util.Map;
 /** This class is only a placeholder to start the servlet correctly */
 public class GraphQLServlet extends GraphQLHttpServlet {
 
+  /**
+   * @return a <bold>WIP</bold> {@link GraphQLConfiguration} containing a {@link graphql.GraphQL}
+   *     instance necessary to handle the http requests.
+   */
   @Override
   protected GraphQLConfiguration getConfiguration() {
     InputStream schema = getClass().getResourceAsStream("/api/schema.graphql");

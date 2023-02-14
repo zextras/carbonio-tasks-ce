@@ -10,9 +10,13 @@ import com.zextras.carbonio.tasks.config.TasksModule;
 
 public class Boot {
 
-  public static void main(String[] args) throws Exception {
-
+  public static void main(String[] args) {
     Injector injector = Guice.createInjector(new TasksModule());
-    injector.getInstance(JettyServer.class).start();
+
+    try {
+      injector.getInstance(JettyServer.class).start();
+    } catch (Exception exception) {
+      System.out.println("Service stopped unexpectedly: " + exception.getMessage());
+    }
   }
 }

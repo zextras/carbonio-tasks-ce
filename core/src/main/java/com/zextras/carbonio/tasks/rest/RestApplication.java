@@ -13,6 +13,12 @@ import javax.ws.rs.core.Application;
 @ApplicationPath("/rest")
 public class RestApplication extends Application {
 
+  /**
+   * Since the RESTEasy team decides to abandon the resteasy-guice dependency, the only way to make
+   * the servlet aware of the controllers is to pass their implementation without using Guice.
+   *
+   * @return a {@link Set<Class>} containing all the controller classes.
+   */
   @Override
   public Set<Class<?>> getClasses() {
     return Collections.singleton(HealthControllerImpl.class);
