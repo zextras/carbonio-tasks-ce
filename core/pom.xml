@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <licenses>
+    <license>
+      <comments>Copyright (C) 2023 Zextras, https://www.zextras.com</comments>
+      <name>AGPL-3.0-only</name>
+    </license>
+  </licenses>
+
+  <artifactId>carbonio-tasks-ce-core</artifactId>
+  <name>carbonio-tasks-ce-core</name>
+
+  <parent>
+    <groupId>com.zextras.carbonio.tasks</groupId>
+    <artifactId>carbonio-tasks-ce</artifactId>
+    <version>0.0.1-1</version>
+  </parent>
+
+</project>

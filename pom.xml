@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <licenses>
+    <license>
+      <comments>Copyright (C) 2023 Zextras, https://www.zextras.com</comments>
+      <name>AGPL-3.0-only</name>
+    </license>
+  </licenses>
+
+  <groupId>com.zextras.carbonio.tasks</groupId>
+  <artifactId>carbonio-tasks-ce</artifactId>
+  <version>0.0.1-1</version>
+  <packaging>pom</packaging>
+
+  <name>carbonio-tasks-ce</name>
+  <url>https://www.github.com/Zextras/carbonio-tasks-ce</url>
+
+  <modules>
+    <module>boot</module>
+    <module>core</module>
+  </modules>
+
+  <properties>
+    <!-- Dependencies -->
+
+
+    <!-- Plugins -->
+    <maven-assembly.version>3.4.2</maven-assembly.version>
+    <maven-compiler.version>3.10.1</maven-compiler.version>
+
+    <!-- Other properties -->
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <java-compiler.version>11</java-compiler.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
