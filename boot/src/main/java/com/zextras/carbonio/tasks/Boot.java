@@ -4,9 +4,19 @@
 
 package com.zextras.carbonio.tasks;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.zextras.carbonio.tasks.config.TasksModule;
+
 public class Boot {
 
   public static void main(String[] args) {
-    System.out.println("Hello World!");
+    Injector injector = Guice.createInjector(new TasksModule());
+
+    try {
+      injector.getInstance(JettyServer.class).start();
+    } catch (Exception exception) {
+      System.out.println("Service stopped unexpectedly: " + exception.getMessage());
+    }
   }
 }

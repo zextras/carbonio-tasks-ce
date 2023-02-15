@@ -26,4 +26,26 @@ SPDX-License-Identifier: AGPL-3.0-only
     <version>0.0.1-1</version>
   </parent>
 
+  <dependencies>
+
+    <!-- Injector -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+
+    <!-- GraphQL Java -->
+    <dependency>
+      <groupId>com.graphql-java-kickstart</groupId>
+      <artifactId>graphql-java-servlet</artifactId>
+    </dependency>
+
+    <!-- RESTEasy core -->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-core</artifactId>
+    </dependency>
+
+  </dependencies>
+
 </project>

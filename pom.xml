@@ -32,7 +32,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
-
+    <graphql-java-servlet.version>14.0.0</graphql-java-servlet.version>
+    <guice.version>5.1.0</guice.version>
+    <jetty.version>10.0.13</jetty.version>
+    <resteasy.version>5.0.5.Final</resteasy.version>
 
     <!-- Plugins -->
     <maven-assembly.version>3.4.2</maven-assembly.version>
@@ -45,13 +48,57 @@ SPDX-License-Identifier: AGPL-3.0-only
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- Injector -->
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>${guice.version}</version>
+      </dependency>
+
+      <!-- Jetty dependencies -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <!-- GraphQL servlet -->
+      <dependency>
+        <groupId>com.graphql-java-kickstart</groupId>
+        <artifactId>graphql-java-servlet</artifactId>
+        <version>${graphql-java-servlet.version}</version>
+      </dependency>
+
+      <!-- RESTEasy + servlet-initializer -->
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-core</artifactId>
+        <version>${resteasy.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-servlet-initializer</artifactId>
+        <version>${resteasy.version}</version>
+      </dependency>
+
+      <!-- Testing -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
