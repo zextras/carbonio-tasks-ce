@@ -86,5 +86,5 @@ type Mutation {
 
     createTask(newTask: NewTaskInput): Task!
 
-    updateTask(updateTask: UpdateTaskInput) : Task!
+    updateTask(updateTask: UpdateTaskInput): Task!
 }
