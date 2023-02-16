@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: 2022 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: carbonio-tasks-ce
+  title: Carbonio Tasks CE service
+  description: Service that allows to manage tasks and set a reminder for them.
+  tags:
+    - java
+    - backend
+  links:
+    - url: https://github.com/Zextras/carbonio-tasks-ce/blob/develop/README.md
+      title: README
+spec:
+  type: service
+  lifecycle: production
+  owner: shuffled-waffles
+  providesApis:
+    - carbonio-tasks-ce-rest-api
+    - carbonio-tasks-ce-graphql-api
+  dependsOn:
+    - component:carbonio-user-management
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: carbonio-tasks-ce-rest-api
+  title: Carbonio Tasks CE REST APIs
+  description: |
+    Carbonio Tasks Community Edition REST APIs. It contains the description of the health APIs.
+  tags:
+    - rest
+spec:
+  type: openapi
+  lifecycle: production
+  owner: shuffled-waffles
+  definition:
+    $text: https://github.com/Zextras/carbonio-tasks-ce/blob/develop/core/src/main/resources/api/rest.yaml
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: carbonio-tasks-ce-graphql-api
+  title: Carbonio Tasks CE GraphQL APIs
+  description: Carbonio Tasks Community Edition GraphQL APIs.
+  tags:
+    - graphql
+spec:
+  type: graphql
+  lifecycle: production
+  owner: shuffled-waffles
+  definition:
+    $text: https://github.com/Zextras/carbonio-tasks-ce/blob/develop/core/src/main/resources/api/schema.graphql
