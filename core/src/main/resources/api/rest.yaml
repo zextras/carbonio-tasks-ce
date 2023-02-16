@@ -4,7 +4,7 @@
 
 openapi: 3.0.2
 info:
-  title: preview
+  title: carbonio-tasks
   description: Carbonio Tasks service
   version: 0.0.1
 paths:
