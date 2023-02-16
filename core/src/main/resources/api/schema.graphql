@@ -2,11 +2,89 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-type ProjectInfo {
+scalar DateTime
+
+directive @stringLength(max: Int!) on INPUT_FIELD_DEFINITION
+directive @require(field: String!) on INPUT_FIELD_DEFINITION
+
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+enum Status {
+    OPEN
+    COMPLETE
+}
+
+type ServiceInfo {
     name: String!
     version: String!
 }
 
+type Config {
+    name: String!
+    value: String!
+}
+
+type Task {
+    id: ID!
+    # The title has a limit of 1024 characters and cannot have a string with only spaces
+    title: String!
+    # The description has a limit of 4096 characters
+    description: String
+    priority: Priority!
+    status: Status!
+    createdAt: DateTime!
+    reminderAt: DateTime
+    # When this boolean is set then the reminder will be for all day
+    # If not set the default is false
+    reminderAllDay: Boolean
+}
+
+input NewTaskInput {
+    title: String! @stringLength(max: 1024)
+    description: String @stringLength(max: 4096)
+    # If not set then the default is NORMAL
+    priority: Priority
+    # If not set then the default is OPEN
+    status: Status
+    # If not set then the task does not have a reminder and
+    # the reminderAllDay attribute must not be set
+    reminderAt: DateTime
+    # If set but the reminderAt is not set the creation fails
+    reminderAllDay: Boolean @require(field: "reminderAt")
+}
+
+input UpdateTaskInput {
+    id: ID!
+    title: String @stringLength(max: 1024)
+    description: String @stringLength(max: 4096)
+    # If not set then the default is NORMAL
+    priority: Priority
+    # If not set then the default is OPEN
+    status: Status
+    # If not set then the task does not have a reminder and
+    # the reminderAllDay attribute must not be set
+    reminderAt: DateTime
+    # If set but the reminderAt is not set the creation fails
+    reminderAllDay: Boolean @require(field: "reminderAt")
+}
+
 type Query {
-    getProjectInfo: ProjectInfo!
+
+    getServiceInfo: ServiceInfo!
+
+    getTask(taskId: ID!): Task
+
+    findTasks(status: Status, priority: Priority): [Task]!
+}
+
+
+type Mutation {
+
+    createTask(newTask: NewTaskInput): Task!
+
+    updateTask(updateTask: UpdateTaskInput) : Task!
 }
