@@ -84,7 +84,7 @@ type Query {
 
 type Mutation {
 
-    createTask(newTask: NewTaskInput): Task!
+    createTask(newTask: NewTaskInput!): Task!
 
-    updateTask(updateTask: UpdateTaskInput): Task!
+    updateTask(updateTask: UpdateTaskInput!): Task!
 }
