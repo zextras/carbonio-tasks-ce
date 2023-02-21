@@ -38,7 +38,7 @@ public class GraphQLServlet extends GraphQLHttpServlet {
         newRuntimeWiring()
             .type(
                 TypeRuntimeWiring.newTypeWiring("Query")
-                    .dataFetcher("getProjectInfo", new StaticDataFetcher(projectInfo)))
+                    .dataFetcher("getServiceInfo", new StaticDataFetcher(projectInfo)))
             .build();
 
     SchemaGenerator schemaGenerator = new SchemaGenerator();
