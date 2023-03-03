@@ -20,14 +20,26 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.MountableFile;
 
+@Testcontainers
 public class HealthApiIT {
 
   private static Server server;
   private static LocalConnector localConnector;
+  private static PostgreSQLContainer postgreSQLContainer;
 
   @BeforeAll
   static void setup() throws Exception {
+    postgreSQLContainer =
+        (PostgreSQLContainer)
+            new PostgreSQLContainer("postgres:12.14")
+                .withCopyFileToContainer(
+                    MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
+                    "/docker-entrypoint-initdb.d/init.sql");
+    postgreSQLContainer.start();
 
     server = new Server();
     localConnector = new LocalConnector(server);
@@ -46,6 +58,7 @@ public class HealthApiIT {
   @AfterAll
   static void stop() throws Exception {
     server.stop();
+    postgreSQLContainer.stop();
   }
 
   @Test

@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS task (
     user_id CHARACTER(36) NOT NULL,
     title VARCHAR(1024) NOT NULL,
     description VARCHAR(4096),
-    priority VARCHAR(25) DEFAULT "NORMAL" NOT NULL,
-    status VARCHAR(25) DEFAULT "OPEN" NOT NULL,
+    priority VARCHAR(25) DEFAULT 'NORMAL' NOT NULL,
+    status VARCHAR(25) DEFAULT 'OPEN' NOT NULL,
     created_at TIMESTAMP NOT NULL,
     reminder_at TIMESTAMP,
     reminder_all_day BOOLEAN DEFAULT FALSE NOT NULL
