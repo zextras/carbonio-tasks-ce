@@ -32,9 +32,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
+    <assertj.version>3.23.1</assertj.version>
     <graphql-java-servlet.version>14.0.0</graphql-java-servlet.version>
     <guice.version>5.1.0</guice.version>
     <jetty.version>10.0.13</jetty.version>
+    <jsonassert.version>1.5.1</jsonassert.version>
+    <junit5.version>5.9.1</junit5.version>
+    <mockito.version>4.9.0</mockito.version>
+    <testcontainers.version>1.17.6</testcontainers.version>
     <resteasy.version>5.0.5.Final</resteasy.version>
 
     <!-- Plugins -->
@@ -93,9 +98,59 @@ SPDX-License-Identifier: AGPL-3.0-only
 
       <!-- Testing -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.11</version>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!-- Helper to test JSON responses -->
+      <dependency>
+        <groupId>org.skyscreamer</groupId>
+        <artifactId>jsonassert</artifactId>
+        <version>${jsonassert.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers</artifactId>
+        <version>${testcontainers.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${testcontainers.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

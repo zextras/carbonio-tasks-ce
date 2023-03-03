@@ -45,17 +45,9 @@ SPDX-License-Identifier: AGPL-3.0-only
     </dependency>
 
     <!-- RESTEasy servlet initializer -->
-
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-servlet-initializer</artifactId>
-    </dependency>
-
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
