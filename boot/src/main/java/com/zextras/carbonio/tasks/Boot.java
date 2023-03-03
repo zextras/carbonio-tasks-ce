@@ -4,13 +4,21 @@
 
 package com.zextras.carbonio.tasks;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.zextras.carbonio.tasks.config.TasksModule;
+import org.slf4j.LoggerFactory;
 
 public class Boot {
+  private static final Logger rootLogger = (Logger) LoggerFactory.getLogger("root");
 
   public static void main(String[] args) {
+    // Set configuration level
+    String logLevel = System.getProperty("TASKS_LOG_LEVEL");
+    rootLogger.setLevel(logLevel == null ? Level.INFO : Level.toLevel(logLevel));
+
     Injector injector = Guice.createInjector(new TasksModule());
 
     try {

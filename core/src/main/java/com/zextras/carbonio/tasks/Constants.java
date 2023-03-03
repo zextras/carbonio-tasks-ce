@@ -17,8 +17,8 @@ public final class Constants {
       private API() {}
 
       public static final class Endpoints {
-        public static final String GRAPHQL = "/graphql/";
-        public static final String REST = "/rest/";
+        public static final String GRAPHQL = "/graphql";
+        public static final String REST = "/rest";
 
         private Endpoints() {}
       }

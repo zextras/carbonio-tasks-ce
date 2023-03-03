@@ -35,6 +35,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>guice</artifactId>
     </dependency>
 
+    <!-- Logger -->
+    <dependency>
+      <artifactId>logback-classic</artifactId>
+      <groupId>ch.qos.logback</groupId>
+    </dependency>
+
     <!-- GraphQL Java -->
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>

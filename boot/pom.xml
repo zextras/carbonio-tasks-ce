@@ -33,6 +33,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <version>${project.parent.version}</version>
     </dependency>
 
+    <!-- Logger -->
+    <dependency>
+      <artifactId>logback-classic</artifactId>
+      <groupId>ch.qos.logback</groupId>
+    </dependency>
+
     <!-- Jetty dependencies -->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>

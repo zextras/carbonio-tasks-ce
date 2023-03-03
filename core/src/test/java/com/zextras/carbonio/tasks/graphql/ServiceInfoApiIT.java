@@ -60,7 +60,7 @@ public class ServiceInfoApiIT {
     HttpTester.Request request = HttpTester.newRequest();
     request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
-    request.setURI(Endpoints.GRAPHQL);
+    request.setURI("/graphql/");
     request.setContent(TestUtils.queryPayload("query{getServiceInfo{name version}}"));
 
     // When
