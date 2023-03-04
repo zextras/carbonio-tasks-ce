@@ -89,7 +89,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
 

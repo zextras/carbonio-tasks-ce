@@ -33,11 +33,12 @@ SPDX-License-Identifier: AGPL-3.0-only
   </appender>
 
   <root level="WARN">
-    <appender-ref ref="ROLLING" />
-    <appender-ref ref="STDOUT" />
+    <appender-ref ref="ROLLING"/>
+    <appender-ref ref="STDOUT"/>
   </root>
 
-  <logger name="org.testcontainers" level="INFO"/>
-  <logger name="io.ebean" level="INFO"/>
+  <!-- Uncomment for database debugging
+    <logger name="io.ebean" level="INFO"/>
+  -->
 
 </configuration>

@@ -33,12 +33,11 @@ public class HealthApiIT {
 
   @BeforeAll
   static void setup() throws Exception {
-    postgreSQLContainer =
-        (PostgreSQLContainer)
-            new PostgreSQLContainer("postgres:12.14")
-                .withCopyFileToContainer(
-                    MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
-                    "/docker-entrypoint-initdb.d/init.sql");
+    postgreSQLContainer = new PostgreSQLContainer("postgres:12.14");
+    postgreSQLContainer.withCopyFileToContainer(
+        MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
+        "/docker-entrypoint-initdb.d/init.sql");
+
     postgreSQLContainer.start();
 
     server = new Server();
