@@ -6,6 +6,7 @@ package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.Service;
+import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
 import org.eclipse.jetty.server.Handler;
@@ -69,7 +70,7 @@ public class JettyServer {
    */
   private Handler createGraphQLHandler() {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
-    servletContextHandler.setContextPath("/graphql/");
+    servletContextHandler.setContextPath(Endpoints.GRAPHQL);
     ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
 
     servletContextHandler.addServlet(graphQLServletHolder, "/");
@@ -82,7 +83,7 @@ public class JettyServer {
    */
   private Handler createRESTHandler() {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
-    servletContextHandler.setContextPath("/rest/");
+    servletContextHandler.setContextPath(Endpoints.REST);
     ServletHolder servletHolder =
         servletContextHandler.addServlet(HttpServlet30Dispatcher.class, "/*");
     servletHolder.setInitParameter("javax.ws.rs.Application", RestApplication.class.getName());
