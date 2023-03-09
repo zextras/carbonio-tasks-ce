@@ -26,13 +26,13 @@ public class ServiceInfoApiIT {
   private static LocalConnector localConnector;
 
   @BeforeAll
-  static void initClass() throws Exception {
+  static void init() throws Exception {
     simulator = SimulatorBuilder.aSimulator().init().withGraphQlServlet().build().start();
     localConnector = simulator.getHttpLocalConnector();
   }
 
   @AfterAll
-  static void cleanUp() throws Exception {
+  static void cleanUpAll() throws Exception {
     simulator.stopAll();
   }
 

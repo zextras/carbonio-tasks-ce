@@ -2,12 +2,11 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-package com.zextras.carbonio.tasks.dal.dao.repositories.impl;
+package com.zextras.carbonio.tasks.dal.repositories.impl;
 
 import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
-import com.zextras.carbonio.tasks.dal.repositories.impl.DbInfoRepositoryEbean;
 import io.ebean.Database;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -21,7 +20,7 @@ public class DbInfoRepositoryEbeanTest {
   private DbInfoRepository dbInfoRepository;
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     ebeanDatabaseMock = Mockito.mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
     DatabaseConnectionManager connectionManagerMock = Mockito.mock(DatabaseConnectionManager.class);
     Mockito.when(connectionManagerMock.getEbeanDatabase()).thenReturn(ebeanDatabaseMock);

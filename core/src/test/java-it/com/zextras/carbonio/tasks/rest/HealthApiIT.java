@@ -26,7 +26,7 @@ public class HealthApiIT {
   private static LocalConnector localConnector;
 
   @BeforeAll
-  static void setup() {
+  static void init() {
     simulator =
         SimulatorBuilder.aSimulator()
             .init()
@@ -40,7 +40,7 @@ public class HealthApiIT {
   }
 
   @AfterAll
-  static void stop() {
+  static void cleanUpAll() {
     simulator.stopAll();
   }
 

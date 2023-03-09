@@ -35,12 +35,12 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     serviceDiscoverMock.reset();
   }
 
   @AfterAll
-  static void cleanUp() {
+  static void cleanUpAll() {
     serviceDiscoverMock.stop();
     clientAndServer.stop();
   }

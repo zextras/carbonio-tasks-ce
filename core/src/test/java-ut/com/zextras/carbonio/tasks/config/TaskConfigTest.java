@@ -34,12 +34,12 @@ public class TaskConfigTest {
   }
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     serviceDiscoverMock.reset();
   }
 
   @AfterAll
-  static void cleanUp() {
+  static void cleanUpAll() {
     clientAndServer.stop();
   }
 
