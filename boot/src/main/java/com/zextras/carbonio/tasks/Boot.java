@@ -9,6 +9,7 @@ import ch.qos.logback.classic.Logger;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.zextras.carbonio.tasks.config.TasksModule;
+import com.zextras.carbonio.tasks.dal.DatabaseInitializer;
 import org.slf4j.LoggerFactory;
 
 public class Boot {
@@ -22,6 +23,7 @@ public class Boot {
     Injector injector = Guice.createInjector(new TasksModule());
 
     try {
+      injector.getInstance(DatabaseInitializer.class).initialize();
       injector.getInstance(JettyServer.class).start();
     } catch (Exception exception) {
       System.out.println("Service stopped unexpectedly: " + exception.getMessage());

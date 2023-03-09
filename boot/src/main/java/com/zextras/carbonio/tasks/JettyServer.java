@@ -51,7 +51,7 @@ public class JettyServer {
       }
       // Create a ContextHandlerCollection to hold multiple context handlers.
       ContextHandlerCollection contextCollection = new ContextHandlerCollection();
-      contextCollection.addHandler(createGraphQLHandler());
+      contextCollection.addHandler(createGraphQLHandler(graphQLServlet));
       contextCollection.addHandler(createRESTHandler());
       server.setHandler(contextCollection);
 
@@ -68,7 +68,7 @@ public class JettyServer {
   /**
    * @return an {@link ServletContextHandler} associated to a {@link GraphQLServlet} instance.
    */
-  private Handler createGraphQLHandler() {
+  private Handler createGraphQLHandler(GraphQLServlet graphQLServlet) {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
     servletContextHandler.setContextPath(Endpoints.GRAPHQL);
     ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);

@@ -4,7 +4,8 @@
 
 package com.zextras.carbonio.tasks.rest;
 
-import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
+import com.zextras.carbonio.tasks.Simulator;
+import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
@@ -12,52 +13,35 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.http.HttpTester.Response;
 import org.eclipse.jetty.server.LocalConnector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.MountableFile;
 
 @Testcontainers
 public class HealthApiIT {
 
-  private static Server server;
+  private static Simulator simulator;
   private static LocalConnector localConnector;
-  private static PostgreSQLContainer postgreSQLContainer;
 
   @BeforeAll
-  static void setup() throws Exception {
-    postgreSQLContainer = new PostgreSQLContainer("postgres:12.14");
-    postgreSQLContainer.withCopyFileToContainer(
-        MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
-        "/docker-entrypoint-initdb.d/init.sql");
+  static void setup() {
+    simulator =
+        SimulatorBuilder.aSimulator()
+            .init()
+            .withDatabase()
+            .withServiceDiscover()
+            .withRestServlet()
+            .build()
+            .start();
 
-    postgreSQLContainer.start();
-
-    server = new Server();
-    localConnector = new LocalConnector(server);
-    server.addConnector(localConnector);
-
-    ServletContextHandler servletContextHandler = new ServletContextHandler();
-    servletContextHandler.setContextPath(Endpoints.REST);
-    ServletHolder servletHolder =
-        servletContextHandler.addServlet(HttpServlet30Dispatcher.class, "/*");
-    servletHolder.setInitParameter("javax.ws.rs.Application", RestApplication.class.getName());
-
-    server.setHandler(servletContextHandler);
-    server.start();
+    localConnector = simulator.getHttpLocalConnector();
   }
 
   @AfterAll
-  static void stop() throws Exception {
-    server.stop();
-    postgreSQLContainer.stop();
+  static void stop() {
+    simulator.stopAll();
   }
 
   @Test
@@ -74,7 +58,6 @@ public class HealthApiIT {
 
     // Then
     Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
-
     Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
   }
 
@@ -92,7 +75,6 @@ public class HealthApiIT {
 
     // Then
     Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
-
     Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
   }
 
@@ -112,7 +94,6 @@ public class HealthApiIT {
 
     // Then
     Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
-
     Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
   }
 }
