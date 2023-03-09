@@ -56,11 +56,26 @@ public final class Constants {
     public static final class Tables {
 
       public static final String DB_INFO = "db_info";
+      public static final String TASK = "task";
 
       public static final class DbInfo {
         public static final String VERSION = "version";
 
         private DbInfo() {}
+      }
+
+      public static final class Task {
+        public static final String ID = "id";
+        public static final String USER_ID = "user_id";
+        public static final String TITLE = "title";
+        public static final String DESCRIPTION = "description";
+        public static final String PRIORITY = "priority";
+        public static final String STATUS = "status";
+        public static final String CREATED_AT = "created_at";
+        public static final String REMINDER_AT = "reminder_at";
+        public static final String REMINDER_ALL_DAY = "reminder_all_day";
+
+        private Task() {}
       }
 
       private Tables() {}
