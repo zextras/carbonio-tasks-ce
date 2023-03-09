@@ -31,7 +31,7 @@ import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
 import org.testcontainers.utility.MountableFile;
 
 @Testcontainers
-public class Simulator {
+public class Simulator implements AutoCloseable {
 
   private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
 
@@ -62,7 +62,7 @@ public class Simulator {
     postgreSQLContainer.start();
 
     // Set the System.properties for the dynamic database url and port
-    System.setProperty(Properties.DATABASE_URL, "localhost");
+    System.setProperty(Properties.DATABASE_URL, postgreSQLContainer.getHost());
     System.setProperty(
         Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
@@ -259,6 +259,11 @@ public class Simulator {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void close() {
+    stopAll();
   }
 
   public static class SimulatorBuilder {

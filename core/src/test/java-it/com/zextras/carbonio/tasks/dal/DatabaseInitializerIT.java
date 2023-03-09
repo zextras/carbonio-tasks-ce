@@ -17,25 +17,26 @@ public class DatabaseInitializerIT {
   @Test
   public void givenAReachableDatabaseTheDatabaseShouldBeCorrectlyInitialized() {
     // Given
-    Simulator simulator =
-        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().build().start();
+    try (Simulator simulator =
+        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().build().start()) {
 
-    Injector injector = simulator.getInjector();
+      Injector injector = simulator.getInjector();
 
-    DatabaseInitializer databaseInitializer = injector.getInstance(DatabaseInitializer.class);
-    DatabaseConnectionManager databaseConnectionManager =
-        injector.getInstance(DatabaseConnectionManager.class);
+      DatabaseInitializer databaseInitializer = injector.getInstance(DatabaseInitializer.class);
+      DatabaseConnectionManager databaseConnectionManager =
+          injector.getInstance(DatabaseConnectionManager.class);
 
-    // When
-    databaseInitializer.initialize();
+      // When
+      databaseInitializer.initialize();
 
-    // Then
-    Optional<DbInfo> optDbInfo =
-        databaseConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty();
+      // Then
+      Optional<DbInfo> optDbInfo =
+          databaseConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty();
 
-    Assertions.assertThat(optDbInfo).isPresent();
-    Assertions.assertThat(optDbInfo.get().getVersion()).isEqualTo(1);
+      Assertions.assertThat(optDbInfo).isPresent();
+      Assertions.assertThat(optDbInfo.get().getVersion()).isEqualTo(1);
 
-    simulator.stopAll();
+      simulator.stopAll();
+    }
   }
 }
