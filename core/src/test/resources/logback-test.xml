@@ -20,4 +20,5 @@ SPDX-License-Identifier: AGPL-3.0-only
   <logger name="org.testcontainers" level="INFO"/>
   <logger name="com.github.dockerjava" level="WARN"/>
   <logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.wire" level="OFF"/>
+  <logger name="org.mockserver.log.MockServerEventLog" level="WARN"/>
 </configuration>

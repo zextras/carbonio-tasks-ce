@@ -23,4 +23,6 @@ CREATE INDEX IF NOT EXISTS task_table_index_id ON task (id);
 CREATE INDEX IF NOT EXISTS task_table_index_user_id ON task (user_id);
 CREATE INDEX IF NOT EXISTS task_table_index_status ON task (status);
 
+INSERT INTO db_info VALUES (1) ON CONFLICT DO NOTHING;
+
 COMMIT;

@@ -36,14 +36,11 @@ pipeline {
         }
         stage('Build jar') {
             steps {
-                sh 'mvn -B --settings settings-jenkins.xml -DskipTests clean package'
+                sh 'mvn -B --settings settings-jenkins.xml clean package'
                 sh 'cp boot/target/carbonio-tasks-ce-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
             }
         }
         stage("Tests") {
-            when {
-              changeRequest()
-            }
             parallel {
                 stage("UTs") {
                     steps {

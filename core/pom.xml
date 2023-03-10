@@ -53,6 +53,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>resteasy-core</artifactId>
     </dependency>
 
+    <!-- HTTP client -->
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+    </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -124,11 +130,73 @@ SPDX-License-Identifier: AGPL-3.0-only
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty-no-dependencies</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-client-java-no-dependencies</artifactId>
+    </dependency>
+
+    <!-- Database -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-postgres</artifactId>
+    </dependency>
 
   </dependencies>
 
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>io.repaint.maven</groupId>
+        <artifactId>tiles-maven-plugin</artifactId>
+        <version>${tiles-maven.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <tiles>
+              <tile>io.ebean.tile:enhancement:${ebean.version}</tile>
+            </tiles>
+        </configuration>
+      </plugin>
+
+      <!--
+      Necessary to allow multiple source directories for tests. In this project there are
+      two different test sources: one for the integration and one for the unit tests
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven.version}</version>
+        <executions>
+          <execution>
+            <id>add-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/test/java-it</source>
+                <source>src/test/java-ut</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
