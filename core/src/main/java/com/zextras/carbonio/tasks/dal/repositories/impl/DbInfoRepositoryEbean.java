@@ -11,16 +11,16 @@ import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
 
 public class DbInfoRepositoryEbean implements DbInfoRepository {
 
-  private final DatabaseConnectionManager connectionManager;
+  private final DatabaseConnectionManager dbConnectionManager;
 
   @Inject
-  public DbInfoRepositoryEbean(DatabaseConnectionManager connectionManager) {
-    this.connectionManager = connectionManager;
+  public DbInfoRepositoryEbean(DatabaseConnectionManager dbConnectionManager) {
+    this.dbConnectionManager = dbConnectionManager;
   }
 
   @Override
   public int getDatabaseVersion() {
-    return connectionManager
+    return dbConnectionManager
         .getEbeanDatabase()
         .find(DbInfo.class)
         .findOneOrEmpty()
@@ -30,6 +30,6 @@ public class DbInfoRepositoryEbean implements DbInfoRepository {
 
   @Override
   public boolean isDatabaseInitialized() {
-    return connectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty().isPresent();
+    return dbConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty().isPresent();
   }
 }

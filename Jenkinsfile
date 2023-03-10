@@ -40,18 +40,14 @@ pipeline {
                 sh 'cp boot/target/carbonio-tasks-ce-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
             }
         }
-        stage("Tests") {
-            parallel {
-                stage("UTs") {
-                    steps {
-                        sh 'mvn -B --settings settings-jenkins.xml verify -P run-unit-tests'
-                    }
-                }
-                stage("ITs") {
-                    steps {
-                        sh 'mvn -B --settings settings-jenkins.xml verify -P run-integration-tests'
-                    }
-                }
+        stage("Unit tests") {
+            steps {
+                sh 'mvn -B --settings settings-jenkins.xml verify -P run-unit-tests'
+            }
+        }
+        stage("Integration tests") {
+            steps {
+                sh 'mvn -B --settings settings-jenkins.xml verify -P run-integration-tests'
             }
         }
         stage('Coverage') {
