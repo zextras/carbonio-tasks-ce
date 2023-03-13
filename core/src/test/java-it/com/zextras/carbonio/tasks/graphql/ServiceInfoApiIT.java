@@ -16,7 +16,6 @@ import org.eclipse.jetty.http.HttpTester.Response;
 import org.eclipse.jetty.server.LocalConnector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -26,17 +25,16 @@ public class ServiceInfoApiIT {
   private static LocalConnector localConnector;
 
   @BeforeAll
-  static void init() throws Exception {
+  static void init() {
     simulator = SimulatorBuilder.aSimulator().init().withGraphQlServlet().build().start();
     localConnector = simulator.getHttpLocalConnector();
   }
 
   @AfterAll
-  static void cleanUpAll() throws Exception {
+  static void cleanUpAll() {
     simulator.stopAll();
   }
 
-  @Disabled // until all the schema type are bound to a data fetcher
   @Test
   public void givenGetProjectInfoQueryTheServiceShouldReturn200WithTheProjectInformation()
       throws Exception {
@@ -45,7 +43,7 @@ public class ServiceInfoApiIT {
     request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
-    request.setContent(TestUtils.queryPayload("query{getServiceInfo{name version}}"));
+    request.setContent(TestUtils.queryPayload("query{getServiceInfo{name version flavour}}"));
 
     // When
     Response response =
@@ -55,7 +53,11 @@ public class ServiceInfoApiIT {
     Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
     JSONAssert.assertEquals(
-        "{\"data\":{\"getServiceInfo\":{\"name\":\"carbonio-tasks-ce\",\"version\":\"0.0.1\"}}}",
+        "{\"data\":{\"getServiceInfo\":{"
+            + "\"name\":\"carbonio-tasks\","
+            + "\"version\":\"0.0.1\","
+            + "\"flavour\":\"community edition\""
+            + "}}}",
         response.getContent(),
         false);
   }

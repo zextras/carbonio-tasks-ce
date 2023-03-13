@@ -4,46 +4,42 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
-import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
-
+import com.google.inject.Inject;
+import graphql.kickstart.execution.GraphQLQueryInvoker;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;
-import graphql.schema.StaticDataFetcher;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.schema.idl.SchemaGenerator;
-import graphql.schema.idl.SchemaParser;
-import graphql.schema.idl.TypeDefinitionRegistry;
-import graphql.schema.idl.TypeRuntimeWiring;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
-/** This class is only a placeholder to start the servlet correctly */
+/**
+ * Represents a {@link javax.servlet.http.HttpServlet} for the GraphQL endpoint with a configuration
+ * containing:
+ *
+ * <ul>
+ *   <li>The GraphQL SDL schema loaded from resources
+ *   <li>The Wiring to bind the queries and mutations to the related data-fetchers
+ *   <li>An instrumentation necessary for the input validation
+ * </ul>
+ */
 public class GraphQLServlet extends GraphQLHttpServlet {
 
+  private final GraphQLProvider graphQLProvider;
+
+  @Inject
+  public GraphQLServlet(GraphQLProvider graphQLProvider) {
+    this.graphQLProvider = graphQLProvider;
+  }
+
   /**
-   * @return a <bold>WIP</bold> {@link GraphQLConfiguration} containing a {@link graphql.GraphQL}
-   *     instance necessary to handle the http requests.
+   * @return a {@link GraphQLConfiguration} containing a {@link graphql.schema.GraphQLSchema} and a
+   *     {@link graphql.execution.instrumentation.fieldvalidation.FieldValidationInstrumentation}
+   *     necessary to handle http requests.
    */
   @Override
   protected GraphQLConfiguration getConfiguration() {
-    InputStream schema = getClass().getResourceAsStream("/api/schema.graphql");
-    SchemaParser schemaParser = new SchemaParser();
-    TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
-
-    Map<String, Object> projectInfo = new HashMap<>();
-    projectInfo.put("name", "carbonio-tasks-ce");
-    projectInfo.put("version", "0.0.1");
-    RuntimeWiring runtimeWiring =
-        newRuntimeWiring()
-            .type(
-                TypeRuntimeWiring.newTypeWiring("Query")
-                    .dataFetcher("getServiceInfo", new StaticDataFetcher(projectInfo)))
+    GraphQLQueryInvoker queryInvoker =
+        GraphQLQueryInvoker.newBuilder()
+            .withInstrumentation(graphQLProvider.buildValidationInstrumentation())
             .build();
 
-    SchemaGenerator schemaGenerator = new SchemaGenerator();
-    return GraphQLConfiguration.with(
-            schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring))
-        .build();
+    return GraphQLConfiguration.with(graphQLProvider.buildSchema()).with(queryInvoker).build();
   }
 }

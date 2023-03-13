@@ -160,7 +160,8 @@ public class Simulator implements AutoCloseable {
   public Simulator createGraphQlServlet() {
     graphQlServletContextHandler = new ServletContextHandler();
     graphQlServletContextHandler.setContextPath(Endpoints.GRAPHQL);
-    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", new GraphQLServlet());
+    GraphQLServlet graphQLServlet = injector.getInstance(GraphQLServlet.class);
+    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
     graphQlServletContextHandler.addServlet(graphQLServletHolder, "/");
 
     return this;

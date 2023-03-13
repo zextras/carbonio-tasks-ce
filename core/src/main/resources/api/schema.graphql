@@ -21,6 +21,7 @@ enum Status {
 type ServiceInfo {
     name: String!
     version: String!
+    flavour: String!
 }
 
 type Config {

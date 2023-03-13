@@ -143,9 +143,7 @@ public class TaskConfigTest {
 
   @Test
   public void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
-    // Given
-
-    // When
+    // Given & When
     String databaseName = new TasksConfig().getDatabaseName();
 
     // Then
@@ -164,7 +162,7 @@ public class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     List<Class<?>> entityClasses = databaseConfig.getClasses();
-    Assertions.assertThat(entityClasses.size()).isEqualTo(1);
+    Assertions.assertThat(entityClasses.size()).isEqualTo(2);
     Assertions.assertThat(entityClasses).contains(DbInfo.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
@@ -210,7 +208,7 @@ public class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     List<Class<?>> entityClasses = databaseConfig.getClasses();
-    Assertions.assertThat(entityClasses.size()).isEqualTo(1);
+    Assertions.assertThat(entityClasses.size()).isEqualTo(2);
     Assertions.assertThat(entityClasses).contains(DbInfo.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);

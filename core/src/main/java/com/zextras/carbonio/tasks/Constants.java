@@ -12,6 +12,8 @@ public final class Constants {
     public static final String IP = "127.78.0.16";
     public static final int PORT = 10_000;
     public static final String SERVICE_NAME = "carbonio-tasks";
+    public static final String VERSION = "0.0.1";
+    public static final String FLAVOUR = "community edition";
 
     private Service() {}
 
@@ -101,5 +103,34 @@ public final class Constants {
     }
 
     private ServiceDiscover() {}
+  }
+
+  public static final class GraphQL {
+
+    public static final class Types {
+
+      public static final String PRIORITY = "Priority";
+      public static final String STATUS = "Status";
+
+      private Types() {}
+    }
+
+    public static final class ServiceInfo {
+
+      public static final String NAME = "name";
+      public static final String VERSION = "version";
+      public static final String FLAVOUR = "flavour";
+
+      private ServiceInfo() {}
+    }
+
+    public static final class Queries {
+
+      public static final String GET_SERVICE_INFO = "getServiceInfo";
+
+      private Queries() {}
+    }
+
+    private GraphQL() {}
   }
 }
