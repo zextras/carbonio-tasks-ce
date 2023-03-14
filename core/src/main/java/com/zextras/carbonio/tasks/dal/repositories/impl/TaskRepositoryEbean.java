@@ -11,6 +11,7 @@ import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
+import io.ebean.ExpressionList;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -55,13 +56,22 @@ public class TaskRepositoryEbean implements TaskRepository {
   }
 
   @Override
-  public List<Task> getOpenTasks(String userId) {
-    return dbConnectionManager
-        .getEbeanDatabase()
-        .find(Task.class)
-        .where()
-        .eq(Tables.Task.USER_ID, userId)
-        .eq(Tables.Task.STATUS, Status.OPEN)
-        .findList();
+  public List<Task> getTasks(String userId, @Nullable Priority priority, @Nullable Status status) {
+    ExpressionList<Task> query =
+        dbConnectionManager
+            .getEbeanDatabase()
+            .find(Task.class)
+            .where()
+            .eq(Tables.Task.USER_ID, userId);
+
+    if (priority != null) {
+      query.eq(Tables.Task.PRIORITY, priority);
+    }
+
+    if (status != null) {
+      query.eq(Tables.Task.STATUS, status);
+    }
+
+    return query.order().desc(Tables.Task.CREATED_AT).findList();
   }
 }

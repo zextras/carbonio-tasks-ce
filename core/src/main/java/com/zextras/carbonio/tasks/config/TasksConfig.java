@@ -11,6 +11,7 @@ import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
+import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,7 @@ public class TasksConfig {
   public DatabaseConfig getEbeanDatabaseConfig() {
     List<Class<?>> entityList = new ArrayList<>();
     entityList.add(DbInfo.class);
+    entityList.add(Task.class);
 
     DatabaseConfig databaseConfig = new DatabaseConfig();
     databaseConfig.setName("carbonio-tasks-postgres");

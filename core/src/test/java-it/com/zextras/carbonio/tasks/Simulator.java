@@ -12,6 +12,7 @@ import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
+import java.sql.SQLException;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -160,7 +161,8 @@ public class Simulator implements AutoCloseable {
   public Simulator createGraphQlServlet() {
     graphQlServletContextHandler = new ServletContextHandler();
     graphQlServletContextHandler.setContextPath(Endpoints.GRAPHQL);
-    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", new GraphQLServlet());
+    GraphQLServlet graphQLServlet = injector.getInstance(GraphQLServlet.class);
+    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
     graphQlServletContextHandler.addServlet(graphQLServletHolder, "/");
 
     return this;
@@ -257,6 +259,15 @@ public class Simulator implements AutoCloseable {
       jettyServer.setHandler(contextHandlerCollection);
       jettyServer.start();
     } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void resetDatabase() {
+    try {
+      postgreSQLContainer.createConnection("").createStatement().execute("DELETE FROM task;");
+    } catch (SQLException e) {
+      logger.error("Unable to delete all the records in the Task database table");
       throw new RuntimeException(e);
     }
   }
