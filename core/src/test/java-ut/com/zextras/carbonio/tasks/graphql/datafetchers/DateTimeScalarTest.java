@@ -43,6 +43,19 @@ public class DateTimeScalarTest {
   }
 
   @Test
+  public void givenAALongTheSerializeShouldReturnASerializedLong() {
+    // Given
+    DateTimeScalar dateTimeScalar = new DateTimeScalar();
+    Long inputValue = 333L;
+
+    // When
+    Long serialize = dateTimeScalar.serialize(inputValue);
+
+    // Then
+    Assertions.assertThat(serialize).isEqualTo(333L);
+  }
+
+  @Test
   public void givenAStringOfALongTheSerializeShouldReturnASerializedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();

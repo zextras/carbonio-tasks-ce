@@ -30,6 +30,10 @@ public class DateTimeScalar implements Coercing<Long, Long> {
 
   @Override
   public Long serialize(Object input) {
+    if (input instanceof Long) {
+      return (Long) input;
+    }
+
     if (input instanceof String) {
       try {
         return Long.valueOf(((String) input));
