@@ -14,6 +14,7 @@ import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.graphql.datafetchers.DateTimeScalar;
 import com.zextras.carbonio.tasks.graphql.datafetchers.ServiceInfoDataFetcher;
+import com.zextras.carbonio.tasks.graphql.datafetchers.TaskDataFetchers;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidation;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidationInstrumentation;
 import graphql.execution.instrumentation.fieldvalidation.SimpleFieldValidation;
@@ -43,10 +44,13 @@ public class GraphQLProvider {
   private static final String schemaURL = "/api/schema.graphql";
 
   private final ServiceInfoDataFetcher serviceInfoDataFetcher;
+  private final TaskDataFetchers taskDataFetchers;
 
   @Inject
-  public GraphQLProvider(ServiceInfoDataFetcher serviceInfoDataFetcher) {
+  public GraphQLProvider(
+      ServiceInfoDataFetcher serviceInfoDataFetcher, TaskDataFetchers taskDataFetchers) {
     this.serviceInfoDataFetcher = serviceInfoDataFetcher;
+    this.taskDataFetchers = taskDataFetchers;
   }
 
   /**
@@ -82,7 +86,10 @@ public class GraphQLProvider {
         .scalar(new DateTimeScalar().graphQLScalarType())
         .type(newTypeWiring(Types.PRIORITY).enumValues(Priority::valueOf))
         .type(newTypeWiring(Types.STATUS).enumValues(Status::valueOf))
-        .type(newTypeWiring("Query").dataFetcher(Queries.GET_SERVICE_INFO, serviceInfoDataFetcher))
+        .type(
+            newTypeWiring("Query")
+                .dataFetcher(Queries.GET_SERVICE_INFO, serviceInfoDataFetcher)
+                .dataFetcher(Queries.FIND_TASKS, taskDataFetchers.findTasks()))
         .build();
   }
 
