@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TestUtils {
 
@@ -23,16 +24,21 @@ public class TestUtils {
 
   @SuppressWarnings("unchecked")
   public static Map<String, Object> jsonResponseToMap(String json, String operation) {
-    Map<String, Object> result = new ObjectMapper().convertValue(json, HashMap.class);
+    try {
+      Map<String, Object> result = new ObjectMapper().readValue(json, HashMap.class);
 
-    if (result.get("data") != null) {
-      Map<String, Object> data = (Map<String, Object>) result.get("data");
+      if (result.get("data") != null) {
+        Map<String, Object> data = (Map<String, Object>) result.get("data");
 
-      if (data.get(operation) != null) {
-        return (Map<String, Object>) data.get(operation);
+        if (data.get(operation) != null) {
+          return (Map<String, Object>) data.get(operation);
+        }
       }
+      return Collections.emptyMap();
+
+    } catch (JsonProcessingException exception) {
+      return Collections.emptyMap();
     }
-    return Collections.emptyMap();
   }
 
   @SuppressWarnings("unchecked")
@@ -48,8 +54,26 @@ public class TestUtils {
         }
       }
       return Collections.emptyList();
+
     } catch (JsonProcessingException exception) {
       return Collections.emptyList();
     }
+  }
+
+  public static List<String> jsonResponseToErrors(String json) {
+    try {
+      Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
+
+      if (result.get("errors") != null) {
+        List<Map<String, Object>> errors = (List<Map<String, Object>>) result.get("errors");
+
+        return errors.stream()
+            .map(error -> (String) error.get("message"))
+            .collect(Collectors.toList());
+      }
+    } catch (JsonProcessingException exception) {
+      return Collections.emptyList();
+    }
+    return Collections.emptyList();
   }
 }

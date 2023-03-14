@@ -140,8 +140,23 @@ public final class Constants {
 
     public static final class Inputs {
 
+      public static final int TITLE_MAX_LENGTH = 1024;
+      public static final int DESCRIPTION_MAX_LENGTH = 4096;
       public static final String PRIORITY = "priority";
       public static final String STATUS = "status";
+      public static final String NEW_TASK = "newTask";
+
+      public static final class NewTaskInput {
+
+        public static final String TITLE = Task.TITLE;
+        public static final String DESCRIPTION = Task.DESCRIPTION;
+        public static final String PRIORITY = Task.PRIORITY;
+        public static final String STATUS = Task.STATUS;
+        public static final String REMINDER_AT = Task.REMINDER_AT;
+        public static final String REMINDER_ALL_DAY = Task.REMINDER_ALL_DAY;
+
+        private NewTaskInput() {}
+      }
 
       private Inputs() {}
     }
@@ -152,6 +167,13 @@ public final class Constants {
       public static final String FIND_TASKS = "findTasks";
 
       private Queries() {}
+    }
+
+    public static final class Mutations {
+
+      public static final String CREATE_TASK = "createTask";
+
+      private Mutations() {}
     }
 
     private GraphQL() {}
