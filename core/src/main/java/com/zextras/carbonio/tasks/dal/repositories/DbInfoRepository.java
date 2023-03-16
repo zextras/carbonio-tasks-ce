@@ -4,9 +4,17 @@
 
 package com.zextras.carbonio.tasks.dal.repositories;
 
+import com.zextras.carbonio.tasks.Constants.Database.Tables;
+
 public interface DbInfoRepository {
 
+  /**
+   * @return an <code>int</code> representing the current version of the database.
+   */
   int getDatabaseVersion();
 
+  /**
+   * @return true if the database has the {@link Tables#DB_INFO} table, false otherwise.
+   */
   boolean isDatabaseInitialized();
 }

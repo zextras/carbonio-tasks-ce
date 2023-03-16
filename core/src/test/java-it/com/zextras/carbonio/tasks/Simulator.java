@@ -79,7 +79,7 @@ public class Simulator implements AutoCloseable {
     String dbUsername;
     String dbPassword;
 
-    if (postgreSQLContainer.isRunning()) {
+    if (postgreSQLContainer != null && postgreSQLContainer.isRunning()) {
       dbName = postgreSQLContainer.getDatabaseName();
       dbUsername = postgreSQLContainer.getUsername();
       dbPassword = postgreSQLContainer.getPassword();
@@ -90,7 +90,7 @@ public class Simulator implements AutoCloseable {
 
       dbName = Database.NAME;
       dbUsername = Database.USERNAME;
-      dbPassword = "";
+      dbPassword = Database.PASSWORD_TEST;
     }
 
     String encodedDbName = new String(Base64.encode(dbName.getBytes()));

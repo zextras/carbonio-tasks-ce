@@ -5,6 +5,7 @@
 package com.zextras.carbonio.tasks.dal.repositories.impl;
 
 import com.google.inject.Inject;
+import com.zextras.carbonio.tasks.Constants.Database.Tables;
 import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
@@ -30,6 +31,13 @@ public class DbInfoRepositoryEbean implements DbInfoRepository {
 
   @Override
   public boolean isDatabaseInitialized() {
-    return dbConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty().isPresent();
+    return dbConnectionManager
+        .getEbeanDatabase()
+        .sqlQuery(
+            String.format(
+                "SELECT 1 FROM information_schema.tables where table_name = '%s';",
+                Tables.DB_INFO.toLowerCase()))
+        .findOneOrEmpty()
+        .isPresent();
   }
 }

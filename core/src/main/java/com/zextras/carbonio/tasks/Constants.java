@@ -44,6 +44,8 @@ public final class Constants {
       public static final String PORT = "20000";
       public static final String NAME = "carbonio-tasks-db";
       public static final String USERNAME = "carbonio-tasks-db";
+      // Use this constant only for testing purpose
+      public static final String PASSWORD_TEST = "test";
 
       private Database() {}
     }
