@@ -8,6 +8,7 @@ import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Mutations;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Queries;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Types;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
@@ -15,6 +16,8 @@ import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.graphql.datafetchers.DateTimeScalar;
 import com.zextras.carbonio.tasks.graphql.datafetchers.ServiceInfoDataFetcher;
 import com.zextras.carbonio.tasks.graphql.datafetchers.TaskDataFetchers;
+import com.zextras.carbonio.tasks.graphql.validators.InputFieldsValidator;
+import graphql.execution.ResultPath;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidation;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidationInstrumentation;
 import graphql.execution.instrumentation.fieldvalidation.SimpleFieldValidation;
@@ -45,12 +48,16 @@ public class GraphQLProvider {
 
   private final ServiceInfoDataFetcher serviceInfoDataFetcher;
   private final TaskDataFetchers taskDataFetchers;
+  private final InputFieldsValidator inputFieldsValidator;
 
   @Inject
   public GraphQLProvider(
-      ServiceInfoDataFetcher serviceInfoDataFetcher, TaskDataFetchers taskDataFetchers) {
+      ServiceInfoDataFetcher serviceInfoDataFetcher,
+      TaskDataFetchers taskDataFetchers,
+      InputFieldsValidator inputFieldsValidator) {
     this.serviceInfoDataFetcher = serviceInfoDataFetcher;
     this.taskDataFetchers = taskDataFetchers;
+    this.inputFieldsValidator = inputFieldsValidator;
   }
 
   /**
@@ -58,14 +65,12 @@ public class GraphQLProvider {
    *     specific method necessary to validate their inputs
    */
   public FieldValidationInstrumentation buildValidationInstrumentation() {
-    FieldValidation fieldValidation = new SimpleFieldValidation();
-    /*
-    // TODO: in the near future it will be used for the create/update tasks mutations
-     .addRule(
-         ResultPath.parse("/" + Queries.CREATE_TASKS),
-         inputFieldsController.getTasksValidation())
+    FieldValidation fieldValidation =
+        new SimpleFieldValidation()
+            .addRule(
+                ResultPath.parse("/" + Mutations.CREATE_TASK),
+                inputFieldsValidator.createTaskValidator());
 
-    */
     return new FieldValidationInstrumentation(fieldValidation);
   }
 
@@ -90,6 +95,9 @@ public class GraphQLProvider {
             newTypeWiring("Query")
                 .dataFetcher(Queries.GET_SERVICE_INFO, serviceInfoDataFetcher)
                 .dataFetcher(Queries.FIND_TASKS, taskDataFetchers.findTasks()))
+        .type(
+            newTypeWiring("Mutation")
+                .dataFetcher(Mutations.CREATE_TASK, taskDataFetchers.createTask()))
         .build();
   }
 

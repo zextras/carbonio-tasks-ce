@@ -8,11 +8,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.GraphQL;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.NewTaskInput;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
+import graphql.GraphqlErrorBuilder;
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +29,47 @@ public class TaskDataFetchers {
   @Inject
   public TaskDataFetchers(TaskRepository taskRepository) {
     this.taskRepository = taskRepository;
+  }
+
+  public DataFetcher<CompletableFuture<DataFetcherResult<Map<String, Object>>>> createTask() {
+    return environment ->
+        CompletableFuture.supplyAsync(
+            () -> {
+              String userId = "00000000-0000-0000-0000-000000000000";
+
+              Map<String, Object> newTask = environment.getArgument("newTask");
+
+              Long reminderAt = (Long) newTask.get(NewTaskInput.REMINDER_AT);
+              Boolean reminderAllDay = (Boolean) newTask.get(NewTaskInput.REMINDER_ALL_DAY);
+
+              // The reminder all day flag must not be set if there is no reminder!
+              if (reminderAt == null && reminderAllDay != null) {
+                String errorMessage =
+                    "The reminderAllDay attribute must be set only when the reminderAt is set";
+                return DataFetcherResult.<Map<String, Object>>newResult()
+                    .error(GraphqlErrorBuilder.newError().message(errorMessage).build())
+                    .build();
+              }
+
+              String title = (String) newTask.get(NewTaskInput.TITLE);
+              String description = (String) newTask.get(NewTaskInput.DESCRIPTION);
+              Priority priority = (Priority) newTask.get(NewTaskInput.PRIORITY);
+              Status status = (Status) newTask.get(NewTaskInput.STATUS);
+
+              Task createdTask =
+                  taskRepository.createTask(
+                      userId,
+                      title,
+                      description,
+                      priority == null ? Priority.MEDIUM : priority,
+                      status == null ? Status.OPEN : status,
+                      reminderAt == null ? null : Instant.ofEpochMilli(reminderAt),
+                      reminderAllDay);
+
+              return DataFetcherResult.<Map<String, Object>>newResult()
+                  .data(convertTaskToMap(createdTask))
+                  .build();
+            });
   }
 
   public DataFetcher<CompletableFuture<List<Map<String, Object>>>> findTasks() {
@@ -56,7 +101,7 @@ public class TaskDataFetchers {
     task.getReminderAt()
         .ifPresent(
             reminderAt -> {
-              taskMapBuilder.put(GraphQL.Task.REMINDER_AT, reminderAt);
+              taskMapBuilder.put(GraphQL.Task.REMINDER_AT, reminderAt.toEpochMilli());
               taskMapBuilder.put(GraphQL.Task.REMINDER_ALL_DAY, task.getReminderAllDay());
             });
 
