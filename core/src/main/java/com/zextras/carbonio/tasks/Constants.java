@@ -144,6 +144,7 @@ public final class Constants {
       public static final int DESCRIPTION_MAX_LENGTH = 4096;
       public static final String PRIORITY = "priority";
       public static final String STATUS = "status";
+      public static final String TASK_ID = "taskId";
       public static final String NEW_TASK = "newTask";
 
       public static final class NewTaskInput {
@@ -164,6 +165,7 @@ public final class Constants {
     public static final class Queries {
 
       public static final String GET_SERVICE_INFO = "getServiceInfo";
+      public static final String GET_TASK = "getTask";
       public static final String FIND_TASKS = "findTasks";
 
       private Queries() {}

@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -247,5 +248,70 @@ public class TaskRepositoryEbeanTest {
 
     // Then
     Assertions.assertThat(openTasks.size()).isEqualTo(1);
+  }
+
+  @Test
+  public void givenATaskIdAndAUserIdTheGetTaskShouldReturnTheRequestedTask() {
+    // Given
+    Mockito.when(
+            ebeanDatabaseMock
+                .find(Task.class)
+                .where()
+                .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
+                .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(Task.class)));
+
+    // When
+    Optional<Task> optTask =
+        taskRepository.getTask(
+            UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"),
+            "6d162bee-3186-1111-bf31-59746a41600e");
+
+    // Then
+    Assertions.assertThat(optTask).isPresent();
+  }
+
+  @Test
+  public void givenANotExistingTaskIdTheGetTaskShouldReturnAnOptionalEmpty() {
+    // Given
+    Mockito.when(
+            ebeanDatabaseMock
+                .find(Task.class)
+                .where()
+                .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
+                .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(Task.class)));
+
+    // When
+    Optional<Task> optTask =
+        taskRepository.getTask(
+            UUID.fromString("00000000-3186-0000-bf31-59746a41600e"),
+            "6d162bee-3186-1111-bf31-59746a41600e");
+
+    // Then
+    Assertions.assertThat(optTask).isEmpty();
+  }
+
+  @Test
+  public void givenATaskIdAndADifferentUserIdTheGetTaskShouldReturnAnOptionalEmpty() {
+    // Given
+    Mockito.when(
+            ebeanDatabaseMock
+                .find(Task.class)
+                .where()
+                .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
+                .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(Task.class)));
+
+    // When
+    Optional<Task> optTask =
+        taskRepository.getTask(
+            UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"), "wrong-user-id");
+
+    // Then
+    Assertions.assertThat(optTask).isEmpty();
   }
 }
