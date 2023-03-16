@@ -15,6 +15,7 @@ import io.ebean.ExpressionList;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -53,6 +54,17 @@ public class TaskRepositoryEbean implements TaskRepository {
 
     dbConnectionManager.getEbeanDatabase().insert(newTask);
     return newTask;
+  }
+
+  @Override
+  public Optional<Task> getTask(UUID taskId, String userId) {
+    return dbConnectionManager
+        .getEbeanDatabase()
+        .find(Task.class)
+        .where()
+        .idEq(taskId)
+        .eq(Tables.Task.USER_ID, userId)
+        .findOneOrEmpty();
   }
 
   @Override

@@ -19,6 +19,7 @@ import graphql.schema.DataFetcher;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,29 @@ public class TaskDataFetchers {
               return DataFetcherResult.<Map<String, Object>>newResult()
                   .data(convertTaskToMap(createdTask))
                   .build();
+            });
+  }
+
+  public DataFetcher<CompletableFuture<DataFetcherResult<Map<String, Object>>>> getTask() {
+    return environment ->
+        CompletableFuture.supplyAsync(
+            () -> {
+              String userId = "00000000-0000-0000-0000-000000000000";
+              UUID taskId = UUID.fromString(environment.getArgument(Inputs.TASK_ID));
+              return taskRepository
+                  .getTask(taskId, userId)
+                  .map(
+                      task ->
+                          DataFetcherResult.<Map<String, Object>>newResult()
+                              .data(convertTaskToMap(task))
+                              .build())
+                  .orElse(
+                      DataFetcherResult.<Map<String, Object>>newResult()
+                          .error(
+                              GraphqlErrorBuilder.newError()
+                                  .message("Could not find task with id " + taskId)
+                                  .build())
+                          .build());
             });
   }
 

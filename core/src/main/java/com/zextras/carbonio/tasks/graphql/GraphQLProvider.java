@@ -94,6 +94,7 @@ public class GraphQLProvider {
         .type(
             newTypeWiring("Query")
                 .dataFetcher(Queries.GET_SERVICE_INFO, serviceInfoDataFetcher)
+                .dataFetcher(Queries.GET_TASK, taskDataFetchers.getTask())
                 .dataFetcher(Queries.FIND_TASKS, taskDataFetchers.findTasks()))
         .type(
             newTypeWiring("Mutation")

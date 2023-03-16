@@ -9,6 +9,8 @@ import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 /** Represents all the allowed CRUD operations executable on a {@link Task} element. */
@@ -22,6 +24,8 @@ public interface TaskRepository {
       Status status,
       @Nullable Instant reminderAt,
       @Nullable Boolean reminderAllDay);
+
+  Optional<Task> getTask(UUID taskId, String userId);
 
   List<Task> getTasks(String userId, @Nullable Priority priority, @Nullable Status status);
 }
