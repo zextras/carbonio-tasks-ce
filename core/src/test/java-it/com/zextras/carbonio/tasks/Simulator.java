@@ -35,6 +35,7 @@ import org.testcontainers.utility.MountableFile;
 public class Simulator implements AutoCloseable {
 
   private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
+  public static final String DATABASE_PASSWORD = "test-password";
 
   private Injector injector;
   private PostgreSQLContainer<?> postgreSQLContainer;
@@ -90,7 +91,7 @@ public class Simulator implements AutoCloseable {
 
       dbName = Database.NAME;
       dbUsername = Database.USERNAME;
-      dbPassword = Database.PASSWORD_TEST;
+      dbPassword = DATABASE_PASSWORD;
     }
 
     String encodedDbName = new String(Base64.encode(dbName.getBytes()));

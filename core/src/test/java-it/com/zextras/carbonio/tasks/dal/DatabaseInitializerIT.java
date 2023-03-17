@@ -27,13 +27,18 @@ public class DatabaseInitializerIT {
   private PostgreSQLContainer<?> postgreSQLContainer;
   private Simulator simulator;
 
+  /**
+   * The setup does <b>>not</b> use the database created and initialized in the simulator ({@link
+   * SimulatorBuilder#withDatabase()}) because it needs to have an empty database to test the
+   * initialization process.
+   */
   @BeforeEach
   public void setUp() {
     postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
     postgreSQLContainer
         .withDatabaseName(Database.NAME)
         .withUsername(Database.USERNAME)
-        .withPassword("test")
+        .withPassword(Simulator.DATABASE_PASSWORD)
         .start();
 
     // Set the System.properties for the datasource created in TaskConfig
