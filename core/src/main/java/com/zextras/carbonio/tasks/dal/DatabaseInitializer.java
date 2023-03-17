@@ -27,7 +27,6 @@ public class DatabaseInitializer {
   public void initialize() {
     // Pre-condition: having the DatabaseConnectionManager object injected, we are sure that
     // the database already exists and the credentials are working properly.
-    // There is no need to check if the database name is created.
     if (!dbInfoRepository.isDatabaseInitialized()) {
       logger.info("Database not initialized. Proceed to initialize it");
       URL scriptResource = getClass().getClassLoader().getResource("sql/postgresql_1.sql");

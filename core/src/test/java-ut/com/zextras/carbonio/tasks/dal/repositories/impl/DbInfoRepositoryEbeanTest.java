@@ -4,10 +4,12 @@
 
 package com.zextras.carbonio.tasks.dal.repositories.impl;
 
+import com.zextras.carbonio.tasks.Constants.Database.Tables;
 import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
 import io.ebean.Database;
+import io.ebean.SqlRow;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,8 +60,13 @@ public class DbInfoRepositoryEbeanTest {
   @Test
   public void givenAnInitializedDatabaseTheIsDatabaseInitializedShouldReturnTrue() {
     // Given
-    Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
-        .thenReturn(Optional.of(Mockito.mock(DbInfo.class)));
+    String rawSQLQuery =
+        String.format(
+            "SELECT 1 FROM information_schema.tables where table_name = '%s';",
+            Tables.DB_INFO.toLowerCase());
+
+    Mockito.when(ebeanDatabaseMock.sqlQuery(rawSQLQuery).findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(SqlRow.class)));
 
     // When
     boolean isDatabaseInitialized = dbInfoRepository.isDatabaseInitialized();
@@ -71,7 +78,12 @@ public class DbInfoRepositoryEbeanTest {
   @Test
   public void givenADatabaseNotInitializedTheIsDatabaseInitializedShouldReturnFalse() {
     // Given
-    Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
+    String rawSQLQuery =
+        String.format(
+            "SELECT 1 FROM information_schema.tables where table_name = '%s';",
+            Tables.DB_INFO.toLowerCase());
+
+    Mockito.when(ebeanDatabaseMock.sqlQuery(rawSQLQuery).findOneOrEmpty())
         .thenReturn(Optional.empty());
 
     // When
