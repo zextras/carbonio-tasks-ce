@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import graphql.kickstart.execution.GraphQLQueryInvoker;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;
+import java.util.Arrays;
 
 /**
  * Represents a {@link javax.servlet.http.HttpServlet} for the GraphQL endpoint with a configuration
@@ -37,7 +38,10 @@ public class GraphQLServlet extends GraphQLHttpServlet {
   protected GraphQLConfiguration getConfiguration() {
     GraphQLQueryInvoker queryInvoker =
         GraphQLQueryInvoker.newBuilder()
-            .withInstrumentation(graphQLProvider.buildValidationInstrumentation())
+            .with(
+                Arrays.asList(
+                    graphQLProvider.buildValidationInstrumentation(),
+                    graphQLProvider.getContextInstrumentation()))
             .build();
 
     return GraphQLConfiguration.with(graphQLProvider.buildSchema()).with(queryInvoker).build();

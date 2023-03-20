@@ -18,6 +18,7 @@ import org.eclipse.jetty.server.LocalConnector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 public class CreateTaskApiIT {
 
@@ -44,6 +45,10 @@ public class CreateTaskApiIT {
             .init()
             .withDatabase()
             .withServiceDiscover()
+            .withUserManagement(
+                ImmutableMap.<String, String>builder()
+                    .put("fake-user-cookie", "00000000-0000-0000-0000-000000000000")
+                    .build())
             .withGraphQlServlet()
             .build()
             .start();
@@ -60,9 +65,10 @@ public class CreateTaskApiIT {
   public void givenACompleteNewTaskInputTheCreateTaskShouldCreateANewTask() throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "mutation { createTask(newTask: { "
@@ -102,9 +108,10 @@ public class CreateTaskApiIT {
   public void givenOnlyATitleTheCreateTaskShouldCreateANewTask() throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "mutation { createTask(newTask: { "
@@ -137,9 +144,10 @@ public class CreateTaskApiIT {
     // Given
     String longTitle = string1024chars + "a";
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "mutation { createTask(newTask: { " + "title: \\\"" + longTitle + "\\\"" + "}) {id}}"));
@@ -167,9 +175,10 @@ public class CreateTaskApiIT {
     String longDescription =
         string1024chars + string1024chars + string1024chars + string1024chars + "a";
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "mutation { createTask(newTask: { "
@@ -198,9 +207,10 @@ public class CreateTaskApiIT {
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "mutation { createTask(newTask: { "

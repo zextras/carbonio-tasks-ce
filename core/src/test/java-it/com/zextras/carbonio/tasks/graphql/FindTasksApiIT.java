@@ -4,6 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
+import com.google.common.collect.ImmutableMap;
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
 import com.zextras.carbonio.tasks.TestUtils;
@@ -38,6 +39,10 @@ public class FindTasksApiIT {
             .init()
             .withDatabase()
             .withServiceDiscover()
+            .withUserManagement(
+                ImmutableMap.<String, String>builder()
+                    .put("fake-user-cookie", "00000000-0000-0000-0000-000000000000")
+                    .build())
             .withGraphQlServlet()
             .build()
             .start();
@@ -99,9 +104,10 @@ public class FindTasksApiIT {
         null);
 
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{findTasks(status: OPEN){"
@@ -184,9 +190,10 @@ public class FindTasksApiIT {
         null);
 
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{findTasks(priority: LOW){"
@@ -251,9 +258,10 @@ public class FindTasksApiIT {
         null);
 
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{findTasks(status: COMPLETE, priority: HIGH){"
@@ -307,9 +315,10 @@ public class FindTasksApiIT {
         null);
 
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{findTasks(status: COMPLETE, priority: MEDIUM){"

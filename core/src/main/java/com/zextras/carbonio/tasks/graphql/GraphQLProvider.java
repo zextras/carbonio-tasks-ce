@@ -16,8 +16,10 @@ import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.graphql.datafetchers.DateTimeScalar;
 import com.zextras.carbonio.tasks.graphql.datafetchers.ServiceInfoDataFetcher;
 import com.zextras.carbonio.tasks.graphql.datafetchers.TaskDataFetchers;
+import com.zextras.carbonio.tasks.graphql.instrumentations.ContextInstrumentation;
 import com.zextras.carbonio.tasks.graphql.validators.InputFieldsValidator;
 import graphql.execution.ResultPath;
+import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidation;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidationInstrumentation;
 import graphql.execution.instrumentation.fieldvalidation.SimpleFieldValidation;
@@ -46,15 +48,19 @@ public class GraphQLProvider {
 
   private static final String schemaURL = "/api/schema.graphql";
 
+  private final ContextInstrumentation contextInstrumentation;
   private final ServiceInfoDataFetcher serviceInfoDataFetcher;
   private final TaskDataFetchers taskDataFetchers;
   private final InputFieldsValidator inputFieldsValidator;
 
   @Inject
   public GraphQLProvider(
+      ContextInstrumentation contextInstrumentation,
       ServiceInfoDataFetcher serviceInfoDataFetcher,
       TaskDataFetchers taskDataFetchers,
       InputFieldsValidator inputFieldsValidator) {
+
+    this.contextInstrumentation = contextInstrumentation;
     this.serviceInfoDataFetcher = serviceInfoDataFetcher;
     this.taskDataFetchers = taskDataFetchers;
     this.inputFieldsValidator = inputFieldsValidator;
@@ -72,6 +78,10 @@ public class GraphQLProvider {
                 inputFieldsValidator.createTaskValidator());
 
     return new FieldValidationInstrumentation(fieldValidation);
+  }
+
+  public SimpleInstrumentation getContextInstrumentation() {
+    return contextInstrumentation;
   }
 
   /**

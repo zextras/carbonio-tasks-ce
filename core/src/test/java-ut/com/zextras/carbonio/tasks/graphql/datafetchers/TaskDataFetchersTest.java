@@ -8,6 +8,7 @@ import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
+import graphql.GraphQLContext;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import java.time.Instant;
@@ -48,9 +49,14 @@ public class TaskDataFetchersTest {
                 "00000000-0000-0000-0000-000000000000"))
         .thenReturn(Optional.of(requestedTaskMock));
 
+    GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
+    Mockito.when(graphQLContextMock.get("requesterId"))
+        .thenReturn("00000000-0000-0000-0000-000000000000");
+
     DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
     Mockito.when(environmentMock.getArgument("taskId"))
         .thenReturn("6d162bee-3186-0000-bf31-59746a41600e");
+    Mockito.when(environmentMock.getGraphQlContext()).thenReturn(graphQLContextMock);
 
     // When
     DataFetcherResult<Map<String, Object>> dataFetcherResult =
@@ -82,9 +88,14 @@ public class TaskDataFetchersTest {
                 "00000000-0000-0000-0000-000000000000"))
         .thenReturn(Optional.empty());
 
+    GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
+    Mockito.when(graphQLContextMock.get("requesterId"))
+        .thenReturn("00000000-0000-0000-0000-000000000000");
+
     DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
     Mockito.when(environmentMock.getArgument("taskId"))
         .thenReturn("6d162bee-3186-0000-bf31-59746a41600e");
+    Mockito.when(environmentMock.getGraphQlContext()).thenReturn(graphQLContextMock);
 
     // When
     DataFetcherResult<Map<String, Object>> dataFetcherResult =

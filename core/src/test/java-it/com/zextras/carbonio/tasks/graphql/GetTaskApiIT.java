@@ -4,6 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
+import com.google.common.collect.ImmutableMap;
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
 import com.zextras.carbonio.tasks.TestUtils;
@@ -36,6 +37,10 @@ public class GetTaskApiIT {
             .init()
             .withDatabase()
             .withServiceDiscover()
+            .withUserManagement(
+                ImmutableMap.<String, String>builder()
+                    .put("fake-user-cookie", "00000000-0000-0000-0000-000000000000")
+                    .build())
             .withGraphQlServlet()
             .build()
             .start();
@@ -89,6 +94,7 @@ public class GetTaskApiIT {
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
     request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{getTask(taskId: \\\""
@@ -135,6 +141,7 @@ public class GetTaskApiIT {
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
     request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{getTask(taskId: \\\"6d162bee-3186-1111-bf31-59746a41600e\\\"){"
@@ -177,6 +184,7 @@ public class GetTaskApiIT {
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
     request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(
         TestUtils.queryPayload(
             "query{getTask(taskId: \\\""

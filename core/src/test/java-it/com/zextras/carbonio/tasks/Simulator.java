@@ -8,11 +8,16 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Properties;
+import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
+import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
 import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
 import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.Map;
+import javax.servlet.DispatcherType;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -142,11 +147,21 @@ public class Simulator implements AutoCloseable {
 
   public Simulator startUserManagement() {
 
-    if (userManagementMock == null || userManagementMock.hasStopped()) {
-      // TODO implement this method when the authentication are done
-    }
-
+    startMockServer();
+    userManagementMock = new MockServerClient(UserService.URL, UserService.PORT);
     return this;
+  }
+
+  private void validateUser(String cookie, String userId) {
+    userManagementMock
+        .when(
+            HttpRequest.request()
+                .withMethod(HttpMethod.GET.toString())
+                .withPath("/auth/token/" + cookie))
+        .respond(
+            HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{\"userId\":\"" + userId + "\"}"));
   }
 
   public Simulator createRestServlet() {
@@ -160,11 +175,13 @@ public class Simulator implements AutoCloseable {
   }
 
   public Simulator createGraphQlServlet() {
+    GraphQLServlet graphQLServlet = injector.getInstance(GraphQLServlet.class);
     graphQlServletContextHandler = new ServletContextHandler();
     graphQlServletContextHandler.setContextPath(Endpoints.GRAPHQL);
-    GraphQLServlet graphQLServlet = injector.getInstance(GraphQLServlet.class);
     ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
     graphQlServletContextHandler.addServlet(graphQLServletHolder, "/");
+    graphQlServletContextHandler.addFilter(
+        AuthenticationServletFilter.class, "/", EnumSet.of(DispatcherType.REQUEST));
 
     return this;
   }
@@ -237,7 +254,7 @@ public class Simulator implements AutoCloseable {
 
   private void startMockServer() {
     if (clientAndServer == null) {
-      clientAndServer = ClientAndServer.startClientAndServer(8500);
+      clientAndServer = ClientAndServer.startClientAndServer(8500, UserService.PORT);
     }
   }
 
@@ -302,8 +319,9 @@ public class Simulator implements AutoCloseable {
       return this;
     }
 
-    public SimulatorBuilder withUserManagement() {
+    public SimulatorBuilder withUserManagement(Map<String, String> users) {
       simulator.startUserManagement();
+      users.forEach((cookie, userId) -> simulator.validateUser(cookie, userId));
       return this;
     }
 
