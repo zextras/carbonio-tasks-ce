@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS task (
     status VARCHAR(25) DEFAULT 'OPEN' NOT NULL,
     created_at TIMESTAMP NOT NULL,
     reminder_at TIMESTAMP,
-    reminder_all_day BOOLEAN DEFAULT FALSE NOT NULL
+    reminder_all_day BOOLEAN
 );
 
 CREATE INDEX IF NOT EXISTS task_table_index_id ON task (id);

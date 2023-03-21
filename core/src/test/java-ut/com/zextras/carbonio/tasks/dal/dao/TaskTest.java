@@ -38,7 +38,8 @@ public class TaskTest {
     Assertions.assertThat(task.getCreatedAt()).isEqualTo(Instant.ofEpochMilli(10));
     Assertions.assertThat(task.getReminderAt()).isPresent();
     Assertions.assertThat(task.getReminderAt().get()).isEqualTo(Instant.ofEpochMilli(15));
-    Assertions.assertThat(task.getReminderAllDay()).isEqualTo(Boolean.FALSE);
+    Assertions.assertThat(task.getReminderAllDay()).isPresent();
+    Assertions.assertThat(task.getReminderAllDay().get()).isEqualTo(Boolean.FALSE);
   }
 
   @Test
@@ -54,7 +55,7 @@ public class TaskTest {
             Status.COMPLETE,
             Instant.ofEpochMilli(0),
             null,
-            false);
+            null);
 
     // Then
     Assertions.assertThat(task.getId())
@@ -66,6 +67,45 @@ public class TaskTest {
     Assertions.assertThat(task.getStatus()).isEqualTo(Status.COMPLETE);
     Assertions.assertThat(task.getCreatedAt()).isEqualTo(Instant.ofEpochMilli(0));
     Assertions.assertThat(task.getReminderAt()).isEmpty();
-    Assertions.assertThat(task.getReminderAllDay()).isEqualTo(Boolean.FALSE);
+    Assertions.assertThat(task.getReminderAllDay()).isEmpty();
+  }
+
+  @Test
+  public void givenAnExistingTaskAndUpdatedFieldsTheTaskSettersShouldUpdateTaskObjectCorrectly() {
+    // Given
+    Task task =
+        new Task(
+            UUID.fromString("6d162bee-3186-1111-bf31-59746a41600e"),
+            "00000000-0000-0000-0000-000000000000",
+            "Fake title",
+            "Fake description",
+            Priority.LOW,
+            Status.COMPLETE,
+            Instant.ofEpochMilli(0),
+            Instant.ofEpochMilli(10),
+            false);
+
+    // When
+    task.setTitle("New title");
+    task.setDescription("New description");
+    task.setPriority(Priority.MEDIUM);
+    task.setStatus(Status.OPEN);
+    task.setReminderAt(Instant.ofEpochMilli(50));
+    task.setReminderAllDay(true);
+
+    // Then
+    Assertions.assertThat(task.getId())
+        .isEqualTo(UUID.fromString("6d162bee-3186-1111-bf31-59746a41600e"));
+    Assertions.assertThat(task.getUserId()).isEqualTo("00000000-0000-0000-0000-000000000000");
+    Assertions.assertThat(task.getTitle()).isEqualTo("New title");
+    Assertions.assertThat(task.getDescription()).isPresent();
+    Assertions.assertThat(task.getDescription().get()).isEqualTo("New description");
+    Assertions.assertThat(task.getPriority()).isEqualTo(Priority.MEDIUM);
+    Assertions.assertThat(task.getStatus()).isEqualTo(Status.OPEN);
+    Assertions.assertThat(task.getCreatedAt()).isEqualTo(Instant.ofEpochMilli(0));
+    Assertions.assertThat(task.getReminderAt()).isPresent();
+    Assertions.assertThat(task.getReminderAt().get()).isEqualTo(Instant.ofEpochMilli(50));
+    Assertions.assertThat(task.getReminderAllDay()).isPresent();
+    Assertions.assertThat(task.getReminderAllDay().get()).isEqualTo(Boolean.TRUE);
   }
 }

@@ -51,7 +51,7 @@ public class Task {
   @Column(name = Tables.Task.REMINDER_AT, nullable = true)
   private Instant reminderAt;
 
-  @Column(name = Tables.Task.REMINDER_ALL_DAY, nullable = false)
+  @Column(name = Tables.Task.REMINDER_ALL_DAY, nullable = true)
   private Boolean reminderAllDay;
 
   public Task(
@@ -63,7 +63,7 @@ public class Task {
       Status status,
       Instant createdAt,
       @Nullable Instant reminderAt,
-      boolean reminderAllDay) {
+      @Nullable Boolean reminderAllDay) {
     this.id = id;
     this.userId = userId;
     this.title = title;
@@ -107,7 +107,31 @@ public class Task {
     return Optional.ofNullable(reminderAt);
   }
 
-  public boolean getReminderAllDay() {
-    return reminderAllDay;
+  public Optional<Boolean> getReminderAllDay() {
+    return Optional.ofNullable(reminderAllDay);
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setPriority(Priority priority) {
+    this.priority = priority;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public void setReminderAt(Instant reminderAt) {
+    this.reminderAt = reminderAt;
+  }
+
+  public void setReminderAllDay(Boolean reminderAllDay) {
+    this.reminderAllDay = reminderAllDay;
   }
 }

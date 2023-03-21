@@ -8,6 +8,7 @@ import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Mutations;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Queries;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Types;
@@ -75,7 +76,10 @@ public class GraphQLProvider {
         new SimpleFieldValidation()
             .addRule(
                 ResultPath.parse("/" + Mutations.CREATE_TASK),
-                inputFieldsValidator.createTaskValidator());
+                inputFieldsValidator.upsertTaskValidator(Inputs.NEW_TASK))
+            .addRule(
+                ResultPath.parse("/" + Mutations.UPDATE_TASK),
+                inputFieldsValidator.upsertTaskValidator(Inputs.UPDATE_TASK));
 
     return new FieldValidationInstrumentation(fieldValidation);
   }
@@ -108,7 +112,8 @@ public class GraphQLProvider {
                 .dataFetcher(Queries.FIND_TASKS, taskDataFetchers.findTasks()))
         .type(
             newTypeWiring("Mutation")
-                .dataFetcher(Mutations.CREATE_TASK, taskDataFetchers.createTask()))
+                .dataFetcher(Mutations.CREATE_TASK, taskDataFetchers.createTask())
+                .dataFetcher(Mutations.UPDATE_TASK, taskDataFetchers.updateTask()))
         .build();
   }
 

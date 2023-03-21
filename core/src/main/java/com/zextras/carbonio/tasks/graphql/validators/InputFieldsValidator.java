@@ -5,7 +5,7 @@
 package com.zextras.carbonio.tasks.graphql.validators;
 
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
-import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.NewTaskInput;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.TaskInput;
 import graphql.GraphQLError;
 import graphql.execution.instrumentation.fieldvalidation.FieldAndArguments;
 import graphql.execution.instrumentation.fieldvalidation.FieldValidationEnvironment;
@@ -18,18 +18,33 @@ import java.util.function.BiFunction;
 public class InputFieldsValidator {
 
   public BiFunction<FieldAndArguments, FieldValidationEnvironment, Optional<GraphQLError>>
-      createTaskValidator() {
-    return (fieldAndArguments, fieldValidationEnvironment) -> {
-      Map<String, Object> createTask = fieldAndArguments.getArgumentValuesByName();
-      Map<String, Object> newTaskArguments = (Map<String, Object>) createTask.get(Inputs.NEW_TASK);
-      String title = (String) newTaskArguments.get(NewTaskInput.TITLE);
+      upsertTaskValidator(String inputField) {
 
+    return (fieldAndArguments, fieldValidationEnvironment) -> {
+      Map<String, Object> newTaskArguments = fieldAndArguments.getArgumentValue(inputField);
       List<String> errors = new ArrayList<>();
-      checkStringLength(NewTaskInput.TITLE, title, Inputs.TITLE_MAX_LENGTH).ifPresent(errors::add);
-      if (newTaskArguments.containsKey(NewTaskInput.DESCRIPTION)) {
-        String description = (String) newTaskArguments.get(NewTaskInput.DESCRIPTION);
-        checkStringLength(NewTaskInput.DESCRIPTION, description, Inputs.DESCRIPTION_MAX_LENGTH)
+
+      // Check title attribute
+      if (newTaskArguments.containsKey(TaskInput.TITLE)) {
+        String title = (String) newTaskArguments.get(TaskInput.TITLE);
+        checkStringLength(TaskInput.TITLE, title, Inputs.TITLE_MAX_LENGTH).ifPresent(errors::add);
+      }
+
+      // Check description attribute
+      if (newTaskArguments.containsKey(TaskInput.DESCRIPTION)) {
+        String description = (String) newTaskArguments.get(TaskInput.DESCRIPTION);
+        checkStringLength(TaskInput.DESCRIPTION, description, Inputs.DESCRIPTION_MAX_LENGTH)
             .ifPresent(errors::add);
+      }
+
+      // Check reminderAllDay attribute
+      Long reminderAt = (Long) newTaskArguments.get(TaskInput.REMINDER_AT);
+      Boolean reminderAllDay = (Boolean) newTaskArguments.get(TaskInput.REMINDER_ALL_DAY);
+
+      // The reminder all day flag must not be set if there is no reminder and vice versa!
+      if ((reminderAt == null && reminderAllDay != null)
+          || (reminderAt != null && reminderAllDay == null)) {
+        errors.add("The reminderAt and the reminderAllDay attributes must be both always set");
       }
 
       return errors.size() == 0

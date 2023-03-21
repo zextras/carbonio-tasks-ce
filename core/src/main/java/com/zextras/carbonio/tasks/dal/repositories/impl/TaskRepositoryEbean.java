@@ -50,10 +50,15 @@ public class TaskRepositoryEbean implements TaskRepository {
             status,
             clock.instant(),
             reminderAt,
-            reminderAllDay != null ? reminderAllDay : false);
+            reminderAllDay);
 
     dbConnectionManager.getEbeanDatabase().insert(newTask);
     return newTask;
+  }
+
+  @Override
+  public void updateTask(Task taskToUpdate) {
+    dbConnectionManager.getEbeanDatabase().update(taskToUpdate);
   }
 
   @Override

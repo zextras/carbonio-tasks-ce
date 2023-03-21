@@ -72,7 +72,8 @@ public class TaskRepositoryEbeanTest {
     Assertions.assertThat(newTask.getCreatedAt()).isEqualTo(Instant.ofEpochSecond(1));
     Assertions.assertThat(newTask.getReminderAt()).isPresent();
     Assertions.assertThat(newTask.getReminderAt().get()).isEqualTo(Instant.ofEpochSecond(10));
-    Assertions.assertThat(newTask.getReminderAllDay()).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(newTask.getReminderAllDay()).isPresent();
+    Assertions.assertThat(newTask.getReminderAllDay().get()).isEqualTo(Boolean.TRUE);
   }
 
   @Test
@@ -104,7 +105,7 @@ public class TaskRepositoryEbeanTest {
     Assertions.assertThat(newTask.getStatus()).isEqualTo(Status.OPEN);
     Assertions.assertThat(newTask.getCreatedAt()).isEqualTo(Instant.ofEpochSecond(1));
     Assertions.assertThat(newTask.getReminderAt()).isEmpty();
-    Assertions.assertThat(newTask.getReminderAllDay()).isEqualTo(Boolean.FALSE);
+    Assertions.assertThat(newTask.getReminderAllDay()).isEmpty();
   }
 
   @Test
@@ -168,7 +169,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAUserAStatusATheGetTasksShouldReturnAListOfTasks() {
+  public void givenAUserAStatusTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -196,7 +197,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAUserAPriorityATheGetTasksShouldReturnAListOfTasks() {
+  public void givenAUserAPriorityTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -313,5 +314,17 @@ public class TaskRepositoryEbeanTest {
 
     // Then
     Assertions.assertThat(optTask).isEmpty();
+  }
+
+  @Test
+  public void givenAnUpdatedTaskTheUpdateTaskShouldSaveIt() {
+    // Given
+    Task taskMock = Mockito.mock(Task.class);
+
+    // When
+    taskRepository.updateTask(taskMock);
+
+    // Then
+    Mockito.verify(ebeanDatabaseMock, Mockito.times(1)).update(taskMock);
   }
 }
