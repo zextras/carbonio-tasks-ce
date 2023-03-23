@@ -130,6 +130,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <scope>test</scope>
     </dependency>
 
+    <!-- Authentication -->
+    <dependency>
+      <groupId>com.zextras.carbonio.user-management</groupId>
+      <artifactId>carbonio-user-management-sdk</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.mock-server</groupId>
       <artifactId>mockserver-netty-no-dependencies</artifactId>
@@ -342,6 +348,14 @@ SPDX-License-Identifier: AGPL-3.0-only
       <properties>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>true</skip.unit.tests>
+      </properties>
+    </profile>
+    <profile>
+      <id>run-all-tests</id>
+      <properties>
+        <skip.integration.tests>false</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
+        <skip.jacoco.full.report.generation>false</skip.jacoco.full.report.generation>
       </properties>
     </profile>
     <profile>

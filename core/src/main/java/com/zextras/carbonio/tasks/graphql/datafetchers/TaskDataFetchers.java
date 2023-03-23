@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.graphql.datafetchers;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.GraphQL;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.NewTaskInput;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
@@ -36,8 +37,7 @@ public class TaskDataFetchers {
     return environment ->
         CompletableFuture.supplyAsync(
             () -> {
-              String userId = "00000000-0000-0000-0000-000000000000";
-
+              String userId = environment.getGraphQlContext().get(Context.REQUESTER_ID);
               Map<String, Object> newTask = environment.getArgument("newTask");
 
               Long reminderAt = (Long) newTask.get(NewTaskInput.REMINDER_AT);
@@ -77,7 +77,7 @@ public class TaskDataFetchers {
     return environment ->
         CompletableFuture.supplyAsync(
             () -> {
-              String userId = "00000000-0000-0000-0000-000000000000";
+              String userId = environment.getGraphQlContext().get(Context.REQUESTER_ID);
               UUID taskId = UUID.fromString(environment.getArgument(Inputs.TASK_ID));
               return taskRepository
                   .getTask(taskId, userId)
@@ -100,7 +100,7 @@ public class TaskDataFetchers {
     return environment ->
         CompletableFuture.supplyAsync(
             () -> {
-              String userId = "00000000-0000-0000-0000-000000000000";
+              String userId = environment.getGraphQlContext().get(Context.REQUESTER_ID);
               Priority priority = environment.getArgument(Inputs.PRIORITY);
               Status status = environment.getArgument(Inputs.STATUS);
 

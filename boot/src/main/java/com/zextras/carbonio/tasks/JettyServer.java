@@ -7,8 +7,11 @@ package com.zextras.carbonio.tasks;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
+import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -74,6 +77,8 @@ public class JettyServer {
     ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
 
     servletContextHandler.addServlet(graphQLServletHolder, "/");
+    servletContextHandler.addFilter(
+        AuthenticationServletFilter.class, "/", EnumSet.of(DispatcherType.REQUEST));
     return servletContextHandler;
   }
 

@@ -18,7 +18,6 @@ public final class Constants {
     private Service() {}
 
     public static final class API {
-      private API() {}
 
       public static final class Endpoints {
         public static final String GRAPHQL = "/graphql";
@@ -26,10 +25,14 @@ public final class Constants {
 
         private Endpoints() {}
       }
+
+      private API() {}
     }
   }
 
   public static final class Config {
+
+    public static final String ACCEPTED_COOKIE_TYPE = "ZM_AUTH_TOKEN";
 
     public static final class Properties {
       public static final String DATABASE_URL = "carbonio.tasks.db.url";
@@ -46,6 +49,15 @@ public final class Constants {
       public static final String USERNAME = "carbonio-tasks-db";
 
       private Database() {}
+    }
+
+    public static final class UserService {
+
+      public static final String PROTOCOL = "http";
+      public static final String URL = "127.78.0.16";
+      public static final int PORT = 20001;
+
+      private UserService() {}
     }
 
     private Config() {}
@@ -106,6 +118,13 @@ public final class Constants {
   }
 
   public static final class GraphQL {
+
+    public static final class Context {
+
+      public static final String REQUESTER_ID = "requesterId";
+
+      private Context() {}
+    }
 
     public static final class Types {
 

@@ -4,6 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
+import com.google.common.collect.ImmutableMap;
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
 import com.zextras.carbonio.tasks.TestUtils;
@@ -26,7 +27,16 @@ public class ServiceInfoApiIT {
 
   @BeforeAll
   static void init() {
-    simulator = SimulatorBuilder.aSimulator().init().withGraphQlServlet().build().start();
+    simulator =
+        SimulatorBuilder.aSimulator()
+            .init()
+            .withGraphQlServlet()
+            .withUserManagement(
+                ImmutableMap.<String, String>builder()
+                    .put("fake-user-cookie", "00000000-0000-0000-0000-000000000000")
+                    .build())
+            .build()
+            .start();
     localConnector = simulator.getHttpLocalConnector();
   }
 
@@ -40,9 +50,10 @@ public class ServiceInfoApiIT {
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
-    request.setHeader(HttpHeader.HOST.toString(), "test");
     request.setMethod(HttpMethod.POST.toString());
     request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
     request.setContent(TestUtils.queryPayload("query{getServiceInfo{name version flavour}}"));
 
     // When
