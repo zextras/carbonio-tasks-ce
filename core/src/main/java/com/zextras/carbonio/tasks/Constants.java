@@ -161,13 +161,16 @@ public final class Constants {
 
       public static final int TITLE_MAX_LENGTH = 1024;
       public static final int DESCRIPTION_MAX_LENGTH = 4096;
+      public static final int REMINDER_AT_RESET_VALUE = 0;
       public static final String PRIORITY = "priority";
       public static final String STATUS = "status";
       public static final String TASK_ID = "taskId";
       public static final String NEW_TASK = "newTask";
+      public static final String UPDATE_TASK = "updateTask";
 
-      public static final class NewTaskInput {
+      public static final class TaskInput {
 
+        public static final String ID = Task.ID;
         public static final String TITLE = Task.TITLE;
         public static final String DESCRIPTION = Task.DESCRIPTION;
         public static final String PRIORITY = Task.PRIORITY;
@@ -175,7 +178,7 @@ public final class Constants {
         public static final String REMINDER_AT = Task.REMINDER_AT;
         public static final String REMINDER_ALL_DAY = Task.REMINDER_ALL_DAY;
 
-        private NewTaskInput() {}
+        private TaskInput() {}
       }
 
       private Inputs() {}
@@ -193,6 +196,7 @@ public final class Constants {
     public static final class Mutations {
 
       public static final String CREATE_TASK = "createTask";
+      public static final String UPDATE_TASK = "updateTask";
 
       private Mutations() {}
     }

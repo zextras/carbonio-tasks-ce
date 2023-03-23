@@ -230,6 +230,6 @@ public class CreateTaskApiIT {
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors.size()).isEqualTo(1);
     Assertions.assertThat(errors.get(0))
-        .isEqualTo("The reminderAllDay attribute must be set only when the reminderAt is set");
+        .isEqualTo("The reminderAt and the reminderAllDay attributes must be both always set");
   }
 }

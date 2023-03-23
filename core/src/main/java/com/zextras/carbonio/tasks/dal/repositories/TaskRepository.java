@@ -25,6 +25,8 @@ public interface TaskRepository {
       @Nullable Instant reminderAt,
       @Nullable Boolean reminderAllDay);
 
+  void updateTask(Task taskToUpdate);
+
   Optional<Task> getTask(UUID taskId, String userId);
 
   List<Task> getTasks(String userId, @Nullable Priority priority, @Nullable Status status);
