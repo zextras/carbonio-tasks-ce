@@ -40,4 +40,9 @@ public class DbInfoRepositoryEbean implements DbInfoRepository {
         .findOneOrEmpty()
         .isPresent();
   }
+
+  @Override
+  public boolean isDatabaseLive() {
+    return dbConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty().isPresent();
+  }
 }

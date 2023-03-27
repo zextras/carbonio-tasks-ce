@@ -17,4 +17,6 @@ public interface DbInfoRepository {
    * @return true if the database has the {@link Tables#DB_INFO} table, false otherwise.
    */
   boolean isDatabaseInitialized();
+
+  boolean isDatabaseLive();
 }

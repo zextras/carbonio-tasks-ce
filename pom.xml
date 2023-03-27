@@ -133,6 +133,12 @@ SPDX-License-Identifier: AGPL-3.0-only
         <version>${resteasy.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jackson2-provider</artifactId>
+        <version>${resteasy.version}</version>
+      </dependency>
+
       <!-- Authentication -->
       <dependency>
         <groupId>com.zextras.carbonio.user-management</groupId>

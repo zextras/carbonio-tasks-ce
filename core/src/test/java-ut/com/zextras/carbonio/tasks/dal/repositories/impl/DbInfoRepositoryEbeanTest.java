@@ -92,4 +92,30 @@ public class DbInfoRepositoryEbeanTest {
     // Then
     Assertions.assertThat(isDatabaseInitialized).isFalse();
   }
+
+  @Test
+  public void givenAnInitializedDatabaseTheIsDatabaseLiveShouldReturnTrue() {
+    // Given
+    Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(DbInfo.class)));
+
+    // When
+    boolean isDatabaseLive = dbInfoRepository.isDatabaseLive();
+
+    // Then
+    Assertions.assertThat(isDatabaseLive).isTrue();
+  }
+
+  @Test
+  public void givenADatabaseNotInitializedTheIsDatabaseLiveShouldReturnFalse() {
+    // Given
+    Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
+        .thenReturn(Optional.empty());
+
+    // When
+    boolean isDatabaseLive = dbInfoRepository.isDatabaseLive();
+
+    // Then
+    Assertions.assertThat(isDatabaseLive).isFalse();
+  }
 }
