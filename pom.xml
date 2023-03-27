@@ -48,7 +48,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <mockito.version>4.9.0</mockito.version>
     <postgresql.version>42.5.4</postgresql.version>
     <testcontainers.version>1.17.6</testcontainers.version>
-    <resteasy.version>5.0.5.Final</resteasy.version>
+    <resteasy.version>4.7.9.Final</resteasy.version>
 
     <!-- Plugins -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -78,6 +78,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <dependency>
         <groupId>com.google.inject</groupId>
         <artifactId>guice</artifactId>
+        <version>${guice.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.inject.extensions</groupId>
+        <artifactId>guice-servlet</artifactId>
         <version>${guice.version}</version>
       </dependency>
 
@@ -118,6 +124,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-servlet-initializer</artifactId>
+        <version>${resteasy.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-guice</artifactId>
         <version>${resteasy.version}</version>
       </dependency>
 

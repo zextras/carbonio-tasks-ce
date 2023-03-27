@@ -4,8 +4,8 @@
 
 package com.zextras.carbonio.tasks.auth;
 
+import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.Config;
-import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import com.zextras.carbonio.usermanagement.entities.UserId;
@@ -29,6 +29,13 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationServletFilter implements Filter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationServletFilter.class);
+
+  private final UserManagementClient userManagementClient;
+
+  @Inject
+  public AuthenticationServletFilter(UserManagementClient userManagementClient) {
+    this.userManagementClient = userManagementClient;
+  }
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -59,9 +66,7 @@ public class AuthenticationServletFilter implements Filter {
       }
 
       // Unfortunately doFilter throws an exception, using the .map would lead to an unreadable code
-      Try<UserId> tryUserId =
-          UserManagementClient.atURL(UserService.PROTOCOL, UserService.URL, UserService.PORT)
-              .validateUserToken(optZmCookie.get().getValue());
+      Try<UserId> tryUserId = userManagementClient.validateUserToken(optZmCookie.get().getValue());
 
       if (tryUserId.isSuccess()) {
         httpRequest.setAttribute(Context.REQUESTER_ID, tryUserId.get().getUserId());

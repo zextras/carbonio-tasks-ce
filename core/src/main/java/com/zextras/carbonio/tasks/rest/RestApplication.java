@@ -4,23 +4,9 @@
 
 package com.zextras.carbonio.tasks.rest;
 
-import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
-import java.util.Collections;
-import java.util.Set;
+import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("/rest")
-public class RestApplication extends Application {
-
-  /**
-   * Since the RESTEasy team decides to abandon the resteasy-guice dependency, the only way to make
-   * the servlet aware of the controllers is to pass their implementation without using Guice.
-   *
-   * @return a {@link Set<Class>} containing all the controller classes.
-   */
-  @Override
-  public Set<Class<?>> getClasses() {
-    return Collections.singleton(HealthControllerImpl.class);
-  }
-}
+@ApplicationPath(Endpoints.REST)
+public class RestApplication extends Application {}

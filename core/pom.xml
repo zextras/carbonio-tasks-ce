@@ -35,6 +35,11 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>guice</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-servlet</artifactId>
+    </dependency>
+
     <!-- Logger -->
     <dependency>
       <artifactId>logback-classic</artifactId>
@@ -127,6 +132,12 @@ SPDX-License-Identifier: AGPL-3.0-only
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-servlet-initializer</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-guice</artifactId>
       <scope>test</scope>
     </dependency>
 

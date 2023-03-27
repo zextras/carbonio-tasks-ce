@@ -32,7 +32,7 @@ public class HealthApiIT {
             .init()
             .withDatabase()
             .withServiceDiscover()
-            .withRestServlet()
+            .withServer()
             .build()
             .start();
 
