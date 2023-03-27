@@ -12,10 +12,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ServiceInfoDataFetcherTest {
+class ServiceInfoDataFetcherTest {
 
   @Test
-  public void t() {
+  void givenAServiceInfoRequestTheServiceInfoDataFetcherShouldReturnTheServiceInfo() {
     // Given
     ServiceInfoDataFetcher serviceInfoDataFetcher = new ServiceInfoDataFetcher();
     DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
@@ -28,9 +28,10 @@ public class ServiceInfoDataFetcherTest {
     // Generally I don't like to use constants during the assertions but the last two change based
     // on the current version of the service and the flavour of the project.
     Assertions.assertThat(dataFetcherResult.getErrors()).isEmpty();
-    Assertions.assertThat(dataFetcherResult.getData().size()).isEqualTo(3);
-    Assertions.assertThat(dataFetcherResult.getData().get("name")).isEqualTo("carbonio-tasks");
-    Assertions.assertThat(dataFetcherResult.getData().get("version")).isEqualTo(Service.VERSION);
-    Assertions.assertThat(dataFetcherResult.getData().get("flavour")).isEqualTo(Service.FLAVOUR);
+    Assertions.assertThat(dataFetcherResult.getData())
+        .hasSize(3)
+        .containsEntry("name", "carbonio-tasks")
+        .containsEntry("version", Service.VERSION)
+        .containsEntry("flavour", Service.FLAVOUR);
   }
 }

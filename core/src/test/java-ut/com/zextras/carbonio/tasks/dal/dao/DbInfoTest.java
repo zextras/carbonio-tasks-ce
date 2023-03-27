@@ -7,24 +7,24 @@ package com.zextras.carbonio.tasks.dal.dao;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DbInfoTest {
+class DbInfoTest {
 
   @Test
-  public void givenADatabaseVersionTheDbInfoShouldReturnTheRightVersion() {
+  void givenADatabaseVersionTheDbInfoShouldReturnTheRightVersion() {
     // Given & When
     DbInfo dbInfo = new DbInfo();
     dbInfo.setVersion(1);
 
     // Then
-    Assertions.assertThat(dbInfo.getVersion()).isEqualTo(1);
+    Assertions.assertThat(dbInfo.getVersion()).isOne();
   }
 
   @Test
-  public void withoutADatabaseVersionTheDbInfoShouldReturnTheVersionZero() {
+  void withoutADatabaseVersionTheDbInfoShouldReturnTheVersionZero() {
     // Given & When
     DbInfo dbInfo = new DbInfo();
 
     // Then
-    Assertions.assertThat(dbInfo.getVersion()).isEqualTo(0);
+    Assertions.assertThat(dbInfo.getVersion()).isZero();
   }
 }

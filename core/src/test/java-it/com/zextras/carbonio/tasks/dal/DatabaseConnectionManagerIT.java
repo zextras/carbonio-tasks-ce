@@ -11,10 +11,10 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
-public class DatabaseConnectionManagerIT {
+class DatabaseConnectionManagerIT {
 
   @Test
-  public void givenAReachableDatabaseTheGetEbeanDatabaseShouldReturnAnEbeanDatabase() {
+  void givenAReachableDatabaseTheGetEbeanDatabaseShouldReturnAnEbeanDatabase() {
     try (Simulator simulator =
         SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().build().start()) {
 
@@ -33,7 +33,7 @@ public class DatabaseConnectionManagerIT {
   }
 
   @Test
-  public void givenAnUnreachableDatabaseTheGetEbeanDatabaseShouldThrownAnException() {
+  void givenAnUnreachableDatabaseTheGetEbeanDatabaseShouldThrownAnException() {
     // Given
     try (Simulator simulator = SimulatorBuilder.aSimulator().init().build().start()) {
 
@@ -51,7 +51,7 @@ public class DatabaseConnectionManagerIT {
   }
 
   @Test
-  public void givenAReachableDatabaseWithAWrongNameTheGetEbeanDatabaseShouldThrownAnException() {
+  void givenAReachableDatabaseWithAWrongNameTheGetEbeanDatabaseShouldThrownAnException() {
     // Given
     try (Simulator simulator =
         SimulatorBuilder.aSimulator().init().withDatabase().build().start()) {

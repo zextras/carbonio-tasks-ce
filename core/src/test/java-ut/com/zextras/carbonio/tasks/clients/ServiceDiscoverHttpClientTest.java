@@ -21,7 +21,7 @@ import org.mockserver.model.HttpResponse;
 import org.mockserver.verify.VerificationTimes;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
 
-public class ServiceDiscoverHttpClientTest {
+class ServiceDiscoverHttpClientTest {
 
   private static ClientAndServer clientAndServer;
   private static MockServerClient serviceDiscoverMock;
@@ -34,19 +34,19 @@ public class ServiceDiscoverHttpClientTest {
     bodyPayloadFormat = "[{\"Key\":\"%s\",\"Value\":\"%s\"}]";
   }
 
-  @BeforeEach
-  public void setUp() {
-    serviceDiscoverMock.reset();
-  }
-
   @AfterAll
   static void cleanUpAll() {
     serviceDiscoverMock.stop();
     clientAndServer.stop();
   }
 
+  @BeforeEach
+  void setUp() {
+    serviceDiscoverMock.reset();
+  }
+
   @Test
-  public void givenAValidConfigKeyAndADefaultUrlTheGetConfigShouldReturnConfigValue() {
+  void givenAValidConfigKeyAndADefaultUrlTheGetConfigShouldReturnConfigValue() {
     // Given
     String encodedConfigValue =
         new String(Base64.encode("valid-value".getBytes(StandardCharsets.UTF_8)));
@@ -67,8 +67,7 @@ public class ServiceDiscoverHttpClientTest {
         ServiceDiscoverHttpClient.defaultURL("carbonio-tasks").getConfig("config-key");
 
     // Then
-    Assertions.assertThat(optConfigValue).isPresent();
-    Assertions.assertThat(optConfigValue.get()).isEqualTo("valid-value");
+    Assertions.assertThat(optConfigValue).isPresent().contains("valid-value");
 
     serviceDiscoverMock.verify(
         HttpRequest.request()
@@ -79,7 +78,7 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @Test
-  public void givenAValidConfigKeyAndACustomUrlTheGetConfigShouldReturnConfigValue() {
+  void givenAValidConfigKeyAndACustomUrlTheGetConfigShouldReturnConfigValue() {
     // Given
     String encodedConfigValue =
         new String(Base64.encode("valid-value".getBytes(StandardCharsets.UTF_8)));
@@ -102,8 +101,7 @@ public class ServiceDiscoverHttpClientTest {
             .getConfig("config-key");
 
     // Then
-    Assertions.assertThat(optConfigValue).isPresent();
-    Assertions.assertThat(optConfigValue.get()).isEqualTo("valid-value");
+    Assertions.assertThat(optConfigValue).isPresent().contains("valid-value");
 
     serviceDiscoverMock.verify(
         HttpRequest.request()
@@ -116,7 +114,7 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @Test
-  public void givenAnInvalidConfigKeyAndADefaultUrlTheGetConfigShouldReturnAnEmptyOptional() {
+  void givenAnInvalidConfigKeyAndADefaultUrlTheGetConfigShouldReturnAnEmptyOptional() {
     // Given
     serviceDiscoverMock
         .when(
@@ -142,7 +140,7 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @Test
-  public void givenAMalformedBodyResponseTheGetConfigShouldReturnAnEmptyOptional() {
+  void givenAMalformedBodyResponseTheGetConfigShouldReturnAnEmptyOptional() {
     // Given
     serviceDiscoverMock
         .when(
@@ -171,7 +169,7 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @Test
-  public void givenAnUnreachableServiceDiscoverTheGetConfigShouldReturnAnEmptyOptional() {
+  void givenAnUnreachableServiceDiscoverTheGetConfigShouldReturnAnEmptyOptional() {
     // Given
     serviceDiscoverMock
         .when(
@@ -197,7 +195,7 @@ public class ServiceDiscoverHttpClientTest {
   }
 
   @Test
-  public void givenAMalformedServiceDiscoverUrlTheGetConfigShouldThrownNullPointerException() {
+  void givenAMalformedServiceDiscoverUrlTheGetConfigShouldThrownNullPointerException() {
     // Given
     serviceDiscoverMock
         .when(

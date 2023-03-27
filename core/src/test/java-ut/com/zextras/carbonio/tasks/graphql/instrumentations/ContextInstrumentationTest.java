@@ -5,6 +5,7 @@
 package com.zextras.carbonio.tasks.graphql.instrumentations;
 
 import graphql.GraphQLContext;
+import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,10 +14,10 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ContextInstrumentationTest {
+class ContextInstrumentationTest {
 
   @Test
-  public void
+  void
       givenARequestWithARequesterIdAttributeTheInstrumentationShouldPutRequesterIdInGraphQLContext() {
     // Given
     HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
@@ -29,17 +30,20 @@ public class ContextInstrumentationTest {
         Mockito.mock(InstrumentationExecutionParameters.class);
     Mockito.when(parametersMock.getGraphQLContext()).thenReturn(graphQLContextMock);
 
+    InstrumentationState instrumentationStateMock = Mockito.mock(InstrumentationState.class);
+
     ContextInstrumentation contextInstrumentation = new ContextInstrumentation();
 
     // When
-    contextInstrumentation.beginExecution(parametersMock);
+    contextInstrumentation.beginExecution(parametersMock, instrumentationStateMock);
 
     // Then
     Mockito.verify(graphQLContextMock, Mockito.times(1)).put("requesterId", "requester-uuid");
+    Mockito.verifyNoInteractions(instrumentationStateMock);
   }
 
   @Test
-  public void givenANullRequestTheInstrumentationShouldThrowAnException() {
+  void givenANullRequestTheInstrumentationShouldThrowAnException() {
     // Given
     GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
     Mockito.when(graphQLContextMock.get(HttpServletRequest.class)).thenReturn(null);
@@ -48,20 +52,23 @@ public class ContextInstrumentationTest {
         Mockito.mock(InstrumentationExecutionParameters.class);
     Mockito.when(parametersMock.getGraphQLContext()).thenReturn(graphQLContextMock);
 
+    InstrumentationState instrumentationStateMock = Mockito.mock(InstrumentationState.class);
+
     ContextInstrumentation contextInstrumentation = new ContextInstrumentation();
 
     // When
     ThrowableAssert.ThrowingCallable throwable =
-        () -> contextInstrumentation.beginExecution(parametersMock);
+        () -> contextInstrumentation.beginExecution(parametersMock, instrumentationStateMock);
 
     // Then
     Assertions.assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(throwable);
     Mockito.verify(graphQLContextMock, Mockito.never())
         .put(Mockito.anyString(), Mockito.anyString());
+    Mockito.verifyNoInteractions(instrumentationStateMock);
   }
 
   @Test
-  public void givenARequestWithANullRequesterIdTheInstrumentationShouldThrowAnException() {
+  void givenARequestWithANullRequesterIdTheInstrumentationShouldThrowAnException() {
     // Given
     HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
     Mockito.when(requestMock.getAttribute("requesterId")).thenReturn(null);
@@ -73,15 +80,18 @@ public class ContextInstrumentationTest {
         Mockito.mock(InstrumentationExecutionParameters.class);
     Mockito.when(parametersMock.getGraphQLContext()).thenReturn(graphQLContextMock);
 
+    InstrumentationState instrumentationStateMock = Mockito.mock(InstrumentationState.class);
+
     ContextInstrumentation contextInstrumentation = new ContextInstrumentation();
 
     // When
     ThrowableAssert.ThrowingCallable throwable =
-        () -> contextInstrumentation.beginExecution(parametersMock);
+        () -> contextInstrumentation.beginExecution(parametersMock, instrumentationStateMock);
 
     // Then
     Assertions.assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(throwable);
     Mockito.verify(graphQLContextMock, Mockito.never())
         .put(Mockito.anyString(), Mockito.anyString());
+    Mockito.verifyNoInteractions(instrumentationStateMock);
   }
 }

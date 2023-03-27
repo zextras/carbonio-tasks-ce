@@ -26,14 +26,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class TaskRepositoryEbeanTest {
+class TaskRepositoryEbeanTest {
 
   private Database ebeanDatabaseMock;
   private TaskRepository taskRepository;
   private Clock fakeClock;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ebeanDatabaseMock = Mockito.mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
     DatabaseConnectionManager connectionManagerMock = Mockito.mock(DatabaseConnectionManager.class);
     Mockito.when(connectionManagerMock.getEbeanDatabase()).thenReturn(ebeanDatabaseMock);
@@ -42,7 +42,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAllTaskAttributesTheCreateTaskShouldReturnANewTask() {
+  void givenAllTaskAttributesTheCreateTaskShouldReturnANewTask() {
     // Given & When
     Mockito.when(fakeClock.instant()).thenReturn(Instant.ofEpochSecond(1));
 
@@ -65,19 +65,16 @@ public class TaskRepositoryEbeanTest {
     Assertions.assertThat(newTask.getId()).isNotNull().isInstanceOf(UUID.class);
     Assertions.assertThat(newTask.getUserId()).isEqualTo("6d162bee-3186-1111-bf31-59746a41600e");
     Assertions.assertThat(newTask.getTitle()).isEqualTo("fake-title");
-    Assertions.assertThat(newTask.getDescription()).isPresent();
-    Assertions.assertThat(newTask.getDescription().get()).isEqualTo("super description");
+    Assertions.assertThat(newTask.getDescription()).isPresent().contains("super description");
     Assertions.assertThat(newTask.getPriority()).isEqualTo(Priority.MEDIUM);
     Assertions.assertThat(newTask.getStatus()).isEqualTo(Status.OPEN);
     Assertions.assertThat(newTask.getCreatedAt()).isEqualTo(Instant.ofEpochSecond(1));
-    Assertions.assertThat(newTask.getReminderAt()).isPresent();
-    Assertions.assertThat(newTask.getReminderAt().get()).isEqualTo(Instant.ofEpochSecond(10));
-    Assertions.assertThat(newTask.getReminderAllDay()).isPresent();
-    Assertions.assertThat(newTask.getReminderAllDay().get()).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(newTask.getReminderAt()).isPresent().contains(Instant.ofEpochSecond(10));
+    Assertions.assertThat(newTask.getReminderAllDay()).isPresent().contains(Boolean.TRUE);
   }
 
   @Test
-  public void givenOnlyMandatoryTaskAttributesTheCreateTaskShouldReturnANewTask() {
+  void givenOnlyMandatoryTaskAttributesTheCreateTaskShouldReturnANewTask() {
     // Given & When
     Mockito.when(fakeClock.instant()).thenReturn(Instant.ofEpochSecond(1));
 
@@ -109,7 +106,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAUserAStatusAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserAStatusAPriorityTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock1 = Mockito.mock(Task.class);
     Task taskMock2 = Mockito.mock(Task.class);
@@ -136,11 +133,11 @@ public class TaskRepositoryEbeanTest {
             "6d162bee-3186-1111-bf31-59746a41600e", Priority.MEDIUM, Status.OPEN);
 
     // Then
-    Assertions.assertThat(openTasks.size()).isEqualTo(2);
+    Assertions.assertThat(openTasks).hasSize(2);
   }
 
   @Test
-  public void givenAUserAStatusAPriorityTheGetTasksShouldReturnAnEmptyList() {
+  void givenAUserAStatusAPriorityTheGetTasksShouldReturnAnEmptyList() {
     // Given
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
     OrderBy<Task> orderByMock = Mockito.mock(OrderBy.class);
@@ -165,11 +162,11 @@ public class TaskRepositoryEbeanTest {
             "6d162bee-3186-1111-bf31-59746a41600e", Priority.LOW, Status.COMPLETE);
 
     // Then
-    Assertions.assertThat(openTasks.size()).isEqualTo(0);
+    Assertions.assertThat(openTasks).isEmpty();
   }
 
   @Test
-  public void givenAUserAStatusTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserAStatusTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -193,11 +190,11 @@ public class TaskRepositoryEbeanTest {
         taskRepository.getTasks("6d162bee-3186-1111-bf31-59746a41600e", null, Status.COMPLETE);
 
     // Then
-    Assertions.assertThat(openTasks.size()).isEqualTo(1);
+    Assertions.assertThat(openTasks).hasSize(1);
   }
 
   @Test
-  public void givenAUserAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserAPriorityTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -221,11 +218,11 @@ public class TaskRepositoryEbeanTest {
         taskRepository.getTasks("6d162bee-3186-1111-bf31-59746a41600e", Priority.HIGH, null);
 
     // Then
-    Assertions.assertThat(openTasks.size()).isEqualTo(1);
+    Assertions.assertThat(openTasks).hasSize(1);
   }
 
   @Test
-  public void givenAUserTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -248,11 +245,11 @@ public class TaskRepositoryEbeanTest {
         taskRepository.getTasks("6d162bee-3186-1111-bf31-59746a41600e", Priority.HIGH, null);
 
     // Then
-    Assertions.assertThat(openTasks.size()).isEqualTo(1);
+    Assertions.assertThat(openTasks).hasSize(1);
   }
 
   @Test
-  public void givenATaskIdAndAUserIdTheGetTaskShouldReturnTheRequestedTask() {
+  void givenATaskIdAndAUserIdTheGetTaskShouldReturnTheRequestedTask() {
     // Given
     Mockito.when(
             ebeanDatabaseMock
@@ -274,7 +271,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenANotExistingTaskIdTheGetTaskShouldReturnAnOptionalEmpty() {
+  void givenANotExistingTaskIdTheGetTaskShouldReturnAnOptionalEmpty() {
     // Given
     Mockito.when(
             ebeanDatabaseMock
@@ -296,7 +293,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenATaskIdAndADifferentUserIdTheGetTaskShouldReturnAnOptionalEmpty() {
+  void givenATaskIdAndADifferentUserIdTheGetTaskShouldReturnAnOptionalEmpty() {
     // Given
     Mockito.when(
             ebeanDatabaseMock
@@ -317,7 +314,7 @@ public class TaskRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAnUpdatedTaskTheUpdateTaskShouldSaveIt() {
+  void givenAnUpdatedTaskTheUpdateTaskShouldSaveIt() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
 

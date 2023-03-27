@@ -6,16 +6,18 @@ package com.zextras.carbonio.tasks.dal;
 
 import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
 import io.ebean.Database;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class DatabaseInitializerTest {
+class DatabaseInitializerTest {
 
   @Test
-  public void givenAConnectionAndADbNotInitializedTheDbShouldBeInitializedWithTheRightScript() {
+  void givenAConnectionAndADbNotInitializedTheDbShouldBeInitializedWithTheRightScript()
+      throws FileNotFoundException {
     // Given
     DbInfoRepository dbInfoRepositoryMock = Mockito.mock(DbInfoRepository.class);
     Mockito.when(dbInfoRepositoryMock.isDatabaseInitialized()).thenReturn(false);
@@ -41,7 +43,7 @@ public class DatabaseInitializerTest {
   }
 
   @Test
-  public void givenAConnectionAndADbInitializedTheDbShouldBeNothing() {
+  void givenAConnectionAndADbInitializedTheDbShouldBeNothing() throws FileNotFoundException {
     // Given
     DbInfoRepository dbInfoRepositoryMock = Mockito.mock(DbInfoRepository.class);
     Mockito.when(dbInfoRepositoryMock.isDatabaseInitialized()).thenReturn(true);

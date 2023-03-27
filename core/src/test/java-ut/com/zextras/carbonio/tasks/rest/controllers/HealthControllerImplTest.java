@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class HealthControllerImplTest {
+class HealthControllerImplTest {
 
   private HealthService healthServiceMock;
 
@@ -26,7 +26,7 @@ public class HealthControllerImplTest {
   }
 
   @Test
-  public void
+  void
       givenAllDependenciesReadyTheHealthShouldReturn200StatusCodeWithTheHealthStatusOfEachDependency() {
     // Given & When
     ServiceHealth dependencyHealth =
@@ -53,7 +53,7 @@ public class HealthControllerImplTest {
   }
 
   @Test
-  public void givenADependencyNotReadyTheHealthShouldReturn502StatusCodeResponse() {
+  void givenADependencyNotReadyTheHealthShouldReturn502StatusCodeResponse() {
     // Given & When
     HealthStatus healthStatus = new HealthStatus().setReady(false);
 
@@ -68,7 +68,7 @@ public class HealthControllerImplTest {
   }
 
   @Test
-  public void healthLiveShouldReturn204StatusCodeResponse() {
+  void healthLiveShouldReturn204StatusCodeResponse() {
     // Given & When
     try (Response response = new HealthControllerImpl(healthServiceMock).healthLive()) {
 
@@ -80,7 +80,7 @@ public class HealthControllerImplTest {
   }
 
   @Test
-  public void givenAllDependenciesReadyTheHealthReadyShouldReturn204StatusCodeResponse() {
+  void givenAllDependenciesReadyTheHealthReadyShouldReturn204StatusCodeResponse() {
     // Given & When
     Mockito.when(healthServiceMock.areServiceDependenciesReady()).thenReturn(true);
     try (Response response = new HealthControllerImpl(healthServiceMock).healthReady()) {
@@ -93,7 +93,7 @@ public class HealthControllerImplTest {
   }
 
   @Test
-  public void givenADependencyNotReadyTheHealthReadyShouldReturn502StatusCodeResponse() {
+  void givenADependencyNotReadyTheHealthReadyShouldReturn502StatusCodeResponse() {
     // Given & When
     Mockito.when(healthServiceMock.areServiceDependenciesReady()).thenReturn(false);
     try (Response response = new HealthControllerImpl(healthServiceMock).healthReady()) {

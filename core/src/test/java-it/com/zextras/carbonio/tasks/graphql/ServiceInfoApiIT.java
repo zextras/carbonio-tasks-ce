@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class ServiceInfoApiIT {
+class ServiceInfoApiIT {
 
   private static Simulator simulator;
   private static LocalConnector localConnector;
@@ -46,7 +46,7 @@ public class ServiceInfoApiIT {
   }
 
   @Test
-  public void givenGetProjectInfoQueryTheServiceShouldReturn200WithTheProjectInformation()
+  void givenGetProjectInfoQueryTheServiceShouldReturn200WithTheProjectInformation()
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
-public class CreateTaskApiIT {
+class CreateTaskApiIT {
 
   static Simulator simulator;
   static LocalConnector httpLocalConnector;
@@ -62,7 +62,7 @@ public class CreateTaskApiIT {
   }
 
   @Test
-  public void givenACompleteNewTaskInputTheCreateTaskShouldCreateANewTask() throws Exception {
+  void givenACompleteNewTaskInputTheCreateTaskShouldCreateANewTask() throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
     request.setMethod(HttpMethod.POST.toString());
@@ -92,20 +92,17 @@ public class CreateTaskApiIT {
         TestUtils.jsonResponseToMap(response.getContent(), "createTask");
 
     Assertions.assertThat(createdTask.get("id")).isNotNull();
-    Assertions.assertThat(createdTask.get("title")).isEqualTo("Real title");
-    Assertions.assertThat(createdTask.get("description")).isNotNull();
-    Assertions.assertThat(createdTask.get("description")).isEqualTo("super-description");
-    Assertions.assertThat(createdTask.get("priority")).isEqualTo("HIGH");
-    Assertions.assertThat(createdTask.get("status")).isEqualTo("COMPLETE");
-    Assertions.assertThat(createdTask.get("createdAt")).isNotNull();
-    Assertions.assertThat(createdTask.get("reminderAt")).isNotNull();
-    Assertions.assertThat(createdTask.get("reminderAt")).isEqualTo(50);
-    Assertions.assertThat(createdTask.get("reminderAllDay")).isNotNull();
-    Assertions.assertThat(createdTask.get("reminderAllDay")).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(createdTask)
+        .containsEntry("title", "Real title")
+        .containsEntry("description", "super-description")
+        .containsEntry("priority", "HIGH")
+        .containsEntry("status", "COMPLETE")
+        .containsEntry("reminderAt", 50)
+        .containsEntry("reminderAllDay", Boolean.TRUE);
   }
 
   @Test
-  public void givenOnlyATitleTheCreateTaskShouldCreateANewTask() throws Exception {
+  void givenOnlyATitleTheCreateTaskShouldCreateANewTask() throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
     request.setMethod(HttpMethod.POST.toString());
@@ -130,17 +127,18 @@ public class CreateTaskApiIT {
         TestUtils.jsonResponseToMap(response.getContent(), "createTask");
 
     Assertions.assertThat(createdTask.get("id")).isNotNull();
-    Assertions.assertThat(createdTask.get("title")).isEqualTo("Real title");
-    Assertions.assertThat(createdTask.get("description")).isNull();
-    Assertions.assertThat(createdTask.get("priority")).isEqualTo("MEDIUM");
-    Assertions.assertThat(createdTask.get("status")).isEqualTo("OPEN");
     Assertions.assertThat(createdTask.get("createdAt")).isNotNull();
-    Assertions.assertThat(createdTask.get("reminderAt")).isNull();
-    Assertions.assertThat(createdTask.get("reminderAllDay")).isNull();
+    Assertions.assertThat(createdTask)
+        .containsEntry("title", "Real title")
+        .containsEntry("description", null)
+        .containsEntry("priority", "MEDIUM")
+        .containsEntry("status", "OPEN")
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
   }
 
   @Test
-  public void givenATitleExceedingTheMaxLengthTheCreateTaskShouldReturnAnError() throws Exception {
+  void givenATitleExceedingTheMaxLengthTheCreateTaskShouldReturnAnError() throws Exception {
     // Given
     String longTitle = string1024chars + "a";
     HttpTester.Request request = HttpTester.newRequest();
@@ -163,14 +161,13 @@ public class CreateTaskApiIT {
     Assertions.assertThat(createdTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Invalid title. Length is more than 1024 characters");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Invalid title. Length is more than 1024 characters");
   }
 
   @Test
-  public void givenADescriptionExceedingTheMaxLengthTheCreateTaskShouldReturnAnError()
-      throws Exception {
+  void givenADescriptionExceedingTheMaxLengthTheCreateTaskShouldReturnAnError() throws Exception {
     // Given
     String longDescription =
         string1024chars + string1024chars + string1024chars + string1024chars + "a";
@@ -197,14 +194,13 @@ public class CreateTaskApiIT {
     Assertions.assertThat(createdTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Invalid description. Length is more than 4096 characters");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Invalid description. Length is more than 4096 characters");
   }
 
   @Test
-  public void givenAReminderAllDayWithoutAReminderAtTheCreateTaskShouldReturnAnError()
-      throws Exception {
+  void givenAReminderAllDayWithoutAReminderAtTheCreateTaskShouldReturnAnError() throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
     request.setMethod(HttpMethod.POST.toString());
@@ -228,8 +224,8 @@ public class CreateTaskApiIT {
     Assertions.assertThat(createdTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("The reminderAt and the reminderAllDay attributes must be both always set");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("The reminderAt and the reminderAllDay attributes must be both always set");
   }
 }

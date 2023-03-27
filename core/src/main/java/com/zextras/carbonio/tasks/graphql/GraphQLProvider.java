@@ -47,7 +47,7 @@ import java.io.Reader;
 @Singleton
 public class GraphQLProvider {
 
-  private static final String schemaURL = "/api/schema.graphql";
+  private static final String SCHEMA_URL = "/api/schema.graphql";
 
   private final ContextInstrumentation contextInstrumentation;
   private final ServiceInfoDataFetcher serviceInfoDataFetcher;
@@ -124,7 +124,7 @@ public class GraphQLProvider {
    * @return the {@link GraphQLSchema}.
    */
   GraphQLSchema buildSchema() {
-    InputStream inputStream = getClass().getResourceAsStream(schemaURL);
+    InputStream inputStream = getClass().getResourceAsStream(SCHEMA_URL);
     Reader schema = new InputStreamReader(inputStream);
     SchemaParser schemaParser = new SchemaParser();
 

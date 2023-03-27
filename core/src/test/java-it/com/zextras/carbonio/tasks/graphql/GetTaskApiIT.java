@@ -24,7 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class GetTaskApiIT {
+class GetTaskApiIT {
 
   static Simulator simulator;
   static LocalConnector httpLocalConnector;
@@ -49,18 +49,18 @@ public class GetTaskApiIT {
     taskRepository = simulator.getInjector().getInstance(TaskRepository.class);
   }
 
-  @AfterEach
-  public void cleanUp() {
-    simulator.resetDatabase();
-  }
-
   @AfterAll
   static void cleanUpAll() {
     simulator.stopAll();
   }
 
+  @AfterEach
+  void cleanUp() {
+    simulator.resetDatabase();
+  }
+
   @Test
-  public void givenAnExistingTaskIdTheGetTaskShouldReturnTheRequestedTask() throws Exception {
+  void givenAnExistingTaskIdTheGetTaskShouldReturnTheRequestedTask() throws Exception {
     // Given
     taskRepository.createTask(
         "00000000-0000-0000-0000-000000000000",
@@ -112,21 +112,19 @@ public class GetTaskApiIT {
     Map<String, Object> requestedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "getTask");
 
-    Assertions.assertThat(requestedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(requestedTask.get("title")).isEqualTo("title2");
-    Assertions.assertThat(requestedTask.get("description")).isNotNull();
-    Assertions.assertThat(requestedTask.get("description")).isEqualTo("description");
-    Assertions.assertThat(requestedTask.get("priority")).isEqualTo("LOW");
-    Assertions.assertThat(requestedTask.get("status")).isEqualTo("OPEN");
-    Assertions.assertThat(requestedTask.get("createdAt"))
-        .isEqualTo(task.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(requestedTask.get("reminderAt")).isNull();
-    Assertions.assertThat(requestedTask.get("reminderAllDay")).isNull();
+    Assertions.assertThat(requestedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("title", "title2")
+        .containsEntry("description", "description")
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
   }
 
   @Test
-  public void givenANonExistingTaskIdTheGetTaskShouldReturn200CodeWithAnErrorMessage()
-      throws Exception {
+  void givenANonExistingTaskIdTheGetTaskShouldReturn200CodeWithAnErrorMessage() throws Exception {
     // Given
     taskRepository.createTask(
         "11111111-1111-1111-1111-111111111111",
@@ -157,17 +155,17 @@ public class GetTaskApiIT {
     Map<String, Object> requestedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "getTask");
 
-    Assertions.assertThat(requestedTask.size()).isEqualTo(0);
+    Assertions.assertThat(requestedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
 
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Could not find task with id 6d162bee-3186-1111-bf31-59746a41600e");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Could not find task with id 6d162bee-3186-1111-bf31-59746a41600e");
   }
 
   @Test
-  public void givenAnExistingTaskIdOfAnotherUserTheGetTaskShouldReturn200CodeWithAnErrorMessage()
+  void givenAnExistingTaskIdOfAnotherUserTheGetTaskShouldReturn200CodeWithAnErrorMessage()
       throws Exception {
     // Given
     Task task =
@@ -202,11 +200,12 @@ public class GetTaskApiIT {
     Map<String, Object> requestedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "getTask");
 
-    Assertions.assertThat(requestedTask.size()).isEqualTo(0);
+    Assertions.assertThat(requestedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
 
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0)).isEqualTo("Could not find task with id " + task.getId());
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Could not find task with id " + task.getId());
   }
 }

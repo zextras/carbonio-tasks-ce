@@ -9,10 +9,10 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TaskTest {
+class TaskTest {
 
   @Test
-  public void givenAllTaskAttributesTheTaskConstructorShouldCreateTaskObjectCorrectly() {
+  void givenAllTaskAttributesTheTaskConstructorShouldCreateTaskObjectCorrectly() {
     // Given & When
     Task task =
         new Task(
@@ -31,19 +31,16 @@ public class TaskTest {
         .isEqualTo(UUID.fromString("6d162bee-3186-1111-bf31-59746a41600e"));
     Assertions.assertThat(task.getUserId()).isEqualTo("6d162bee-3186-0000-bf31-59746a41600e");
     Assertions.assertThat(task.getTitle()).isEqualTo("fake-title");
-    Assertions.assertThat(task.getDescription()).isPresent();
-    Assertions.assertThat(task.getDescription().get()).isEqualTo("fake-description");
+    Assertions.assertThat(task.getDescription()).isPresent().contains("fake-description");
     Assertions.assertThat(task.getPriority()).isEqualTo(Priority.HIGH);
     Assertions.assertThat(task.getStatus()).isEqualTo(Status.OPEN);
     Assertions.assertThat(task.getCreatedAt()).isEqualTo(Instant.ofEpochMilli(10));
-    Assertions.assertThat(task.getReminderAt()).isPresent();
-    Assertions.assertThat(task.getReminderAt().get()).isEqualTo(Instant.ofEpochMilli(15));
-    Assertions.assertThat(task.getReminderAllDay()).isPresent();
-    Assertions.assertThat(task.getReminderAllDay().get()).isEqualTo(Boolean.FALSE);
+    Assertions.assertThat(task.getReminderAt()).isPresent().contains(Instant.ofEpochMilli(15));
+    Assertions.assertThat(task.getReminderAllDay()).isPresent().contains(Boolean.FALSE);
   }
 
   @Test
-  public void givenOnlyMandatoryTaskAttributesTheTaskConstructorShouldCreateTaskObjectCorrectly() {
+  void givenOnlyMandatoryTaskAttributesTheTaskConstructorShouldCreateTaskObjectCorrectly() {
     // Given & When
     Task task =
         new Task(
@@ -71,7 +68,7 @@ public class TaskTest {
   }
 
   @Test
-  public void givenAnExistingTaskAndUpdatedFieldsTheTaskSettersShouldUpdateTaskObjectCorrectly() {
+  void givenAnExistingTaskAndUpdatedFieldsTheTaskSettersShouldUpdateTaskObjectCorrectly() {
     // Given
     Task task =
         new Task(
@@ -98,14 +95,11 @@ public class TaskTest {
         .isEqualTo(UUID.fromString("6d162bee-3186-1111-bf31-59746a41600e"));
     Assertions.assertThat(task.getUserId()).isEqualTo("00000000-0000-0000-0000-000000000000");
     Assertions.assertThat(task.getTitle()).isEqualTo("New title");
-    Assertions.assertThat(task.getDescription()).isPresent();
-    Assertions.assertThat(task.getDescription().get()).isEqualTo("New description");
+    Assertions.assertThat(task.getDescription()).isPresent().contains("New description");
     Assertions.assertThat(task.getPriority()).isEqualTo(Priority.MEDIUM);
     Assertions.assertThat(task.getStatus()).isEqualTo(Status.OPEN);
     Assertions.assertThat(task.getCreatedAt()).isEqualTo(Instant.ofEpochMilli(0));
-    Assertions.assertThat(task.getReminderAt()).isPresent();
-    Assertions.assertThat(task.getReminderAt().get()).isEqualTo(Instant.ofEpochMilli(50));
-    Assertions.assertThat(task.getReminderAllDay()).isPresent();
-    Assertions.assertThat(task.getReminderAllDay().get()).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(task.getReminderAt()).isPresent().contains(Instant.ofEpochMilli(50));
+    Assertions.assertThat(task.getReminderAllDay()).isPresent().contains(Boolean.TRUE);
   }
 }

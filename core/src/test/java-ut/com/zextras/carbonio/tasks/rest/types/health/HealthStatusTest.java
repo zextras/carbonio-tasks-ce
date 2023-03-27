@@ -8,10 +8,10 @@ import java.util.Collections;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HealthStatusTest {
+class HealthStatusTest {
 
   @Test
-  public void givenAllHealthStatusAttributesTheSettersShouldInitializeThemCorrectly() {
+  void givenAllHealthStatusAttributesTheSettersShouldInitializeThemCorrectly() {
     // Given & When
     ServiceHealth serviceHealth = new ServiceHealth();
     serviceHealth.setName("dependency").setType(DependencyType.OPTIONAL);
@@ -21,7 +21,7 @@ public class HealthStatusTest {
 
     // Then
     Assertions.assertThat(healthStatus.isReady()).isTrue();
-    Assertions.assertThat(healthStatus.getDependencies().size()).isEqualTo(1);
+    Assertions.assertThat(healthStatus.getDependencies()).hasSize(1);
     Assertions.assertThat(healthStatus.getDependencies().get(0).getName()).isEqualTo("dependency");
   }
 }

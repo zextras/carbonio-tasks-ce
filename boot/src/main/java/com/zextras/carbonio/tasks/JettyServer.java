@@ -18,15 +18,11 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 
 public class JettyServer {
 
-  private final GraphQLServlet graphQLServlet;
   private final GuiceResteasyBootstrapServletContextListener guiceRestEasyListener;
 
   @Inject
-  public JettyServer(
-      GuiceResteasyBootstrapServletContextListener guiceRestEasyListener,
-      GraphQLServlet graphQLServlet) {
+  public JettyServer(GuiceResteasyBootstrapServletContextListener guiceRestEasyListener) {
     this.guiceRestEasyListener = guiceRestEasyListener;
-    this.graphQLServlet = graphQLServlet;
   }
 
   /**
@@ -43,9 +39,8 @@ public class JettyServer {
   public void start() throws Exception {
 
     // Unfortunately the jetty server is not AutoClosable, so I can't use try-with-resources
-    Server server = null;
+    Server server = new Server();
     try {
-      server = new Server();
       try (ServerConnector connector = new ServerConnector(server)) {
         connector.setDefaultProtocol("HTTP/1.1");
         connector.setHost(Service.IP);
@@ -62,9 +57,7 @@ public class JettyServer {
       server.join();
 
     } finally {
-      if (server != null) {
-        server.stop();
-      }
+      server.stop();
     }
   }
 }

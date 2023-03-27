@@ -15,7 +15,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class InputFieldsValidatorTest {
+class InputFieldsValidatorTest {
   static String string1024chars =
       "drmOaBQ4v5xzTnbRdqt7PdUgK49oV5CstdsskBAnMEoJUypa410nWWGeoGFW5mv"
           + "mVMCjPjmCNAXww9Ptjj3ywNdmIV8cJbFT7ueOKLwaOgGucFuhhRCfXUHN4YCmxFJ4yfST67Amc8x5R2tJU2pHfgmLOwSN"
@@ -31,7 +31,7 @@ public class InputFieldsValidatorTest {
           + "ZBaFs607fCWOfMw6KZqwfP33gHFwE0a";
 
   @Test
-  public void givenValidTaskInputAttributesTheUpsertTaskValidatorShouldNotReturnErrors() {
+  void givenValidTaskInputAttributesTheUpsertTaskValidatorShouldNotReturnErrors() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder()
@@ -62,7 +62,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenAllTaskInputAttributesInvalidTheUpsertTaskValidatorShouldNotReturnErrors() {
+  void givenAllTaskInputAttributesInvalidTheUpsertTaskValidatorShouldNotReturnErrors() {
     // Given
     String description =
         string1024chars + string1024chars + string1024chars + string1024chars + "0";
@@ -104,7 +104,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenATaskTitleOf1024CharsTheUpsertTaskValidatorShouldNotReturnErrors() {
+  void givenATaskTitleOf1024CharsTheUpsertTaskValidatorShouldNotReturnErrors() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder().put("title", string1024chars).build();
@@ -130,7 +130,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenATaskTitleTooLongTheUpsertTaskValidatorShouldReturnAnError() {
+  void givenATaskTitleTooLongTheUpsertTaskValidatorShouldReturnAnError() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder().put("title", string1024chars + "0").build();
@@ -159,7 +159,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenATaskDescriptionOf4096CharsTheUpsertTaskValidatorShouldNotReturnErrors() {
+  void givenATaskDescriptionOf4096CharsTheUpsertTaskValidatorShouldNotReturnErrors() {
     // Given
     String description = string1024chars + string1024chars + string1024chars + string1024chars;
     Map<String, Object> newTaskInput =
@@ -186,7 +186,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenATaskDescriptionTooLongTheUpsertTaskValidatorShouldReturnAnError() {
+  void givenATaskDescriptionTooLongTheUpsertTaskValidatorShouldReturnAnError() {
     // Given
     String description =
         string1024chars + string1024chars + string1024chars + string1024chars + "0";
@@ -218,7 +218,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenATaskReminderAtAndAReminderAllDayTheUpsertTaskValidatorShouldNotReturnErrors() {
+  void givenATaskReminderAtAndAReminderAllDayTheUpsertTaskValidatorShouldNotReturnErrors() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder()
@@ -247,7 +247,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenOnlyATaskReminderAtTheUpsertTaskValidatorShouldReturnAnError() {
+  void givenOnlyATaskReminderAtTheUpsertTaskValidatorShouldReturnAnError() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder().put("reminderAt", 5L).build();
@@ -278,7 +278,7 @@ public class InputFieldsValidatorTest {
   }
 
   @Test
-  public void givenOnlyATaskReminderAllDayTheUpsertTaskValidatorShouldReturnAnError() {
+  void givenOnlyATaskReminderAllDayTheUpsertTaskValidatorShouldReturnAnError() {
     // Given
     Map<String, Object> newTaskInput =
         ImmutableMap.<String, Object>builder().put("reminderAllDay", true).build();

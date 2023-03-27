@@ -47,7 +47,7 @@ public class InputFieldsValidator {
         errors.add("The reminderAt and the reminderAllDay attributes must be both always set");
       }
 
-      return errors.size() == 0
+      return errors.isEmpty()
           ? Optional.empty()
           : Optional.of(fieldValidationEnvironment.mkError(String.join("\n", errors)));
     };

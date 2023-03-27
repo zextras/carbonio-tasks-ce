@@ -41,9 +41,8 @@ public class AuthenticationServletFilter implements Filter {
   public void init(FilterConfig filterConfig) throws ServletException {
     Filter.super.init(filterConfig);
     logger.info(
-        String.format(
-            "Filter initialized to %s endpoint",
-            filterConfig.getServletContext().getServletContextName()));
+        "Filter initialized to {} endpoint",
+        filterConfig.getServletContext().getServletContextName());
   }
 
   @Override
@@ -81,5 +80,7 @@ public class AuthenticationServletFilter implements Filter {
   }
 
   @Override
-  public void destroy() {}
+  public void destroy() {
+    logger.trace("The destroy of this filter is not necessary");
+  }
 }

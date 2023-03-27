@@ -19,20 +19,22 @@ public final class Constants {
 
     public static final class API {
 
+      private API() {}
+
       public static final class Endpoints {
         public static final String GRAPHQL = "/graphql/";
         public static final String REST = "/rest";
 
         private Endpoints() {}
       }
-
-      private API() {}
     }
   }
 
   public static final class Config {
 
     public static final String ACCEPTED_COOKIE_TYPE = "ZM_AUTH_TOKEN";
+
+    private Config() {}
 
     public static final class Properties {
       public static final String DATABASE_URL = "carbonio.tasks.db.url";
@@ -59,18 +61,20 @@ public final class Constants {
 
       private UserService() {}
     }
-
-    private Config() {}
   }
 
   public static final class Database {
 
     public static final int DB_VERSION = 1;
 
+    private Database() {}
+
     public static final class Tables {
 
       public static final String DB_INFO = "db_info";
       public static final String TASK = "task";
+
+      private Tables() {}
 
       public static final class DbInfo {
         public static final String VERSION = "version";
@@ -91,16 +95,16 @@ public final class Constants {
 
         private Task() {}
       }
-
-      private Tables() {}
     }
-
-    private Database() {}
   }
 
   public static final class ServiceDiscover {
 
+    private ServiceDiscover() {}
+
     public static final class Config {
+
+      private Config() {}
 
       public static final class Key {
 
@@ -110,14 +114,12 @@ public final class Constants {
 
         private Key() {}
       }
-
-      private Config() {}
     }
-
-    private ServiceDiscover() {}
   }
 
   public static final class GraphQL {
+
+    private GraphQL() {}
 
     public static final class Context {
 
@@ -168,6 +170,8 @@ public final class Constants {
       public static final String NEW_TASK = "newTask";
       public static final String UPDATE_TASK = "updateTask";
 
+      private Inputs() {}
+
       public static final class TaskInput {
 
         public static final String ID = Task.ID;
@@ -180,8 +184,6 @@ public final class Constants {
 
         private TaskInput() {}
       }
-
-      private Inputs() {}
     }
 
     public static final class Queries {
@@ -200,7 +202,5 @@ public final class Constants {
 
       private Mutations() {}
     }
-
-    private GraphQL() {}
   }
 }

@@ -16,13 +16,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class DbInfoRepositoryEbeanTest {
+class DbInfoRepositoryEbeanTest {
 
   private Database ebeanDatabaseMock;
   private DbInfoRepository dbInfoRepository;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     ebeanDatabaseMock = Mockito.mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
     DatabaseConnectionManager connectionManagerMock = Mockito.mock(DatabaseConnectionManager.class);
     Mockito.when(connectionManagerMock.getEbeanDatabase()).thenReturn(ebeanDatabaseMock);
@@ -30,7 +30,7 @@ public class DbInfoRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAnInitializedDatabaseGetDatabaseVersionShouldReturnTheRightDbVersion() {
+  void givenAnInitializedDatabaseGetDatabaseVersionShouldReturnTheRightDbVersion() {
     // Given
     DbInfo dbInfoMock = Mockito.mock(DbInfo.class);
     Mockito.when(dbInfoMock.getVersion()).thenReturn(1);
@@ -41,11 +41,11 @@ public class DbInfoRepositoryEbeanTest {
     int databaseVersion = dbInfoRepository.getDatabaseVersion();
 
     // Then
-    Assertions.assertThat(databaseVersion).isEqualTo(1);
+    Assertions.assertThat(databaseVersion).isOne();
   }
 
   @Test
-  public void givenADatabaseNotInitializedGetDatabaseVersionShouldReturnZero() {
+  void givenADatabaseNotInitializedGetDatabaseVersionShouldReturnZero() {
     // Given
     Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
         .thenReturn(Optional.empty());
@@ -54,11 +54,11 @@ public class DbInfoRepositoryEbeanTest {
     int databaseVersion = dbInfoRepository.getDatabaseVersion();
 
     // Then
-    Assertions.assertThat(databaseVersion).isEqualTo(0);
+    Assertions.assertThat(databaseVersion).isZero();
   }
 
   @Test
-  public void givenAnInitializedDatabaseTheIsDatabaseInitializedShouldReturnTrue() {
+  void givenAnInitializedDatabaseTheIsDatabaseInitializedShouldReturnTrue() {
     // Given
     String rawSQLQuery =
         String.format(
@@ -76,7 +76,7 @@ public class DbInfoRepositoryEbeanTest {
   }
 
   @Test
-  public void givenADatabaseNotInitializedTheIsDatabaseInitializedShouldReturnFalse() {
+  void givenADatabaseNotInitializedTheIsDatabaseInitializedShouldReturnFalse() {
     // Given
     String rawSQLQuery =
         String.format(
@@ -94,7 +94,7 @@ public class DbInfoRepositoryEbeanTest {
   }
 
   @Test
-  public void givenAnInitializedDatabaseTheIsDatabaseLiveShouldReturnTrue() {
+  void givenAnInitializedDatabaseTheIsDatabaseLiveShouldReturnTrue() {
     // Given
     Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
         .thenReturn(Optional.of(Mockito.mock(DbInfo.class)));
@@ -107,7 +107,7 @@ public class DbInfoRepositoryEbeanTest {
   }
 
   @Test
-  public void givenADatabaseNotInitializedTheIsDatabaseLiveShouldReturnFalse() {
+  void givenADatabaseNotInitializedTheIsDatabaseLiveShouldReturnFalse() {
     // Given
     Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
         .thenReturn(Optional.empty());
