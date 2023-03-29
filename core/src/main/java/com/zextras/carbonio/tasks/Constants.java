@@ -20,7 +20,7 @@ public final class Constants {
     public static final class API {
 
       public static final class Endpoints {
-        public static final String GRAPHQL = "/graphql";
+        public static final String GRAPHQL = "/graphql/";
         public static final String REST = "/rest";
 
         private Endpoints() {}

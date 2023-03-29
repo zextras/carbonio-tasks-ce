@@ -35,6 +35,11 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>guice</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-servlet</artifactId>
+    </dependency>
+
     <!-- Logger -->
     <dependency>
       <artifactId>logback-classic</artifactId>
@@ -47,10 +52,15 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>graphql-java-servlet</artifactId>
     </dependency>
 
-    <!-- RESTEasy core -->
+    <!-- RESTEasy core + Jackson provider-->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <groupId>org.jboss.resteasy</groupId>
     </dependency>
 
     <!-- HTTP client -->
@@ -129,6 +139,14 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>resteasy-servlet-initializer</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-guice</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
 
     <!-- Authentication -->
     <dependency>

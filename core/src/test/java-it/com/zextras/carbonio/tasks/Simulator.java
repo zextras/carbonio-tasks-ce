@@ -6,14 +6,11 @@ package com.zextras.carbonio.tasks;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceFilter;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Properties;
 import com.zextras.carbonio.tasks.Constants.Config.UserService;
-import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
-import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
 import com.zextras.carbonio.tasks.config.TasksModule;
-import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
-import com.zextras.carbonio.tasks.rest.RestApplication;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.Map;
@@ -21,10 +18,8 @@ import javax.servlet.DispatcherType;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
+import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
@@ -49,8 +44,11 @@ public class Simulator implements AutoCloseable {
   private MockServerClient userManagementMock;
   private Server jettyServer;
   private LocalConnector httpLocalConnector;
-  private ServletContextHandler graphQlServletContextHandler;
-  private ServletContextHandler restServletContextHandler;
+  private boolean isJettyServerEnabled;
+
+  public Simulator() {
+    isJettyServerEnabled = false;
+  }
 
   private Simulator createInjector() {
     injector = Guice.createInjector(new TasksModule());
@@ -164,25 +162,8 @@ public class Simulator implements AutoCloseable {
                 .withBody("{\"userId\":\"" + userId + "\"}"));
   }
 
-  public Simulator createRestServlet() {
-    restServletContextHandler = new ServletContextHandler();
-    restServletContextHandler.setContextPath(Endpoints.REST);
-    ServletHolder restServletHolder =
-        restServletContextHandler.addServlet(HttpServlet30Dispatcher.class, "/*");
-    restServletHolder.setInitParameter("javax.ws.rs.Application", RestApplication.class.getName());
-
-    return this;
-  }
-
-  public Simulator createGraphQlServlet() {
-    GraphQLServlet graphQLServlet = injector.getInstance(GraphQLServlet.class);
-    graphQlServletContextHandler = new ServletContextHandler();
-    graphQlServletContextHandler.setContextPath(Endpoints.GRAPHQL);
-    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
-    graphQlServletContextHandler.addServlet(graphQLServletHolder, "/");
-    graphQlServletContextHandler.addFilter(
-        AuthenticationServletFilter.class, "/", EnumSet.of(DispatcherType.REQUEST));
-
+  public Simulator enableJettyServer() {
+    isJettyServerEnabled = true;
     return this;
   }
 
@@ -229,7 +210,7 @@ public class Simulator implements AutoCloseable {
   }
 
   public Simulator start() {
-    if (graphQlServletContextHandler != null || restServletContextHandler != null) {
+    if (isJettyServerEnabled) {
       startJettyServer();
     }
 
@@ -264,17 +245,13 @@ public class Simulator implements AutoCloseable {
       httpLocalConnector = new LocalConnector(jettyServer);
       jettyServer.addConnector(httpLocalConnector);
 
-      ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
+      ServletContextHandler servletContextHandler =
+          new ServletContextHandler(jettyServer, "/", ServletContextHandler.SESSIONS);
 
-      if (graphQlServletContextHandler != null) {
-        contextHandlerCollection.addHandler(graphQlServletContextHandler);
-      }
+      servletContextHandler.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+      servletContextHandler.addEventListener(
+          injector.getInstance(GuiceResteasyBootstrapServletContextListener.class));
 
-      if (restServletContextHandler != null) {
-        contextHandlerCollection.addHandler(restServletContextHandler);
-      }
-
-      jettyServer.setHandler(contextHandlerCollection);
       jettyServer.start();
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -325,13 +302,8 @@ public class Simulator implements AutoCloseable {
       return this;
     }
 
-    public SimulatorBuilder withGraphQlServlet() {
-      simulator.createGraphQlServlet();
-      return this;
-    }
-
-    public SimulatorBuilder withRestServlet() {
-      simulator.createRestServlet();
+    public SimulatorBuilder withServer() {
+      simulator.enableJettyServer();
       return this;
     }
 

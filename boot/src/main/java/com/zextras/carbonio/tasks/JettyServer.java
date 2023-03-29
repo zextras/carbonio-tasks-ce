@@ -5,27 +5,27 @@
 package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
+import com.google.inject.servlet.GuiceFilter;
 import com.zextras.carbonio.tasks.Constants.Service;
-import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
-import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
-import com.zextras.carbonio.tasks.rest.RestApplication;
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 
 public class JettyServer {
 
   private final GraphQLServlet graphQLServlet;
+  private final GuiceResteasyBootstrapServletContextListener guiceRestEasyListener;
 
   @Inject
-  public JettyServer(GraphQLServlet graphQLServlet) {
+  public JettyServer(
+      GuiceResteasyBootstrapServletContextListener guiceRestEasyListener,
+      GraphQLServlet graphQLServlet) {
+    this.guiceRestEasyListener = guiceRestEasyListener;
     this.graphQLServlet = graphQLServlet;
   }
 
@@ -52,11 +52,11 @@ public class JettyServer {
         connector.setPort(Service.PORT);
         server.addConnector(connector);
       }
-      // Create a ContextHandlerCollection to hold multiple context handlers.
-      ContextHandlerCollection contextCollection = new ContextHandlerCollection();
-      contextCollection.addHandler(createGraphQLHandler(graphQLServlet));
-      contextCollection.addHandler(createRESTHandler());
-      server.setHandler(contextCollection);
+      ServletContextHandler servletContextHandler =
+          new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+
+      servletContextHandler.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+      servletContextHandler.addEventListener(guiceRestEasyListener);
 
       server.start();
       server.join();
@@ -66,32 +66,5 @@ public class JettyServer {
         server.stop();
       }
     }
-  }
-
-  /**
-   * @return an {@link ServletContextHandler} associated to a {@link GraphQLServlet} instance.
-   */
-  private Handler createGraphQLHandler(GraphQLServlet graphQLServlet) {
-    ServletContextHandler servletContextHandler = new ServletContextHandler();
-    servletContextHandler.setContextPath(Endpoints.GRAPHQL);
-    ServletHolder graphQLServletHolder = new ServletHolder("graphql-servlet", graphQLServlet);
-
-    servletContextHandler.addServlet(graphQLServletHolder, "/");
-    servletContextHandler.addFilter(
-        AuthenticationServletFilter.class, "/", EnumSet.of(DispatcherType.REQUEST));
-    return servletContextHandler;
-  }
-
-  /**
-   * @return an {@link ServletContextHandler} associated to a {@link HttpServlet30Dispatcher}
-   *     instance.
-   */
-  private Handler createRESTHandler() {
-    ServletContextHandler servletContextHandler = new ServletContextHandler();
-    servletContextHandler.setContextPath(Endpoints.REST);
-    ServletHolder servletHolder =
-        servletContextHandler.addServlet(HttpServlet30Dispatcher.class, "/*");
-    servletHolder.setInitParameter("javax.ws.rs.Application", RestApplication.class.getName());
-    return servletContextHandler;
   }
 }
