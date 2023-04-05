@@ -34,9 +34,8 @@ import org.testcontainers.utility.MountableFile;
 @Testcontainers
 public class Simulator implements AutoCloseable {
 
-  private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
   public static final String DATABASE_PASSWORD = "test-password";
-
+  private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
   private Injector injector;
   private PostgreSQLContainer<?> postgreSQLContainer;
   private ClientAndServer clientAndServer;

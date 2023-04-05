@@ -7,10 +7,10 @@ package com.zextras.carbonio.tasks.rest.types.health;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ServiceHealthTest {
+class ServiceHealthTest {
 
   @Test
-  public void givenAllServiceHealthAttributesTheSettersShouldInitializeThemCorrectly() {
+  void givenAllServiceHealthAttributesTheSettersShouldInitializeThemCorrectly() {
     // Given & When
     ServiceHealth serviceHealth = new ServiceHealth();
     serviceHealth

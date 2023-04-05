@@ -21,20 +21,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TaskDataFetchersTest {
+class TaskDataFetchersTest {
 
   private TaskRepository taskRepositoryMock;
   private TaskDataFetchers taskDataFetchers;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     taskRepositoryMock = Mockito.mock(TaskRepository.class);
     taskDataFetchers = new TaskDataFetchers(taskRepositoryMock);
   }
 
   @Test
-  public void givenAnExistingTaskIdTheGetTaskDataFetcherShouldReturnAResultWithTheTask()
-      throws Exception {
+  void givenAnExistingTaskIdTheGetTaskDataFetcherShouldReturnAResultWithTheTask() throws Exception {
     // Given
     Task requestedTaskMock = Mockito.mock(Task.class);
     Mockito.when(requestedTaskMock.getId())
@@ -64,23 +63,24 @@ public class TaskDataFetchersTest {
         taskDataFetchers.getTask().get(environmentMock).get();
 
     // Then
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(0);
+    Assertions.assertThat(dataFetcherResult.getErrors()).isEmpty();
     Assertions.assertThat(dataFetcherResult.getData()).isNotNull();
 
     Map<String, Object> mapRequestedTask = dataFetcherResult.getData();
-    Assertions.assertThat(mapRequestedTask.get("id"))
-        .isEqualTo(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"));
-    Assertions.assertThat(mapRequestedTask.get("title")).isEqualTo("title1");
-    Assertions.assertThat(mapRequestedTask.get("description")).isNull();
-    Assertions.assertThat(mapRequestedTask.get("priority")).isEqualTo(Priority.MEDIUM);
-    Assertions.assertThat(mapRequestedTask.get("status")).isEqualTo(Status.COMPLETE);
-    Assertions.assertThat(mapRequestedTask.get("createdAt")).isEqualTo(10L);
-    Assertions.assertThat(mapRequestedTask.get("reminderAt")).isNull();
-    Assertions.assertThat(mapRequestedTask.get("reminderAllDay")).isNull();
+
+    Assertions.assertThat(mapRequestedTask)
+        .containsEntry("id", UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
+        .containsEntry("title", "title1")
+        .doesNotContainKey("description")
+        .containsEntry("priority", Priority.MEDIUM)
+        .containsEntry("status", Status.COMPLETE)
+        .containsEntry("createdAt", 10L)
+        .doesNotContainKey("reminderAt")
+        .doesNotContainKey("reminderAllDay");
   }
 
   @Test
-  public void givenANonExistingTaskIdTheGetTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
+  void givenANonExistingTaskIdTheGetTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
       throws Exception {
     // Given
     Mockito.when(
@@ -104,14 +104,14 @@ public class TaskDataFetchersTest {
 
     // Then
     Assertions.assertThat(dataFetcherResult.getData()).isNull();
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(1);
+    Assertions.assertThat(dataFetcherResult.getErrors()).hasSize(1);
 
     Assertions.assertThat(dataFetcherResult.getErrors().get(0).getMessage())
         .isEqualTo("Could not find task with id 6d162bee-3186-0000-bf31-59746a41600e");
   }
 
   @Test
-  public void
+  void
       givenAnExistingTaskAndAllUpdatedFieldsTheUpdateTaskDataFetcherShouldReturnAResultWithTheUpdatedTask()
           throws Exception {
     // Given
@@ -158,23 +158,23 @@ public class TaskDataFetchersTest {
         taskDataFetchers.updateTask().get(environmentMock).get();
 
     // Then
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(0);
+    Assertions.assertThat(dataFetcherResult.getErrors()).isEmpty();
     Assertions.assertThat(dataFetcherResult.getData()).isNotNull();
 
     Map<String, Object> mapUpdatedTask = dataFetcherResult.getData();
-    Assertions.assertThat(mapUpdatedTask.get("id"))
-        .isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-    Assertions.assertThat(mapUpdatedTask.get("title")).isEqualTo("New title");
-    Assertions.assertThat(mapUpdatedTask.get("description")).isEqualTo("New description");
-    Assertions.assertThat(mapUpdatedTask.get("priority")).isEqualTo(Priority.LOW);
-    Assertions.assertThat(mapUpdatedTask.get("status")).isEqualTo(Status.COMPLETE);
-    Assertions.assertThat(mapUpdatedTask.get("createdAt")).isEqualTo(5L);
-    Assertions.assertThat(mapUpdatedTask.get("reminderAt")).isEqualTo(55L);
-    Assertions.assertThat(mapUpdatedTask.get("reminderAllDay")).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(mapUpdatedTask)
+        .containsEntry("id", UUID.fromString("11111111-1111-1111-1111-111111111111"))
+        .containsEntry("title", "New title")
+        .containsEntry("description", "New description")
+        .containsEntry("priority", Priority.LOW)
+        .containsEntry("status", Status.COMPLETE)
+        .containsEntry("createdAt", 5L)
+        .containsEntry("reminderAt", 55L)
+        .containsEntry("reminderAllDay", Boolean.TRUE);
   }
 
   @Test
-  public void
+  void
       givenAnExistingTaskAndNoFieldsToUpdateTheUpdateTaskDataFetcherShouldReturnAResultWithTheUntouchedTask()
           throws Exception {
     // Given
@@ -215,23 +215,23 @@ public class TaskDataFetchersTest {
         taskDataFetchers.updateTask().get(environmentMock).get();
 
     // Then
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(0);
+    Assertions.assertThat(dataFetcherResult.getErrors()).isEmpty();
     Assertions.assertThat(dataFetcherResult.getData()).isNotNull();
 
     Map<String, Object> mapUpdatedTask = dataFetcherResult.getData();
-    Assertions.assertThat(mapUpdatedTask.get("id"))
-        .isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-    Assertions.assertThat(mapUpdatedTask.get("title")).isEqualTo("title");
-    Assertions.assertThat(mapUpdatedTask.get("description")).isEqualTo("description");
-    Assertions.assertThat(mapUpdatedTask.get("priority")).isEqualTo(Priority.HIGH);
-    Assertions.assertThat(mapUpdatedTask.get("status")).isEqualTo(Status.OPEN);
-    Assertions.assertThat(mapUpdatedTask.get("createdAt")).isEqualTo(5L);
-    Assertions.assertThat(mapUpdatedTask.get("reminderAt")).isNull();
-    Assertions.assertThat(mapUpdatedTask.get("reminderAllDay")).isNull();
+    Assertions.assertThat(mapUpdatedTask)
+        .containsEntry("id", UUID.fromString("11111111-1111-1111-1111-111111111111"))
+        .containsEntry("title", "title")
+        .containsEntry("description", "description")
+        .containsEntry("priority", Priority.HIGH)
+        .containsEntry("status", Status.OPEN)
+        .containsEntry("createdAt", 5L)
+        .doesNotContainKey("reminderAt")
+        .doesNotContainKey("reminderAllDay");
   }
 
   @Test
-  public void
+  void
       givenAnExistingTaskAndReminderAtToZeroTheUpdateTaskDataFetcherShouldReturnAResultWithTheTaskWithTheReminderReset()
           throws Exception {
     // Given
@@ -274,18 +274,18 @@ public class TaskDataFetchersTest {
         taskDataFetchers.updateTask().get(environmentMock).get();
 
     // Then
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(0);
+    Assertions.assertThat(dataFetcherResult.getErrors()).isEmpty();
     Assertions.assertThat(dataFetcherResult.getData()).isNotNull();
 
     Map<String, Object> mapUpdatedTask = dataFetcherResult.getData();
-    Assertions.assertThat(mapUpdatedTask.get("id"))
-        .isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-    Assertions.assertThat(mapUpdatedTask.get("reminderAt")).isNull();
-    Assertions.assertThat(mapUpdatedTask.get("reminderAllDay")).isNull();
+    Assertions.assertThat(mapUpdatedTask)
+        .containsEntry("id", UUID.fromString("11111111-1111-1111-1111-111111111111"))
+        .doesNotContainKey("reminderAt")
+        .doesNotContainKey("reminderAllDay");
   }
 
   @Test
-  public void givenANotExistingTaskTheUpdateTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
+  void givenANotExistingTaskTheUpdateTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
       throws Exception {
     // Given
     GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
@@ -315,7 +315,7 @@ public class TaskDataFetchersTest {
 
     // Then
     Assertions.assertThat(dataFetcherResult.getData()).isNull();
-    Assertions.assertThat(dataFetcherResult.getErrors().size()).isEqualTo(1);
+    Assertions.assertThat(dataFetcherResult.getErrors()).hasSize(1);
 
     Assertions.assertThat(dataFetcherResult.getErrors().get(0).getMessage())
         .isEqualTo("Could not find task with id 11111111-1111-1111-1111-111111111111");

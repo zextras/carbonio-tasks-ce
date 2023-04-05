@@ -6,6 +6,7 @@ package com.zextras.carbonio.tasks.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
+import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
 import java.util.List;
 import java.util.Properties;
@@ -22,7 +23,7 @@ import org.mockserver.model.HttpResponse;
 import org.mockserver.verify.VerificationTimes;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
 
-public class TaskConfigTest {
+class TaskConfigTest {
 
   private static ClientAndServer clientAndServer;
   private static MockServerClient serviceDiscoverMock;
@@ -33,18 +34,18 @@ public class TaskConfigTest {
     serviceDiscoverMock = new MockServerClient("localhost", 8500);
   }
 
-  @BeforeEach
-  public void setUp() {
-    serviceDiscoverMock.reset();
-  }
-
   @AfterAll
   static void cleanUpAll() {
     clientAndServer.stop();
   }
 
+  @BeforeEach
+  void setUp() {
+    serviceDiscoverMock.reset();
+  }
+
   @Test
-  public void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnADataSource() {
+  void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnADataSource() {
     // Given
     createServiceDiscoverMock();
 
@@ -58,7 +59,7 @@ public class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEqualTo("fake-db-password");
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties.size()).isEqualTo(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(1);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
 
     serviceDiscoverMock.verify(
@@ -81,7 +82,7 @@ public class TaskConfigTest {
   }
 
   @Test
-  public void givenAnUnavailableServiceDiscoverTheTasksConfigShouldReturnADataSource() {
+  void givenAnUnavailableServiceDiscoverTheTasksConfigShouldReturnADataSource() {
     // Given
 
     // When
@@ -91,15 +92,15 @@ public class TaskConfigTest {
     Assertions.assertThat(dataSource.getJdbcUrl())
         .isEqualTo("jdbc:postgresql://127.78.0.16:20000/carbonio-tasks-db");
     Assertions.assertThat(dataSource.getUsername()).isEqualTo("carbonio-tasks-db");
-    Assertions.assertThat(dataSource.getPassword()).isEqualTo("");
+    Assertions.assertThat(dataSource.getPassword()).isEmpty();
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties.size()).isEqualTo(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(1);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
   }
 
   @Test
-  public void givenDatabaseUrlAndPortSystemPropertiesTheTasksConfigShouldReturnADataSource() {
+  void givenDatabaseUrlAndPortSystemPropertiesTheTasksConfigShouldReturnADataSource() {
     // Given
     System.setProperty("carbonio.tasks.db.url", "different-url");
     System.setProperty("carbonio.tasks.db.port", "888");
@@ -113,7 +114,7 @@ public class TaskConfigTest {
   }
 
   @Test
-  public void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
+  void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
     // Given
     createServiceDiscoverMock();
     // When
@@ -142,7 +143,7 @@ public class TaskConfigTest {
   }
 
   @Test
-  public void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
+  void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
     // Given & When
     String databaseName = new TasksConfig().getDatabaseName();
 
@@ -151,7 +152,7 @@ public class TaskConfigTest {
   }
 
   @Test
-  public void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
+  void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
     // Given
     createServiceDiscoverMock();
     // When
@@ -162,8 +163,7 @@ public class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     List<Class<?>> entityClasses = databaseConfig.getClasses();
-    Assertions.assertThat(entityClasses.size()).isEqualTo(2);
-    Assertions.assertThat(entityClasses).contains(DbInfo.class);
+    Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
     HikariDataSource dataSource = (HikariDataSource) databaseConfig.getDataSource();
@@ -174,7 +174,7 @@ public class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEqualTo("fake-db-password");
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties.size()).isEqualTo(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(1);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
 
     serviceDiscoverMock.verify(
@@ -197,7 +197,7 @@ public class TaskConfigTest {
   }
 
   @Test
-  public void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
+  void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
     // Given
 
     // When
@@ -208,8 +208,7 @@ public class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     List<Class<?>> entityClasses = databaseConfig.getClasses();
-    Assertions.assertThat(entityClasses.size()).isEqualTo(2);
-    Assertions.assertThat(entityClasses).contains(DbInfo.class);
+    Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
     HikariDataSource dataSource = (HikariDataSource) databaseConfig.getDataSource();
@@ -217,10 +216,10 @@ public class TaskConfigTest {
     Assertions.assertThat(dataSource.getJdbcUrl())
         .isEqualTo("jdbc:postgresql://127.78.0.16:20000/carbonio-tasks-db");
     Assertions.assertThat(dataSource.getUsername()).isEqualTo("carbonio-tasks-db");
-    Assertions.assertThat(dataSource.getPassword()).isEqualTo("");
+    Assertions.assertThat(dataSource.getPassword()).isEmpty();
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties.size()).isEqualTo(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(1);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
   }
 

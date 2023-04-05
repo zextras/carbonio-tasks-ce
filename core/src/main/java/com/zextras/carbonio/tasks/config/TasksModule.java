@@ -49,7 +49,7 @@ public class TasksModule extends AbstractModule {
             filter(Endpoints.GRAPHQL).through(AuthenticationServletFilter.class);
             serve(Endpoints.GRAPHQL).with(GraphQLServlet.class);
 
-            Map<String, String> initParam = new HashMap();
+            Map<String, String> initParam = new HashMap<>();
             initParam.put("javax.ws.rs.Application", RestApplication.class.getName());
             initParam.put("resteasy.servlet.mapping.prefix", Endpoints.REST);
             serve(Endpoints.REST + "/*").with(HttpServlet30Dispatcher.class, initParam);

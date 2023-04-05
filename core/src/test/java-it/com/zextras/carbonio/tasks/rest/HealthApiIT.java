@@ -24,12 +24,11 @@ import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
-public class HealthApiIT {
+class HealthApiIT {
 
   @Test
-  public void
-      givenAllDependenciesHealthyTheHealthShouldReturn200CodeWithTheHealthStatusOfEachDependency()
-          throws Exception {
+  void givenAllDependenciesHealthyTheHealthShouldReturn200CodeWithTheHealthStatusOfEachDependency()
+      throws Exception {
     // Given
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator()
@@ -64,7 +63,7 @@ public class HealthApiIT {
           new ObjectMapper().readValue(httpFields.getContent(), HealthStatus.class);
       Assertions.assertThat(healthStatus.isReady()).isTrue();
       List<ServiceHealth> dependenciesHealth = healthStatus.getDependencies();
-      Assertions.assertThat(dependenciesHealth.size()).isEqualTo(2);
+      Assertions.assertThat(dependenciesHealth).hasSize(2);
 
       Assertions.assertThat(dependenciesHealth.get(0).getName()).isEqualTo("database");
       Assertions.assertThat(dependenciesHealth.get(0).isLive()).isTrue();
@@ -80,7 +79,7 @@ public class HealthApiIT {
   }
 
   @Test
-  public void
+  void
       givenUserManagementUnreachableTheHealthShouldReturn502CodeWithTheHealthStatusOfEachDependency()
           throws Exception {
     // Given
@@ -107,7 +106,7 @@ public class HealthApiIT {
           new ObjectMapper().readValue(httpFields.getContent(), HealthStatus.class);
       Assertions.assertThat(healthStatus.isReady()).isFalse();
       List<ServiceHealth> dependenciesHealth = healthStatus.getDependencies();
-      Assertions.assertThat(dependenciesHealth.size()).isEqualTo(2);
+      Assertions.assertThat(dependenciesHealth).hasSize(2);
 
       Assertions.assertThat(dependenciesHealth.get(0).getName()).isEqualTo("database");
       Assertions.assertThat(dependenciesHealth.get(0).isLive()).isTrue();
@@ -123,7 +122,7 @@ public class HealthApiIT {
   }
 
   @Test
-  public void givenAnHealthServiceTheHealthLiveShouldReturn204StatusCode() throws Exception {
+  void givenAnHealthServiceTheHealthLiveShouldReturn204StatusCode() throws Exception {
     // Given
     try (Simulator simulator = SimulatorBuilder.aSimulator().init().withServer().build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
@@ -139,13 +138,12 @@ public class HealthApiIT {
 
       // Then
       Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
-      Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
+      Assertions.assertThat(httpFields.getContent()).isEmpty();
     }
   }
 
   @Test
-  public void givenAllDependenciesHealthyTheHealthReadyShouldReturn204StatusCode()
-      throws Exception {
+  void givenAllDependenciesHealthyTheHealthReadyShouldReturn204StatusCode() throws Exception {
     // Given
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator()
@@ -175,13 +173,12 @@ public class HealthApiIT {
 
       // Then
       Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
-      Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
+      Assertions.assertThat(httpFields.getContent()).isEmpty();
     }
   }
 
   @Test
-  public void givenUserManagementUnreachableTheHealthReadyShouldReturn502StatusCode()
-      throws Exception {
+  void givenUserManagementUnreachableTheHealthReadyShouldReturn502StatusCode() throws Exception {
     // Given
     // Notice tha absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
@@ -201,7 +198,7 @@ public class HealthApiIT {
 
       // Then
       Assertions.assertThat(httpFields.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY_502);
-      Assertions.assertThat(httpFields.getContent().isEmpty()).isTrue();
+      Assertions.assertThat(httpFields.getContent()).isEmpty();
     }
   }
 }

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
-public class UpdateTaskApiIT {
+class UpdateTaskApiIT {
 
   static Simulator simulator;
   static LocalConnector httpLocalConnector;
@@ -64,18 +64,18 @@ public class UpdateTaskApiIT {
     taskRepository = simulator.getInjector().getInstance(TaskRepository.class);
   }
 
-  @AfterEach
-  public void cleanUp() {
-    simulator.resetDatabase();
-  }
-
   @AfterAll
   static void cleanUpAll() {
     simulator.stopAll();
   }
 
+  @AfterEach
+  void cleanUp() {
+    simulator.resetDatabase();
+  }
+
   @Test
-  public void givenAnExistingTaskAndAllUpdatedFieldsTheUpdateTaskShouldReturnTheUpdatedTask()
+  void givenAnExistingTaskAndAllUpdatedFieldsTheUpdateTaskShouldReturnTheUpdatedTask()
       throws Exception {
     // Given
     Task task =
@@ -118,27 +118,23 @@ public class UpdateTaskApiIT {
     Map<String, Object> updatedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "updateTask");
 
-    Assertions.assertThat(updatedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(updatedTask.get("title")).isEqualTo("Updated title");
-    Assertions.assertThat(updatedTask.get("description")).isNotNull();
-    Assertions.assertThat(updatedTask.get("description")).isEqualTo("Updated description");
-    Assertions.assertThat(updatedTask.get("priority")).isEqualTo("LOW");
-    Assertions.assertThat(updatedTask.get("status")).isEqualTo("COMPLETE");
-    Assertions.assertThat(updatedTask.get("createdAt"))
-        .isEqualTo(task.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(updatedTask.get("reminderAt")).isNotNull();
-    Assertions.assertThat(updatedTask.get("reminderAt")).isEqualTo(100);
-    Assertions.assertThat(updatedTask.get("reminderAllDay")).isNotNull();
-    Assertions.assertThat(updatedTask.get("reminderAllDay")).isEqualTo(Boolean.FALSE);
+    Assertions.assertThat(updatedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("title", "Updated title")
+        .containsEntry("description", "Updated description")
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "COMPLETE")
+        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", 100)
+        .containsEntry("reminderAllDay", Boolean.FALSE);
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors).isEmpty();
   }
 
   @Test
-  public void
-      givenAnExistingTaskAndNoFieldsToUpdateTheUpdateTaskDataFetcherShouldReturnTheUntouchedTask()
-          throws Exception {
+  void givenAnExistingTaskAndNoFieldsToUpdateTheUpdateTaskDataFetcherShouldReturnTheUntouchedTask()
+      throws Exception {
     // Given
     Task task =
         taskRepository.createTask(
@@ -174,25 +170,22 @@ public class UpdateTaskApiIT {
     Map<String, Object> updatedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "updateTask");
 
-    Assertions.assertThat(updatedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(updatedTask.get("title")).isEqualTo("Title");
-    Assertions.assertThat(updatedTask.get("description")).isNotNull();
-    Assertions.assertThat(updatedTask.get("description")).isEqualTo("Description");
-    Assertions.assertThat(updatedTask.get("priority")).isEqualTo("HIGH");
-    Assertions.assertThat(updatedTask.get("status")).isEqualTo("OPEN");
-    Assertions.assertThat(updatedTask.get("createdAt"))
-        .isEqualTo(task.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(updatedTask.get("reminderAt")).isNotNull();
-    Assertions.assertThat(updatedTask.get("reminderAt")).isEqualTo(50);
-    Assertions.assertThat(updatedTask.get("reminderAllDay")).isNotNull();
-    Assertions.assertThat(updatedTask.get("reminderAllDay")).isEqualTo(Boolean.TRUE);
+    Assertions.assertThat(updatedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("description", "Description")
+        .containsEntry("title", "Title")
+        .containsEntry("priority", "HIGH")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", 50)
+        .containsEntry("reminderAllDay", Boolean.TRUE);
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors).isEmpty();
   }
 
   @Test
-  public void givenANotExistingTaskTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
+  void givenANotExistingTaskTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
@@ -221,13 +214,13 @@ public class UpdateTaskApiIT {
     Assertions.assertThat(updatedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Could not find task with id 00000000-0000-0000-0000-000000000000");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Could not find task with id 00000000-0000-0000-0000-000000000000");
   }
 
   @Test
-  public void givenATitleTooLongTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
+  void givenATitleTooLongTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
@@ -258,14 +251,13 @@ public class UpdateTaskApiIT {
     Assertions.assertThat(updatedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Invalid title. Length is more than 1024 characters");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Invalid title. Length is more than 1024 characters");
   }
 
   @Test
-  public void givenATitleOf1024CharsTheUpdateTaskDataFetcherShouldReturnTheUpdatedTask()
-      throws Exception {
+  void givenATitleOf1024CharsTheUpdateTaskDataFetcherShouldReturnTheUpdatedTask() throws Exception {
     // Given
     Task task =
         taskRepository.createTask(
@@ -304,17 +296,17 @@ public class UpdateTaskApiIT {
     Map<String, Object> updatedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "updateTask");
 
-    Assertions.assertThat(updatedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(updatedTask.get("title")).isEqualTo(string1024chars);
+    Assertions.assertThat(updatedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("title", string1024chars);
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors).isEmpty();
   }
 
   @Test
-  public void
-      givenADescriptionTooLongTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
-          throws Exception {
+  void givenADescriptionTooLongTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
+      throws Exception {
     // Given
     String description =
         string1024chars + string1024chars + string1024chars + string1024chars + "1";
@@ -346,13 +338,13 @@ public class UpdateTaskApiIT {
     Assertions.assertThat(updatedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("Invalid description. Length is more than 4096 characters");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("Invalid description. Length is more than 4096 characters");
   }
 
   @Test
-  public void givenADescriptionOf4096CharsTheUpdateTaskDataFetcherShouldReturnTheUpdatedTask()
+  void givenADescriptionOf4096CharsTheUpdateTaskDataFetcherShouldReturnTheUpdatedTask()
       throws Exception {
     // Given
     String description = string1024chars + string1024chars + string1024chars + string1024chars;
@@ -393,15 +385,16 @@ public class UpdateTaskApiIT {
     Map<String, Object> updatedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "updateTask");
 
-    Assertions.assertThat(updatedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(updatedTask.get("description")).isEqualTo(description);
+    Assertions.assertThat(updatedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("description", description);
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors).isEmpty();
   }
 
   @Test
-  public void givenOnlyAReminderAtTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
+  void givenOnlyAReminderAtTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
       throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
@@ -430,15 +423,14 @@ public class UpdateTaskApiIT {
     Assertions.assertThat(updatedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("The reminderAt and the reminderAllDay attributes must be both always set");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("The reminderAt and the reminderAllDay attributes must be both always set");
   }
 
   @Test
-  public void
-      givenOnlyAReminderAllDayTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
-          throws Exception {
+  void givenOnlyAReminderAllDayTheUpdateTaskDataFetcherShouldReturn200CodeWithAnErrorMessage()
+      throws Exception {
     // Given
     HttpTester.Request request = HttpTester.newRequest();
     request.setMethod(HttpMethod.POST.toString());
@@ -466,13 +458,13 @@ public class UpdateTaskApiIT {
     Assertions.assertThat(updatedTask).isEmpty();
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
-    Assertions.assertThat(errors.size()).isEqualTo(1);
-    Assertions.assertThat(errors.get(0))
-        .isEqualTo("The reminderAt and the reminderAllDay attributes must be both always set");
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains("The reminderAt and the reminderAllDay attributes must be both always set");
   }
 
   @Test
-  public void
+  void
       givenAnExistingTaskAndReminderAtToZeroTheUpdateTaskDataFetcherShouldReturnTheTaskWithTheReminderReset()
           throws Exception {
     // Given
@@ -512,9 +504,10 @@ public class UpdateTaskApiIT {
     Map<String, Object> updatedTask =
         TestUtils.jsonResponseToMap(response.getContent(), "updateTask");
 
-    Assertions.assertThat(updatedTask.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(updatedTask.get("reminderAt")).isNull();
-    Assertions.assertThat(updatedTask.get("reminderAllDay")).isNull();
+    Assertions.assertThat(updatedTask)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
 
     List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
     Assertions.assertThat(errors).isEmpty();

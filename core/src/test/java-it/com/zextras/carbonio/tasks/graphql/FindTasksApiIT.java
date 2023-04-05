@@ -26,7 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class FindTasksApiIT {
+class FindTasksApiIT {
 
   private static Simulator simulator;
   private static LocalConnector httpLocalConnector;
@@ -51,18 +51,18 @@ public class FindTasksApiIT {
     taskRepository = simulator.getInjector().getInstance(TaskRepository.class);
   }
 
-  @AfterEach
-  public void cleanUp() {
-    simulator.resetDatabase();
-  }
-
   @AfterAll
   static void cleanUpAll() {
     simulator.stopAll();
   }
 
+  @AfterEach
+  void cleanUp() {
+    simulator.resetDatabase();
+  }
+
   @Test
-  public void givenAnOpenStatusTheFindTasksShouldReturnTheTasksOfTheRequesterInAOpenState()
+  void givenAnOpenStatusTheFindTasksShouldReturnTheTasksOfTheRequesterInAOpenState()
       throws Exception {
     // Given
     Task task1 =
@@ -124,32 +124,33 @@ public class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull();
-    Assertions.assertThat(findTasks.size()).isEqualTo(2);
+    Assertions.assertThat(findTasks).isNotNull().hasSize(2);
 
     Map<String, Object> result1 = findTasks.get(0);
-    Assertions.assertThat(result1.get("id")).isEqualTo(task2.getId().toString());
-    Assertions.assertThat(result1.get("title")).isEqualTo("title2");
-    Assertions.assertThat(result1.get("description")).isNull();
-    Assertions.assertThat(result1.get("priority")).isEqualTo("LOW");
-    Assertions.assertThat(result1.get("status")).isEqualTo("OPEN");
-    Assertions.assertThat(result1.get("createdAt")).isEqualTo(task2.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(result1.get("reminderAt")).isNull();
-    Assertions.assertThat(result1.get("reminderAllDay")).isNull();
+    Assertions.assertThat(result1)
+        .containsEntry("id", task2.getId().toString())
+        .containsEntry("title", "title2")
+        .containsEntry("description", null)
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task2.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
 
     Map<String, Object> result2 = findTasks.get(1);
-    Assertions.assertThat(result2.get("id")).isEqualTo(task1.getId().toString());
-    Assertions.assertThat(result2.get("title")).isEqualTo("title1");
-    Assertions.assertThat(result2.get("description")).isNull();
-    Assertions.assertThat(result2.get("priority")).isEqualTo("MEDIUM");
-    Assertions.assertThat(result2.get("status")).isEqualTo("OPEN");
-    Assertions.assertThat(result2.get("createdAt")).isEqualTo(task1.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(result2.get("reminderAt")).isNull();
-    Assertions.assertThat(result2.get("reminderAllDay")).isNull();
+    Assertions.assertThat(result2)
+        .containsEntry("id", task1.getId().toString())
+        .containsEntry("title", "title1")
+        .containsEntry("description", null)
+        .containsEntry("priority", "MEDIUM")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task1.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
   }
 
   @Test
-  public void givenALowPriorityTheFindTasksShouldReturnTheTasksOfTheRequesterWithLowPriority()
+  void givenALowPriorityTheFindTasksShouldReturnTheTasksOfTheRequesterWithLowPriority()
       throws Exception {
     // Given
     taskRepository.createTask(
@@ -210,24 +211,23 @@ public class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull();
-    Assertions.assertThat(findTasks.size()).isEqualTo(1);
+    Assertions.assertThat(findTasks).isNotNull().hasSize(1);
 
     Map<String, Object> result1 = findTasks.get(0);
-    Assertions.assertThat(result1.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(result1.get("title")).isEqualTo("title2");
-    Assertions.assertThat(result1.get("description")).isNull();
-    Assertions.assertThat(result1.get("priority")).isEqualTo("LOW");
-    Assertions.assertThat(result1.get("status")).isEqualTo("OPEN");
-    Assertions.assertThat(result1.get("createdAt")).isEqualTo(task.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(result1.get("reminderAt")).isNull();
-    Assertions.assertThat(result1.get("reminderAllDay")).isNull();
+    Assertions.assertThat(result1)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("title", "title2")
+        .containsEntry("description", null)
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
   }
 
   @Test
-  public void
-      givenAnCompleteStatusAndAHighPriorityTheFindTasksShouldReturnTheMatchingTasksOfTheRequester()
-          throws Exception {
+  void givenAnCompleteStatusAndAHighPriorityTheFindTasksShouldReturnTheMatchingTasksOfTheRequester()
+      throws Exception {
     // Given
     taskRepository.createTask(
         "00000000-0000-0000-0000-000000000000",
@@ -278,22 +278,22 @@ public class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull();
-    Assertions.assertThat(findTasks.size()).isEqualTo(1);
+    Assertions.assertThat(findTasks).isNotNull().hasSize(1);
 
     Map<String, Object> result1 = findTasks.get(0);
-    Assertions.assertThat(result1.get("id")).isEqualTo(task.getId().toString());
-    Assertions.assertThat(result1.get("title")).isEqualTo("title3");
-    Assertions.assertThat(result1.get("description")).isNull();
-    Assertions.assertThat(result1.get("priority")).isEqualTo("HIGH");
-    Assertions.assertThat(result1.get("status")).isEqualTo("COMPLETE");
-    Assertions.assertThat(result1.get("createdAt")).isEqualTo(task.getCreatedAt().toEpochMilli());
-    Assertions.assertThat(result1.get("reminderAt")).isNull();
-    Assertions.assertThat(result1.get("reminderAllDay")).isNull();
+    Assertions.assertThat(result1)
+        .containsEntry("id", task.getId().toString())
+        .containsEntry("title", "title3")
+        .containsEntry("description", null)
+        .containsEntry("priority", "HIGH")
+        .containsEntry("status", "COMPLETE")
+        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
   }
 
   @Test
-  public void givenANonMatchingPriorityAndStatusInputTheFindTasksShouldReturnAnEmptyListOfTasks()
+  void givenANonMatchingPriorityAndStatusInputTheFindTasksShouldReturnAnEmptyListOfTasks()
       throws Exception {
     // Given
     taskRepository.createTask(
@@ -335,7 +335,6 @@ public class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull();
-    Assertions.assertThat(findTasks.size()).isEqualTo(0);
+    Assertions.assertThat(findTasks).isNotNull().isEmpty();
   }
 }

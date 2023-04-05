@@ -14,6 +14,7 @@ import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-public class DatabaseInitializerIT {
+class DatabaseInitializerIT {
 
   private PostgreSQLContainer<?> postgreSQLContainer;
   private Simulator simulator;
@@ -33,7 +34,7 @@ public class DatabaseInitializerIT {
    * initialization process.
    */
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
     postgreSQLContainer
         .withDatabaseName(Database.NAME)
@@ -50,13 +51,14 @@ public class DatabaseInitializerIT {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     simulator.stopAll();
     postgreSQLContainer.stop();
   }
 
   @Test
-  public void givenAReachableDatabaseTheDatabaseShouldBeCorrectlyInitialized() {
+  void givenAReachableDatabaseTheDatabaseShouldBeCorrectlyInitialized()
+      throws FileNotFoundException {
     // Given
     Injector injector = simulator.getInjector();
 
@@ -76,7 +78,8 @@ public class DatabaseInitializerIT {
   }
 
   @Test
-  public void givenAReachableAndInitializedDatabaseTheInitializerShouldNotReInitializeTheDb() {
+  void givenAReachableAndInitializedDatabaseTheInitializerShouldNotReInitializeTheDb()
+      throws FileNotFoundException {
     // Given
     Injector injector = simulator.getInjector();
 
@@ -105,6 +108,6 @@ public class DatabaseInitializerIT {
     // Checking if the content of the database is still there. If yes, it means that the second
     // initialization was correctly skipped
     List<Task> tasks = dbConnection.getEbeanDatabase().find(Task.class).findList();
-    Assertions.assertThat(tasks.size()).isEqualTo(1);
+    Assertions.assertThat(tasks).hasSize(1);
   }
 }

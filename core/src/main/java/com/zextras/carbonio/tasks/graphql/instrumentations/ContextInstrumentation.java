@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.graphql.instrumentations;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import graphql.ExecutionResult;
 import graphql.execution.instrumentation.InstrumentationContext;
+import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.SimpleInstrumentationContext;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
@@ -17,7 +18,7 @@ public class ContextInstrumentation extends SimpleInstrumentation {
 
   @Override
   public InstrumentationContext<ExecutionResult> beginExecution(
-      InstrumentationExecutionParameters parameters) {
+      InstrumentationExecutionParameters parameters, InstrumentationState instrumentationState) {
     HttpServletRequest request = parameters.getGraphQLContext().get(HttpServletRequest.class);
 
     if (request != null) {

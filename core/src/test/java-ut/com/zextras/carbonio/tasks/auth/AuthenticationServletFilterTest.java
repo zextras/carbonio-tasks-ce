@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AuthenticationServletFilterTest {
+class AuthenticationServletFilterTest {
 
   private UserManagementClient userManagementClientMock;
 
@@ -32,7 +32,7 @@ public class AuthenticationServletFilterTest {
   }
 
   @Test
-  public void givenAFilterConfigTheInitShouldInitializeTheFilter() throws ServletException {
+  void givenAFilterConfigTheInitShouldInitializeTheFilter() throws ServletException {
     // Given
     FilterConfig filterConfigMock = Mockito.mock(FilterConfig.class);
     Mockito.when(filterConfigMock.getServletContext())
@@ -49,7 +49,7 @@ public class AuthenticationServletFilterTest {
   }
 
   @Test
-  public void givenARequestWithAValidCookieTheDoFilterShouldAddTheRequesterIdInTheServletContext()
+  void givenARequestWithAValidCookieTheDoFilterShouldAddTheRequesterIdInTheServletContext()
       throws ServletException, IOException {
     // Given
     Cookie[] cookies = {
@@ -84,8 +84,7 @@ public class AuthenticationServletFilterTest {
   }
 
   @Test
-  public void givenANotHttpRequestTheDoFilterShouldBlockTheRequest()
-      throws ServletException, IOException {
+  void givenANotHttpRequestTheDoFilterShouldBlockTheRequest() throws ServletException, IOException {
     // Given
     ServletRequest httpRequestMock = Mockito.mock(ServletRequest.class);
     ServletResponse httpResponseMock = Mockito.mock(ServletResponse.class);
@@ -105,7 +104,7 @@ public class AuthenticationServletFilterTest {
   }
 
   @Test
-  public void givenARequestWithAnUnsupportedCookieTypeTheDoFilterShouldRespondWithA401StatusCode()
+  void givenARequestWithAnUnsupportedCookieTypeTheDoFilterShouldRespondWithA401StatusCode()
       throws ServletException, IOException {
     // Given
     Cookie[] cookies = {new Cookie("UNSUPPORTED_COOKIE_TYPE", "zm-token")};
@@ -132,7 +131,7 @@ public class AuthenticationServletFilterTest {
   }
 
   @Test
-  public void givenARequestWithAnInvalidCookieTheDoFilterShouldRespondWithA401StatusCode()
+  void givenARequestWithAnInvalidCookieTheDoFilterShouldRespondWithA401StatusCode()
       throws ServletException, IOException {
     // Given
     Cookie[] cookies = {new Cookie("ZM_AUTH_TOKEN", "invalid-token")};

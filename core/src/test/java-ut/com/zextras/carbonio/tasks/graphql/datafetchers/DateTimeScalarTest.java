@@ -24,14 +24,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 
-public class DateTimeScalarTest {
+class DateTimeScalarTest {
 
-  static Stream<Arguments> generateUnsupportedType() {
+  private static Stream<Arguments> generateUnsupportedType() {
     return Stream.of(Arguments.of(Boolean.FALSE), Arguments.of("ciao"), Arguments.of(new Object()));
   }
 
   @Test
-  public void graphQlScalarTypeShouldConstructADateTimeScalarCorrectly() {
+  void graphQlScalarTypeShouldConstructADateTimeScalarCorrectly() {
     // Given & When
     GraphQLScalarType dateTimeScalarType = new DateTimeScalar().graphQLScalarType();
 
@@ -43,7 +43,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenAALongTheSerializeShouldReturnASerializedLong() {
+  void givenAALongTheSerializeShouldReturnASerializedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     Long inputValue = 333L;
@@ -56,7 +56,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenAStringOfALongTheSerializeShouldReturnASerializedLong() {
+  void givenAStringOfALongTheSerializeShouldReturnASerializedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     String inputValue = "333";
@@ -70,7 +70,7 @@ public class DateTimeScalarTest {
 
   @ParameterizedTest
   @MethodSource("generateUnsupportedType")
-  public void givenAnUnsupportedTypeTheSerializeShouldThrownAnException(Object input) {
+  void givenAnUnsupportedTypeTheSerializeShouldThrownAnException(Object input) {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
 
@@ -82,7 +82,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenALongTheParseValueShouldReturnAParsedLong() {
+  void givenALongTheParseValueShouldReturnAParsedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     Long inputValue = 15L;
@@ -95,7 +95,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenAnIntegerTheParseValueShouldReturnAParsedLong() {
+  void givenAnIntegerTheParseValueShouldReturnAParsedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     Integer inputValue = 15;
@@ -110,7 +110,7 @@ public class DateTimeScalarTest {
   @ParameterizedTest
   @NullSource
   @MethodSource("generateUnsupportedType")
-  public void givenAnUnsupportedTypeTheParseValueShouldThrownAnException(Object input) {
+  void givenAnUnsupportedTypeTheParseValueShouldThrownAnException(Object input) {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
 
@@ -122,7 +122,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenALongValueTheParseLiteralShouldReturnAParsedLong() {
+  void givenALongValueTheParseLiteralShouldReturnAParsedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     LongValue inputValue =
@@ -196,7 +196,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenAnIntegerValueTheParseLiteralShouldReturnAParsedLong() {
+  void givenAnIntegerValueTheParseLiteralShouldReturnAParsedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     IntValue inputValue = new IntValue(BigInteger.valueOf(5));
@@ -209,7 +209,7 @@ public class DateTimeScalarTest {
   }
 
   @Test
-  public void givenAStringValueOfALongTheParseLiteralShouldReturnAParsedLong() {
+  void givenAStringValueOfALongTheParseLiteralShouldReturnAParsedLong() {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
     StringValue inputValue = new StringValue("4");
@@ -224,7 +224,7 @@ public class DateTimeScalarTest {
   @ParameterizedTest
   @NullSource
   @MethodSource("generateUnsupportedType")
-  public void givenAnUnsupportedTypeTheParseLiteralShouldThrownAnException(Object input) {
+  void givenAnUnsupportedTypeTheParseLiteralShouldThrownAnException(Object input) {
     // Given
     DateTimeScalar dateTimeScalar = new DateTimeScalar();
 

@@ -87,16 +87,32 @@ public class Task {
     return title;
   }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   public Optional<String> getDescription() {
     return Optional.ofNullable(description);
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public Priority getPriority() {
     return priority;
   }
 
+  public void setPriority(Priority priority) {
+    this.priority = priority;
+  }
+
   public Status getStatus() {
     return status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
   }
 
   public Instant getCreatedAt() {
@@ -107,28 +123,12 @@ public class Task {
     return Optional.ofNullable(reminderAt);
   }
 
-  public Optional<Boolean> getReminderAllDay() {
-    return Optional.ofNullable(reminderAllDay);
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public void setPriority(Priority priority) {
-    this.priority = priority;
-  }
-
-  public void setStatus(Status status) {
-    this.status = status;
-  }
-
   public void setReminderAt(Instant reminderAt) {
     this.reminderAt = reminderAt;
+  }
+
+  public Optional<Boolean> getReminderAllDay() {
+    return Optional.ofNullable(reminderAllDay);
   }
 
   public void setReminderAllDay(Boolean reminderAllDay) {
