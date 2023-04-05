@@ -106,7 +106,7 @@ class HealthApiIT {
           new ObjectMapper().readValue(httpFields.getContent(), HealthStatus.class);
       Assertions.assertThat(healthStatus.isReady()).isFalse();
       List<ServiceHealth> dependenciesHealth = healthStatus.getDependencies();
-      Assertions.assertThat(dependenciesHealth).hasSize(2);
+      Assertions.assertThat(dependenciesHealth.size()).isEqualTo(2);
 
       Assertions.assertThat(dependenciesHealth.get(0).getName()).isEqualTo("database");
       Assertions.assertThat(dependenciesHealth.get(0).isLive()).isTrue();
@@ -122,7 +122,7 @@ class HealthApiIT {
   }
 
   @Test
-  void givenAnHealthServiceTheHealthLiveShouldReturn204StatusCode() throws Exception {
+  public void givenAnHealthServiceTheHealthLiveShouldReturn204StatusCode() throws Exception {
     // Given
     try (Simulator simulator = SimulatorBuilder.aSimulator().init().withServer().build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
