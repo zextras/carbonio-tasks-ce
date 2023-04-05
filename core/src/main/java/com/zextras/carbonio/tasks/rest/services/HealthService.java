@@ -12,12 +12,8 @@ import com.zextras.carbonio.tasks.rest.types.health.ServiceHealth;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HealthService {
-
-  private static final Logger logger = LoggerFactory.getLogger(HealthService.class);
 
   private final DbInfoRepository dbInfoRepository;
   private final UserManagementClient userManagementClient;
