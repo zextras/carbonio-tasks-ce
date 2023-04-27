@@ -222,7 +222,7 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenAUserTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserTheGetTasksShouldReturnAListOfOpenTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -236,6 +236,7 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
+    Mockito.when(partialQueryMock.eq("status", Status.OPEN)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Collections.singletonList(taskMock));

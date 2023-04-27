@@ -85,9 +85,7 @@ public class TaskRepositoryEbean implements TaskRepository {
       query.eq(Tables.Task.PRIORITY, priority);
     }
 
-    if (status != null) {
-      query.eq(Tables.Task.STATUS, status);
-    }
+    query.eq(Tables.Task.STATUS, status == null ? Status.OPEN : status);
 
     return query.order().desc(Tables.Task.CREATED_AT).findList();
   }
