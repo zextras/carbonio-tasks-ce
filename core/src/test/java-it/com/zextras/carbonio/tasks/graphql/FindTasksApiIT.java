@@ -150,6 +150,94 @@ class FindTasksApiIT {
   }
 
   @Test
+  void givenAnEmptyStatusTheFindTasksShouldReturnTheTasksOfTheRequesterInAOpenState()
+      throws Exception {
+    // Given
+    Task task1 =
+        taskRepository.createTask(
+            "00000000-0000-0000-0000-000000000000",
+            "title1",
+            null,
+            Priority.MEDIUM,
+            Status.OPEN,
+            null,
+            null);
+
+    Task task2 =
+        taskRepository.createTask(
+            "00000000-0000-0000-0000-000000000000",
+            "title2",
+            null,
+            Priority.LOW,
+            Status.OPEN,
+            null,
+            null);
+
+    taskRepository.createTask(
+        "00000000-0000-0000-0000-000000000000",
+        "title3",
+        null,
+        Priority.HIGH,
+        Status.COMPLETE,
+        null,
+        null);
+
+    taskRepository.createTask(
+        "11111111-1111-1111-1111-111111111111",
+        "titleX",
+        null,
+        Priority.LOW,
+        Status.COMPLETE,
+        null,
+        null);
+
+    HttpTester.Request request = HttpTester.newRequest();
+    request.setMethod(HttpMethod.POST.toString());
+    request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
+    request.setContent(
+        TestUtils.queryPayload(
+            "query{findTasks {"
+                + "id title description priority status createdAt reminderAt reminderAllDay"
+                + "}}"));
+
+    // When
+    Response response =
+        HttpTester.parseResponse(
+            HttpTester.from(httpLocalConnector.getResponse(request.generate())));
+
+    // Then
+    Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+    List<Map<String, Object>> findTasks =
+        TestUtils.jsonResponseToList(response.getContent(), "findTasks");
+
+    Assertions.assertThat(findTasks).isNotNull().hasSize(2);
+
+    Map<String, Object> result1 = findTasks.get(0);
+    Assertions.assertThat(result1)
+        .containsEntry("id", task2.getId().toString())
+        .containsEntry("title", "title2")
+        .containsEntry("description", null)
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task2.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
+
+    Map<String, Object> result2 = findTasks.get(1);
+    Assertions.assertThat(result2)
+        .containsEntry("id", task1.getId().toString())
+        .containsEntry("title", "title1")
+        .containsEntry("description", null)
+        .containsEntry("priority", "MEDIUM")
+        .containsEntry("status", "OPEN")
+        .containsEntry("createdAt", task1.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
+  }
+
+  @Test
   void givenALowPriorityTheFindTasksShouldReturnTheTasksOfTheRequesterWithLowPriority()
       throws Exception {
     // Given
@@ -226,7 +314,7 @@ class FindTasksApiIT {
   }
 
   @Test
-  void givenAnCompleteStatusAndAHighPriorityTheFindTasksShouldReturnTheMatchingTasksOfTheRequester()
+  void givenACompleteStatusAndAHighPriorityTheFindTasksShouldReturnTheMatchingTasksOfTheRequester()
       throws Exception {
     // Given
     taskRepository.createTask(
