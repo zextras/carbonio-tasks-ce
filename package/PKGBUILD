@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 Zextras <https://www.zextras.com>
+# SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -15,7 +15,7 @@ pkgdesclong=(
 )
 maintainer="Zextras <packages@zextras.com>"
 arch="amd64"
-license=("spdx:AGPL-3.0-only")
+license=("AGPL-3.0-only")
 section="admin"
 priority="optional"
 url="https://www.zextras.com/"
