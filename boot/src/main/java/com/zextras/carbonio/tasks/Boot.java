@@ -26,7 +26,7 @@ public class Boot {
       injector.getInstance(DatabaseInitializer.class).initialize();
       injector.getInstance(JettyServer.class).start();
     } catch (Exception exception) {
-      rootLogger.error("Service stopped unexpectedly: " + exception.getMessage());
+      rootLogger.error("Service stopped unexpectedly: ", exception);
     }
   }
 }

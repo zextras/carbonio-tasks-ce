@@ -53,6 +53,14 @@ public final class Constants {
       private Database() {}
     }
 
+    public static final class Hikari {
+
+      public static final int MAX_POOL_SIZE = 2;
+      public static final int MIN_IDLE_CONNECTIONS = 1;
+
+      private Hikari() {}
+    }
+
     public static final class UserService {
 
       public static final String PROTOCOL = "http";
@@ -111,6 +119,8 @@ public final class Constants {
         public static final String DB_NAME = "db-name";
         public static final String DB_USERNAME = "db-username";
         public static final String DB_PASSWORD = "db-password";
+        public static final String HIKARI_MAX_POOL_SIZE = "hikari-max-pool-size";
+        public static final String HIKARI_MIN_IDLE_CONNECTIONS = "hikari-min-idle-connections";
 
         private Key() {}
       }

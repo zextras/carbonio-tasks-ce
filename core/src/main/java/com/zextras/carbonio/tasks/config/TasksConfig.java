@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.config;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
+import com.zextras.carbonio.tasks.Constants.Config.Hikari;
 import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
@@ -49,6 +50,18 @@ public class TasksConfig {
     String jdbcPostgresUrl =
         String.format("jdbc:postgresql://%s:%s/%s", databaseURL, databasePort, getDatabaseName());
 
+    int maximumPoolSize =
+        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+            .getConfig(Key.HIKARI_MAX_POOL_SIZE)
+            .map(Integer::parseInt)
+            .orElse(Hikari.MAX_POOL_SIZE);
+
+    int minimumIdleConnections =
+        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+            .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
+            .map(Integer::parseInt)
+            .orElse(Hikari.MIN_IDLE_CONNECTIONS);
+
     Properties dataSourceProperties = new Properties();
     dataSourceProperties.setProperty("sslmode", "disable");
 
@@ -56,6 +69,8 @@ public class TasksConfig {
     dataSource.setJdbcUrl(jdbcPostgresUrl);
     dataSource.setUsername(postgresUser);
     dataSource.setPassword(postgresPassword);
+    dataSource.setMaximumPoolSize(maximumPoolSize);
+    dataSource.setMinimumIdle(Math.min(minimumIdleConnections, maximumPoolSize));
     dataSource.setDataSourceProperties(dataSourceProperties);
     return dataSource;
   }
