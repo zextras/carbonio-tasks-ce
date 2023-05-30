@@ -17,8 +17,12 @@ import io.ebean.config.DatabaseConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TasksConfig {
+
+  private static final Logger logger = LoggerFactory.getLogger(TasksConfig.class);
 
   public String getDatabaseName() {
     return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
@@ -59,8 +63,13 @@ public class TasksConfig {
     int minimumIdleConnections =
         ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
             .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
-            .map(Integer::parseInt)
+            .map(
+                minIdleConnections ->
+                    Math.min(Integer.parseInt(minIdleConnections), maximumPoolSize))
             .orElse(Hikari.MIN_IDLE_CONNECTIONS);
+
+    logger.info("Hikari: maximum pool size: {}", maximumPoolSize);
+    logger.info("Hikari: minimum idle connections: {}", minimumIdleConnections);
 
     Properties dataSourceProperties = new Properties();
     dataSourceProperties.setProperty("sslmode", "disable");
@@ -70,7 +79,7 @@ public class TasksConfig {
     dataSource.setUsername(postgresUser);
     dataSource.setPassword(postgresPassword);
     dataSource.setMaximumPoolSize(maximumPoolSize);
-    dataSource.setMinimumIdle(Math.min(minimumIdleConnections, maximumPoolSize));
+    dataSource.setMinimumIdle(minimumIdleConnections);
     dataSource.setDataSourceProperties(dataSourceProperties);
     return dataSource;
   }
