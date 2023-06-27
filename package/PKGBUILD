@@ -8,7 +8,7 @@ targets=(
 )
 pkgname="carbonio-tasks-ce"
 pkgver="0.1.0"
-pkgrel="1"
+pkgrel="SNAPSHOT"
 pkgdesc="Carbonio Tasks"
 pkgdesclong=(
   "Carbonio Tasks"
