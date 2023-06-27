@@ -56,6 +56,30 @@ pipeline {
                 publishCoverage adapters: [jacocoAdapter('core/target/jacoco-full-report/jacoco.xml')]
             }
         }
+        stage('Dependency check') {
+            //when {
+            //    branch 'develop'
+            //}
+            steps {
+                dependencyCheck additionalArguments: '''-f "HTML" --prettyPrint''', odcInstallation: 'dependency-check'
+            }
+        }
+        stage('SonarQube analysis') {
+             //when {
+             //   anyOf {
+             //       branch 'develop'
+             //       expression { env.BRANCH_NAME.contains("PR") }
+             //   }
+             //}
+            environment {
+                SCANNER_HOME = tool 'SonarScanner'
+            }
+            steps {
+                withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
+		            sh 'mvn -B --settings settings-jenkins.xml sonar:sonar'
+                }
+            }
+        }
         stage('Build deb/rpm') {
             stages {
                 stage('Stash') {
