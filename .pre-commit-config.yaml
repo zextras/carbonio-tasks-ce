@@ -32,8 +32,8 @@ repos:
 
   - repo: local
     hooks:
-      - id: check-if-version-is-bumped
-        name: check-if-snapshot
+      - id: check-if-version-is-snapshot
+        name: check-if-version-is-snapshot
         entry: bash -c '
           currentBranch=$(git branch --show-current)
           isSnapshot=$(grep -re "pkgrel=\"SNAPSHOT\"" package/PKGBUILD)

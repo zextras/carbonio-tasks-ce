@@ -15,7 +15,7 @@ pipeline {
     }
     parameters {
         booleanParam defaultValue: false, description: 'Whether to upload the packages in playground repositories', name: 'PLAYGROUND'
-        booleanParam defaultValue: false, description: 'Skip dependencyCheck', name: 'RUN_DEPENDENCY_CHECK'
+        booleanParam defaultValue: false, description: 'Run dependencyCheck', name: 'RUN_DEPENDENCY_CHECK'
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '25'))
@@ -84,7 +84,7 @@ pipeline {
                 // each merged PR has unique artifacts and to prevent conflicts between them.
                 // Note that the pkgrel value will remain as SNAPSHOT in the codebase to avoid
                 // conflicts between multiple open PRs
-                stage('Snapshot to epoch') {
+                stage('Snapshot to commit hash') {
                     when {
                         branch 'develop'
                     }
@@ -132,9 +132,6 @@ pipeline {
                                     unstash 'binaries'
                                 }
                                 sh 'sudo pacur build rocky-8 /tmp/staging/'
-                                dir('artifacts/') {
-                                    sh 'echo carbonio-tasks* | sed -E "s#(carbonio-tasks-ce-[0-9.]*).*#\\0 \\1.x86_64.rpm#" | xargs sudo mv'
-                                }
                                 stash includes: 'artifacts/', name: 'artifacts-rpm'
                             }
                             post {
@@ -155,7 +152,7 @@ pipeline {
                 unstash 'artifacts-deb'
                 unstash 'artifacts-rpm'
                 script {
-                    // ubuntu
+                    // ubuntu & rocky
                     def server = Artifactory.server 'zextras-artifactory'
                     def buildInfo
                     def uploadSpec
@@ -167,16 +164,7 @@ pipeline {
                                 "pattern": "artifacts/*.deb",
                                 "target": "ubuntu-devel/pool/",
                                 "props": "deb.distribution=focal;deb.component=main;deb.architecture=amd64"
-                            }
-                        ]
-                    }'''
-                    server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
-
-                    //rocky 8
-                    buildInfo = Artifactory.newBuildInfo()
-                    buildInfo.name += '-centos8'
-                    uploadSpec= '''{
-                        "files": [
+                            },
                             {
                                 "pattern": "artifacts/(carbonio-tasks-ce)-(*).rpm",
                                 "target": "centos8-devel/zextras/{1}/{1}-{2}.rpm",
