@@ -18,3 +18,7 @@ License: AGPL-3.0-only
 Files: package/service-protocol.json
 Copyright: 2023 Zextras s.r.l
 License: AGPL-3.0-only
+
+Files: .github/CODEOWNERS
+Copyright: 2023 Zextras <https://www.zextras.com>
+License: CC0-1.0
