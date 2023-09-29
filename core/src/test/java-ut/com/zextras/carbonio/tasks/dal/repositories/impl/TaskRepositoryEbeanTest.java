@@ -106,7 +106,7 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenAUserAStatusAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserIdAStatusAPriorityTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock1 = Mockito.mock(Task.class);
     Task taskMock2 = Mockito.mock(Task.class);
@@ -121,8 +121,6 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
-    Mockito.when(partialQueryMock.eq("priority", Priority.MEDIUM)).thenReturn(partialQueryMock);
-    Mockito.when(partialQueryMock.eq("status", Status.OPEN)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Arrays.asList(taskMock1, taskMock2));
@@ -134,10 +132,13 @@ class TaskRepositoryEbeanTest {
 
     // Then
     Assertions.assertThat(openTasks).hasSize(2);
+
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("priority", Priority.MEDIUM);
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.OPEN);
   }
 
   @Test
-  void givenAUserAStatusAPriorityTheGetTasksShouldReturnAnEmptyList() {
+  void givenAUserIdAStatusAPriorityTheGetTasksShouldReturnAnEmptyList() {
     // Given
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
     OrderBy<Task> orderByMock = Mockito.mock(OrderBy.class);
@@ -150,8 +151,6 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
-    Mockito.when(partialQueryMock.eq("priority", Priority.MEDIUM)).thenReturn(partialQueryMock);
-    Mockito.when(partialQueryMock.eq("status", Status.OPEN)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Collections.emptyList());
@@ -162,11 +161,14 @@ class TaskRepositoryEbeanTest {
             "6d162bee-3186-1111-bf31-59746a41600e", Priority.LOW, Status.COMPLETE);
 
     // Then
-    Assertions.assertThat(openTasks).isEmpty();
+    Assertions.assertThat(openTasks).hasSize(0);
+
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("priority", Priority.LOW);
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.COMPLETE);
   }
 
   @Test
-  void givenAUserAStatusTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserIdAStatusTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -180,7 +182,6 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
-    Mockito.when(partialQueryMock.eq("status", Status.OPEN)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Collections.singletonList(taskMock));
@@ -191,10 +192,14 @@ class TaskRepositoryEbeanTest {
 
     // Then
     Assertions.assertThat(openTasks).hasSize(1);
+
+    Mockito.verify(partialQueryMock, Mockito.times(0))
+        .eq(Mockito.eq("priority"), Mockito.anyString());
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.COMPLETE);
   }
 
   @Test
-  void givenAUserAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserIdAPriorityTheGetTasksShouldReturnAListOfTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -208,7 +213,6 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
-    Mockito.when(partialQueryMock.eq("status", Priority.HIGH)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Collections.singletonList(taskMock));
@@ -219,10 +223,13 @@ class TaskRepositoryEbeanTest {
 
     // Then
     Assertions.assertThat(openTasks).hasSize(1);
+
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("priority", Priority.HIGH);
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.OPEN);
   }
 
   @Test
-  void givenAUserTheGetTasksShouldReturnAListOfOpenTasks() {
+  void givenAUserIdTheGetTasksShouldReturnAListOfOpenTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -236,17 +243,20 @@ class TaskRepositoryEbeanTest {
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e"))
         .thenReturn(partialQueryMock);
 
-    Mockito.when(partialQueryMock.eq("status", Status.OPEN)).thenReturn(partialQueryMock);
     Mockito.when(partialQueryMock.order()).thenReturn(orderByMock);
     Mockito.when(orderByMock.desc("created_at")).thenReturn(finalQueryMock);
     Mockito.when(finalQueryMock.findList()).thenReturn(Collections.singletonList(taskMock));
 
     // When
     List<Task> openTasks =
-        taskRepository.getTasks("6d162bee-3186-1111-bf31-59746a41600e", Priority.HIGH, null);
+        taskRepository.getTasks("6d162bee-3186-1111-bf31-59746a41600e", null, null);
 
     // Then
     Assertions.assertThat(openTasks).hasSize(1);
+
+    Mockito.verify(partialQueryMock, Mockito.times(0))
+        .eq(Mockito.eq("priority"), Mockito.anyString());
+    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.OPEN);
   }
 
   @Test
@@ -278,10 +288,10 @@ class TaskRepositoryEbeanTest {
             ebeanDatabaseMock
                 .find(Task.class)
                 .where()
-                .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
+                .idEq(UUID.fromString("00000000-3186-0000-bf31-59746a41600e"))
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
                 .findOneOrEmpty())
-        .thenReturn(Optional.of(Mockito.mock(Task.class)));
+        .thenReturn(Optional.empty());
 
     // When
     Optional<Task> optTask =
