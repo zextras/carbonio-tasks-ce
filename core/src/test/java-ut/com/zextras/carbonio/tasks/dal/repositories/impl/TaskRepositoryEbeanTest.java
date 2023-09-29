@@ -225,7 +225,8 @@ class TaskRepositoryEbeanTest {
     Assertions.assertThat(openTasks).hasSize(1);
 
     Mockito.verify(partialQueryMock, Mockito.times(1)).eq("priority", Priority.HIGH);
-    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.OPEN);
+    Mockito.verify(partialQueryMock, Mockito.times(0))
+        .eq(Mockito.eq("status"), Mockito.anyString());
   }
 
   @Test
@@ -256,7 +257,9 @@ class TaskRepositoryEbeanTest {
 
     Mockito.verify(partialQueryMock, Mockito.times(0))
         .eq(Mockito.eq("priority"), Mockito.anyString());
-    Mockito.verify(partialQueryMock, Mockito.times(1)).eq("status", Status.OPEN);
+
+    Mockito.verify(partialQueryMock, Mockito.times(0))
+        .eq(Mockito.eq("status"), Mockito.anyString());
   }
 
   @Test
