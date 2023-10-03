@@ -184,6 +184,15 @@ class FindTasksApiIT {
             null);
 
     taskRepository.createTask(
+        "00000000-0000-0000-0000-000000000000",
+        "Trash task",
+        null,
+        Priority.LOW,
+        Status.TRASH,
+        null,
+        null);
+
+    taskRepository.createTask(
         "11111111-1111-1111-1111-111111111111",
         "titleX",
         null,
@@ -281,6 +290,15 @@ class FindTasksApiIT {
             Status.COMPLETE,
             null,
             null);
+
+    taskRepository.createTask(
+        "00000000-0000-0000-0000-000000000000",
+        "Trash task",
+        null,
+        Priority.LOW,
+        Status.TRASH,
+        null,
+        null);
 
     taskRepository.createTask(
         "11111111-1111-1111-1111-111111111111",
@@ -423,6 +441,15 @@ class FindTasksApiIT {
         null,
         Priority.HIGH,
         Status.COMPLETE,
+        null,
+        null);
+
+    taskRepository.createTask(
+        "00000000-0000-0000-0000-000000000000",
+        "Trash task",
+        null,
+        Priority.MEDIUM,
+        Status.TRASH,
         null,
         null);
 

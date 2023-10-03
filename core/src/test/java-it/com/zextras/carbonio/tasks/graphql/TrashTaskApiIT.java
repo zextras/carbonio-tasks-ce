@@ -86,6 +86,9 @@ public class TrashTaskApiIT {
     Optional<String> optStringResponse =
         TestUtils.jsonResponseToString(response.getContent(), "trashTask");
     Assertions.assertThat(optStringResponse).isPresent().contains(taskToTrash.getId().toString());
+
+    Assertions.assertThat(taskRepository.getTask(taskToTrash.getId(), taskToTrash.getUserId()))
+        .isEmpty();
   }
 
   @Test
@@ -148,5 +151,9 @@ public class TrashTaskApiIT {
     Assertions.assertThat(errors)
         .hasSize(1)
         .contains(String.format("Could not find task with id %s", taskToTrash.getId().toString()));
+
+    Optional<Task> optTask = taskRepository.getTask(taskToTrash.getId(), taskToTrash.getUserId());
+    Assertions.assertThat(optTask).isPresent();
+    Assertions.assertThat(optTask.get().getStatus()).isEqualTo(Status.OPEN);
   }
 }
