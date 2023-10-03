@@ -7,7 +7,7 @@ targets=(
   "centos"
 )
 pkgname="carbonio-tasks-ce"
-pkgver="0.1.0"
+pkgver="0.2.0"
 pkgrel="SNAPSHOT"
 pkgdesc="Carbonio Tasks"
 pkgdesclong=(

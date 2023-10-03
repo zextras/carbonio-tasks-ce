@@ -150,7 +150,7 @@ class FindTasksApiIT {
   }
 
   @Test
-  void givenAnEmptyStatusTheFindTasksShouldReturnTheTasksOfTheRequesterInAOpenState()
+  void givenAnEmptyStatusTheFindTasksShouldReturnTheTasksOfTheRequesterInAOpenAndCompleteState()
       throws Exception {
     // Given
     Task task1 =
@@ -173,14 +173,15 @@ class FindTasksApiIT {
             null,
             null);
 
-    taskRepository.createTask(
-        "00000000-0000-0000-0000-000000000000",
-        "title3",
-        null,
-        Priority.HIGH,
-        Status.COMPLETE,
-        null,
-        null);
+    Task task3 =
+        taskRepository.createTask(
+            "00000000-0000-0000-0000-000000000000",
+            "title3",
+            null,
+            Priority.HIGH,
+            Status.COMPLETE,
+            null,
+            null);
 
     taskRepository.createTask(
         "11111111-1111-1111-1111-111111111111",
@@ -212,10 +213,21 @@ class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull().hasSize(2);
+    Assertions.assertThat(findTasks).isNotNull().hasSize(3);
 
     Map<String, Object> result1 = findTasks.get(0);
     Assertions.assertThat(result1)
+        .containsEntry("id", task3.getId().toString())
+        .containsEntry("title", "title3")
+        .containsEntry("description", null)
+        .containsEntry("priority", "HIGH")
+        .containsEntry("status", "COMPLETE")
+        .containsEntry("createdAt", task3.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
+
+    Map<String, Object> result2 = findTasks.get(1);
+    Assertions.assertThat(result2)
         .containsEntry("id", task2.getId().toString())
         .containsEntry("title", "title2")
         .containsEntry("description", null)
@@ -225,8 +237,8 @@ class FindTasksApiIT {
         .containsEntry("reminderAt", null)
         .containsEntry("reminderAllDay", null);
 
-    Map<String, Object> result2 = findTasks.get(1);
-    Assertions.assertThat(result2)
+    Map<String, Object> result3 = findTasks.get(2);
+    Assertions.assertThat(result3)
         .containsEntry("id", task1.getId().toString())
         .containsEntry("title", "title1")
         .containsEntry("description", null)
@@ -250,7 +262,7 @@ class FindTasksApiIT {
         null,
         null);
 
-    Task task =
+    Task task1 =
         taskRepository.createTask(
             "00000000-0000-0000-0000-000000000000",
             "title2",
@@ -260,14 +272,15 @@ class FindTasksApiIT {
             null,
             null);
 
-    taskRepository.createTask(
-        "00000000-0000-0000-0000-000000000000",
-        "title3",
-        null,
-        Priority.HIGH,
-        Status.COMPLETE,
-        null,
-        null);
+    Task task2 =
+        taskRepository.createTask(
+            "00000000-0000-0000-0000-000000000000",
+            "title3",
+            null,
+            Priority.LOW,
+            Status.COMPLETE,
+            null,
+            null);
 
     taskRepository.createTask(
         "11111111-1111-1111-1111-111111111111",
@@ -299,16 +312,27 @@ class FindTasksApiIT {
     List<Map<String, Object>> findTasks =
         TestUtils.jsonResponseToList(response.getContent(), "findTasks");
 
-    Assertions.assertThat(findTasks).isNotNull().hasSize(1);
+    Assertions.assertThat(findTasks).isNotNull().hasSize(2);
 
     Map<String, Object> result1 = findTasks.get(0);
     Assertions.assertThat(result1)
-        .containsEntry("id", task.getId().toString())
+        .containsEntry("id", task2.getId().toString())
+        .containsEntry("title", "title3")
+        .containsEntry("description", null)
+        .containsEntry("priority", "LOW")
+        .containsEntry("status", "COMPLETE")
+        .containsEntry("createdAt", task2.getCreatedAt().toEpochMilli())
+        .containsEntry("reminderAt", null)
+        .containsEntry("reminderAllDay", null);
+
+    Map<String, Object> result2 = findTasks.get(1);
+    Assertions.assertThat(result2)
+        .containsEntry("id", task1.getId().toString())
         .containsEntry("title", "title2")
         .containsEntry("description", null)
         .containsEntry("priority", "LOW")
         .containsEntry("status", "OPEN")
-        .containsEntry("createdAt", task.getCreatedAt().toEpochMilli())
+        .containsEntry("createdAt", task1.getCreatedAt().toEpochMilli())
         .containsEntry("reminderAt", null)
         .containsEntry("reminderAllDay", null);
   }
