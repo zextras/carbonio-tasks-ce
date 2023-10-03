@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 class TaskDataFetchersTest {
@@ -80,7 +81,7 @@ class TaskDataFetchersTest {
   }
 
   @Test
-  void givenANonExistingTaskIdTheGetTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
+  void givenANotExistingTaskIdTheGetTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
       throws Exception {
     // Given
     Mockito.when(
@@ -319,5 +320,114 @@ class TaskDataFetchersTest {
 
     Assertions.assertThat(dataFetcherResult.getErrors().get(0).getMessage())
         .isEqualTo("Could not find task with id 11111111-1111-1111-1111-111111111111");
+  }
+
+  @Test
+  void givenAnExistingTaskIdTheTrashTaskDataFetcherShouldReturnAResultWithTheTrashedTaskId()
+      throws Exception {
+    // Given
+    GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
+    Mockito.when(graphQLContextMock.get("requesterId"))
+        .thenReturn("00000000-0000-0000-0000-000000000000");
+
+    DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
+    Mockito.when(environmentMock.getGraphQlContext()).thenReturn(graphQLContextMock);
+    Mockito.when(environmentMock.getArgument("taskId"))
+        .thenReturn("11111111-1111-1111-1111-111111111111");
+
+    Task existingTaskMock =
+        new Task(
+            UUID.fromString("11111111-1111-1111-1111-111111111111"),
+            "00000000-0000-0000-0000-000000000000",
+            "title",
+            "description",
+            Priority.HIGH,
+            Status.COMPLETE,
+            Instant.ofEpochMilli(5L),
+            Instant.ofEpochMilli(55L),
+            true);
+
+    Mockito.when(taskRepositoryMock.getTask(existingTaskMock.getId(), existingTaskMock.getUserId()))
+        .thenReturn(Optional.of(existingTaskMock));
+
+    // When
+    DataFetcherResult<UUID> dataFetcherResult =
+        taskDataFetchers.trashTask().get(environmentMock).get();
+
+    // Then
+    ArgumentCaptor<Task> captorTask = ArgumentCaptor.forClass(Task.class);
+    Mockito.verify(taskRepositoryMock, Mockito.times(1)).updateTask(captorTask.capture());
+
+    existingTaskMock.setStatus(Status.TRASH);
+    Assertions.assertThat(existingTaskMock).isEqualTo(captorTask.getValue());
+
+    Assertions.assertThat(dataFetcherResult.getData())
+        .isNotNull()
+        .isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+    Assertions.assertThat(dataFetcherResult.getErrors()).hasSize(0);
+  }
+
+  @Test
+  void givenANotExistingTaskIdTheTrashTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
+      throws Exception {
+    // Given
+    GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
+    Mockito.when(graphQLContextMock.get("requesterId"))
+        .thenReturn("00000000-0000-0000-0000-000000000000");
+
+    DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
+    Mockito.when(environmentMock.getGraphQlContext()).thenReturn(graphQLContextMock);
+    Mockito.when(environmentMock.getArgument("taskId"))
+        .thenReturn("11111111-1111-1111-1111-111111111111");
+
+    Mockito.when(
+            taskRepositoryMock.getTask(
+                UUID.fromString("11111111-1111-1111-1111-111111111111"),
+                "00000000-0000-0000-0000-000000000000"))
+        .thenReturn(Optional.empty());
+
+    // When
+    DataFetcherResult<UUID> dataFetcherResult =
+        taskDataFetchers.trashTask().get(environmentMock).get();
+
+    // Then
+    Mockito.verify(taskRepositoryMock, Mockito.times(0)).updateTask(Mockito.any(Task.class));
+
+    Assertions.assertThat(dataFetcherResult.getData()).isNull();
+    Assertions.assertThat(dataFetcherResult.getErrors()).hasSize(1);
+    Assertions.assertThat(dataFetcherResult.getErrors().get(0).getMessage())
+        .contains("Could not find task with id 11111111-1111-1111-1111-111111111111");
+  }
+
+  @Test
+  void
+      givenAnExistingTaskIdOfAnotherUserTheTrashTaskDataFetcherShouldReturnAnEmptyResultWithAnError()
+          throws Exception {
+    // Given
+    GraphQLContext graphQLContextMock = Mockito.mock(GraphQLContext.class);
+    Mockito.when(graphQLContextMock.get("requesterId")).thenReturn("wrong-user-id");
+
+    DataFetchingEnvironment environmentMock = Mockito.mock(DataFetchingEnvironment.class);
+    Mockito.when(environmentMock.getGraphQlContext()).thenReturn(graphQLContextMock);
+    Mockito.when(environmentMock.getArgument("taskId"))
+        .thenReturn("11111111-1111-1111-1111-111111111111");
+
+    Mockito.when(
+            taskRepositoryMock.getTask(
+                UUID.fromString("11111111-1111-1111-1111-111111111111"),
+                "00000000-0000-0000-0000-000000000000"))
+        .thenReturn(Optional.of(Mockito.mock(Task.class)));
+
+    // When
+    DataFetcherResult<UUID> dataFetcherResult =
+        taskDataFetchers.trashTask().get(environmentMock).get();
+
+    // Then
+    Mockito.verify(taskRepositoryMock, Mockito.times(0)).updateTask(Mockito.any(Task.class));
+
+    Assertions.assertThat(dataFetcherResult.getData()).isNull();
+    Assertions.assertThat(dataFetcherResult.getErrors()).hasSize(1);
+    Assertions.assertThat(dataFetcherResult.getErrors().get(0).getMessage())
+        .contains("Could not find task with id 11111111-1111-1111-1111-111111111111");
   }
 }

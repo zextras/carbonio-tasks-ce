@@ -209,6 +209,7 @@ public final class Constants {
 
       public static final String CREATE_TASK = "createTask";
       public static final String UPDATE_TASK = "updateTask";
+      public static final String TRASH_TASK = "trashTask";
 
       private Mutations() {}
     }

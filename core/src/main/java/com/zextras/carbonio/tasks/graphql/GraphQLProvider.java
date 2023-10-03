@@ -113,7 +113,8 @@ public class GraphQLProvider {
         .type(
             newTypeWiring("Mutation")
                 .dataFetcher(Mutations.CREATE_TASK, taskDataFetchers.createTask())
-                .dataFetcher(Mutations.UPDATE_TASK, taskDataFetchers.updateTask()))
+                .dataFetcher(Mutations.UPDATE_TASK, taskDataFetchers.updateTask())
+                .dataFetcher(Mutations.TRASH_TASK, taskDataFetchers.trashTask()))
         .build();
   }
 

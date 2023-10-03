@@ -156,6 +156,32 @@ public class TaskDataFetchers {
             });
   }
 
+  public DataFetcher<CompletableFuture<DataFetcherResult<UUID>>> trashTask() {
+    return environment ->
+        CompletableFuture.supplyAsync(
+            () -> {
+              String userId = environment.getGraphQlContext().get(Context.REQUESTER_ID);
+              UUID taskId = UUID.fromString(environment.getArgument(Inputs.TASK_ID));
+
+              return taskRepository
+                  .getTask(taskId, userId)
+                  .map(
+                      taskToTrash -> {
+                        taskToTrash.setStatus(Status.TRASH);
+                        taskRepository.updateTask(taskToTrash);
+
+                        return DataFetcherResult.<UUID>newResult().data(taskId).build();
+                      })
+                  .orElse(
+                      DataFetcherResult.<UUID>newResult()
+                          .error(
+                              GraphqlErrorBuilder.newError()
+                                  .message(String.format("Could not find task with id %s", taskId))
+                                  .build())
+                          .build());
+            });
+  }
+
   private Map<String, Object> convertTaskToMap(Task task) {
     ImmutableMap.Builder<String, Object> taskMapBuilder =
         ImmutableMap.<String, Object>builder()
