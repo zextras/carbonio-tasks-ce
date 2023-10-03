@@ -213,5 +213,12 @@ public final class Constants {
 
       private Mutations() {}
     }
+
+    public static final class ErrorMessages {
+
+      public static final String TASK_NOT_FOUND = "Could not find task with id %s";
+
+      private ErrorMessages() {}
+    }
   }
 }

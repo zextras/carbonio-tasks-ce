@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.GraphQL;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
+import com.zextras.carbonio.tasks.Constants.GraphQL.ErrorMessages;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.TaskInput;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
@@ -81,7 +82,7 @@ public class TaskDataFetchers {
                 return DataFetcherResult.<Map<String, Object>>newResult()
                     .error(
                         GraphqlErrorBuilder.newError()
-                            .message(String.format("Could not find task with id %s", taskId))
+                            .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
                             .build())
                     .build();
               }
@@ -136,7 +137,7 @@ public class TaskDataFetchers {
                       DataFetcherResult.<Map<String, Object>>newResult()
                           .error(
                               GraphqlErrorBuilder.newError()
-                                  .message(String.format("Could not find task with id %s", taskId))
+                                  .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
                                   .build())
                           .build());
             });
@@ -176,7 +177,7 @@ public class TaskDataFetchers {
                       DataFetcherResult.<UUID>newResult()
                           .error(
                               GraphqlErrorBuilder.newError()
-                                  .message(String.format("Could not find task with id %s", taskId))
+                                  .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
                                   .build())
                           .build());
             });
