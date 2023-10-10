@@ -69,6 +69,7 @@ public class TaskRepositoryEbean implements TaskRepository {
         .where()
         .idEq(taskId)
         .eq(Tables.Task.USER_ID, userId)
+        .ne(Tables.Task.STATUS, Status.TRASH)
         .findOneOrEmpty();
   }
 
@@ -87,6 +88,8 @@ public class TaskRepositoryEbean implements TaskRepository {
 
     if (status != null) {
       query.eq(Tables.Task.STATUS, status);
+    } else {
+      query.ne(Tables.Task.STATUS, Status.TRASH);
     }
 
     return query.order().desc(Tables.Task.CREATED_AT).findList();

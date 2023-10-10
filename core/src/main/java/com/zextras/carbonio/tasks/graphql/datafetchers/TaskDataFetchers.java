@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.GraphQL;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
+import com.zextras.carbonio.tasks.Constants.GraphQL.ErrorMessages;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Inputs.TaskInput;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
@@ -81,7 +82,7 @@ public class TaskDataFetchers {
                 return DataFetcherResult.<Map<String, Object>>newResult()
                     .error(
                         GraphqlErrorBuilder.newError()
-                            .message(String.format("Could not find task with id %s", taskId))
+                            .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
                             .build())
                     .build();
               }
@@ -136,7 +137,7 @@ public class TaskDataFetchers {
                       DataFetcherResult.<Map<String, Object>>newResult()
                           .error(
                               GraphqlErrorBuilder.newError()
-                                  .message(String.format("Could not find task with id %s", taskId))
+                                  .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
                                   .build())
                           .build());
             });
@@ -153,6 +154,32 @@ public class TaskDataFetchers {
               return taskRepository.getTasks(userId, priority, status).stream()
                   .map(this::convertTaskToMap)
                   .collect(Collectors.toList());
+            });
+  }
+
+  public DataFetcher<CompletableFuture<DataFetcherResult<UUID>>> trashTask() {
+    return environment ->
+        CompletableFuture.supplyAsync(
+            () -> {
+              String userId = environment.getGraphQlContext().get(Context.REQUESTER_ID);
+              UUID taskId = UUID.fromString(environment.getArgument(Inputs.TASK_ID));
+
+              return taskRepository
+                  .getTask(taskId, userId)
+                  .map(
+                      taskToTrash -> {
+                        taskToTrash.setStatus(Status.TRASH);
+                        taskRepository.updateTask(taskToTrash);
+
+                        return DataFetcherResult.<UUID>newResult().data(taskId).build();
+                      })
+                  .orElse(
+                      DataFetcherResult.<UUID>newResult()
+                          .error(
+                              GraphqlErrorBuilder.newError()
+                                  .message(String.format(ErrorMessages.TASK_NOT_FOUND, taskId))
+                                  .build())
+                          .build());
             });
   }
 

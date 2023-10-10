@@ -209,8 +209,16 @@ public final class Constants {
 
       public static final String CREATE_TASK = "createTask";
       public static final String UPDATE_TASK = "updateTask";
+      public static final String TRASH_TASK = "trashTask";
 
       private Mutations() {}
+    }
+
+    public static final class ErrorMessages {
+
+      public static final String TASK_NOT_FOUND = "Could not find task with id %s";
+
+      private ErrorMessages() {}
     }
   }
 }

@@ -208,4 +208,45 @@ class GetTaskApiIT {
         .hasSize(1)
         .contains("Could not find task with id " + task.getId());
   }
+
+  @Test
+  void givenAnExistingIdOfATrashedTaskTheGetTaskShouldReturn200CodeWithAnErrorMessage()
+      throws Exception {
+    // Given
+    Task trashedTask =
+        taskRepository.createTask(
+            "11111111-1111-1111-1111-111111111111",
+            "task",
+            null,
+            Priority.LOW,
+            Status.TRASH,
+            null,
+            null);
+
+    HttpTester.Request request = HttpTester.newRequest();
+    request.setMethod(HttpMethod.POST.toString());
+    request.setURI("/graphql/");
+    request.setHeader(HttpHeader.HOST.toString(), "test");
+    request.setHeader(HttpHeader.COOKIE.toString(), "ZM_AUTH_TOKEN=fake-user-cookie");
+    request.setContent(
+        TestUtils.queryPayload(
+            "query{getTask(taskId: \\\"" + trashedTask.getId().toString() + "\\\"){ id }}"));
+
+    // When
+    HttpTester.Response response =
+        HttpTester.parseResponse(
+            HttpTester.from(httpLocalConnector.getResponse(request.generate())));
+
+    // Then
+    Map<String, Object> requestedTask =
+        TestUtils.jsonResponseToMap(response.getContent(), "getTask");
+
+    Assertions.assertThat(requestedTask).isEmpty();
+
+    List<String> errors = TestUtils.jsonResponseToErrors(response.getContent());
+
+    Assertions.assertThat(errors)
+        .hasSize(1)
+        .contains(String.format("Could not find task with id %s", trashedTask.getId().toString()));
+  }
 }

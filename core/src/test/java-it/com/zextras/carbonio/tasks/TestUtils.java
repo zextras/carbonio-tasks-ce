@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TestUtils {
@@ -57,6 +58,22 @@ public class TestUtils {
 
     } catch (JsonProcessingException exception) {
       return Collections.emptyList();
+    }
+  }
+
+  public static Optional<String> jsonResponseToString(String json, String operation) {
+    try {
+      Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
+
+      if (result.get("data") != null) {
+        Map<String, Object> data = (Map<String, Object>) result.get("data");
+
+        return Optional.ofNullable((String) data.get(operation));
+      }
+      return Optional.empty();
+
+    } catch (JsonProcessingException exception) {
+      return Optional.empty();
     }
   }
 

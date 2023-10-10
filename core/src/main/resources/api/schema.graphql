@@ -88,4 +88,6 @@ type Mutation {
     createTask(newTask: NewTaskInput!): Task
 
     updateTask(updateTask: UpdateTaskInput!): Task
+
+    trashTask(taskId: ID!): ID
 }

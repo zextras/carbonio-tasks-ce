@@ -10,5 +10,6 @@ package com.zextras.carbonio.tasks.dal.dao;
  */
 public enum Status {
   OPEN,
-  COMPLETE
+  COMPLETE,
+  TRASH
 }

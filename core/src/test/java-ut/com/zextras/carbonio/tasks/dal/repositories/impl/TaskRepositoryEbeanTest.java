@@ -106,7 +106,8 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenAUserIdAStatusAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void
+      givenAUserIdAStatusMediumAPriorityOpenTheGetTasksShouldReturnAListOfOpenedTasksWithMediumPriority() {
     // Given
     Task taskMock1 = Mockito.mock(Task.class);
     Task taskMock2 = Mockito.mock(Task.class);
@@ -168,7 +169,7 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenAUserIdAStatusTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserIdAStatusCompleteTheGetTasksShouldReturnAListOfCompletedTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -199,7 +200,7 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenAUserIdAPriorityTheGetTasksShouldReturnAListOfTasks() {
+  void givenAUserIdAPriorityHighTheGetTasksShouldReturnAListOfNotTrashedTasksWithHighPriority() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -225,12 +226,11 @@ class TaskRepositoryEbeanTest {
     Assertions.assertThat(openTasks).hasSize(1);
 
     Mockito.verify(partialQueryMock, Mockito.times(1)).eq("priority", Priority.HIGH);
-    Mockito.verify(partialQueryMock, Mockito.times(0))
-        .eq(Mockito.eq("status"), Mockito.anyString());
+    Mockito.verify(partialQueryMock, Mockito.times(1)).ne("status", Status.TRASH);
   }
 
   @Test
-  void givenAUserIdTheGetTasksShouldReturnAListOfOpenTasks() {
+  void givenAUserIdTheGetTasksShouldReturnAListOfANotTrashedTasks() {
     // Given
     Task taskMock = Mockito.mock(Task.class);
     ExpressionList<Task> partialQueryMock = Mockito.mock(ExpressionList.class);
@@ -258,12 +258,11 @@ class TaskRepositoryEbeanTest {
     Mockito.verify(partialQueryMock, Mockito.times(0))
         .eq(Mockito.eq("priority"), Mockito.anyString());
 
-    Mockito.verify(partialQueryMock, Mockito.times(0))
-        .eq(Mockito.eq("status"), Mockito.anyString());
+    Mockito.verify(partialQueryMock, Mockito.times(1)).ne("status", Status.TRASH);
   }
 
   @Test
-  void givenATaskIdAndAUserIdTheGetTaskShouldReturnTheRequestedTask() {
+  void givenAnIdOfANotTrashedTaskAndAUserIdTheGetTaskShouldReturnTheRequestedTask() {
     // Given
     Mockito.when(
             ebeanDatabaseMock
@@ -271,6 +270,7 @@ class TaskRepositoryEbeanTest {
                 .where()
                 .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .ne("status", Status.TRASH)
                 .findOneOrEmpty())
         .thenReturn(Optional.of(Mockito.mock(Task.class)));
 
@@ -293,6 +293,7 @@ class TaskRepositoryEbeanTest {
                 .where()
                 .idEq(UUID.fromString("00000000-3186-0000-bf31-59746a41600e"))
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .ne("status", Status.TRASH)
                 .findOneOrEmpty())
         .thenReturn(Optional.empty());
 
@@ -307,7 +308,7 @@ class TaskRepositoryEbeanTest {
   }
 
   @Test
-  void givenATaskIdAndADifferentUserIdTheGetTaskShouldReturnAnOptionalEmpty() {
+  void givenAnIdOfANotTrashedTaskAndADifferentUserIdTheGetTaskShouldReturnAnOptionalEmpty() {
     // Given
     Mockito.when(
             ebeanDatabaseMock
@@ -315,6 +316,7 @@ class TaskRepositoryEbeanTest {
                 .where()
                 .idEq(UUID.fromString("6d162bee-3186-0000-bf31-59746a41600e"))
                 .eq("user_id", "6d162bee-3186-1111-bf31-59746a41600e")
+                .ne("status", Status.TRASH)
                 .findOneOrEmpty())
         .thenReturn(Optional.of(Mockito.mock(Task.class)));
 
