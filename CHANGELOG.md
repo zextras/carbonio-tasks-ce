@@ -8,15 +8,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.1.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.0.1...v0.1.0) (2023-05-30)
+### [0.0.1](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.1.0...v0.0.1) (2023-10-27)
 
+### Features
+
+* implement TrashTask API to mark a task as trashed  ([#24](https://github.com/Zextras/carbonio-tasks-ce/issues/24)) ([263d26e](https://github.com/Zextras/carbonio-tasks-ce/commit/263d26ef0e7aacb9a0637a45e97650357588bc17))
+* update FindTasks to return even the completed tasks ([#23](https://github.com/Zextras/carbonio-tasks-ce/issues/23)) ([f43d67c](https://github.com/Zextras/carbonio-tasks-ce/commit/f43d67cd3cfedb3bf27925a9defc43c8837f1549))
+
+## [0.1.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.0.1...v0.1.0) (2023-05-30)
 
 ### Features
 
 * reduce Hikari max pool size to 2 ([#19](https://github.com/Zextras/carbonio-tasks-ce/issues/19)) ([c21c72d](https://github.com/Zextras/carbonio-tasks-ce/commit/c21c72d8ffd18cf724f76cbd6ad793dd88337005))
 
 ### 0.0.1 (2023-04-27)
-
 
 ### Features
 
@@ -31,7 +36,6 @@ All notable changes to this project will be documented in this file. See [standa
 * TSK-3 Add GraphQL provider and Implement FindTasks API ([#8](https://github.com/Zextras/carbonio-tasks-ce/issues/8)) ([817c6cb](https://github.com/Zextras/carbonio-tasks-ce/commit/817c6cb254d247b1a97a484dff153019073433cb))
 * TSK-31 implement AuthenticationServletFilter to validate cookies ([#12](https://github.com/Zextras/carbonio-tasks-ce/issues/12)) ([ea00eb0](https://github.com/Zextras/carbonio-tasks-ce/commit/ea00eb07d57f2fa356617bec9cbffe10c21d2cc1))
 * TSK-34 implement UpdateTask API ([#13](https://github.com/Zextras/carbonio-tasks-ce/issues/13)) ([af83313](https://github.com/Zextras/carbonio-tasks-ce/commit/af83313c893ffe853ce9a71ce4148732c7d5c89e))
-
 
 ### Bug Fixes
 
