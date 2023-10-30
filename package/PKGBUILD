@@ -2,19 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-targets=(
-  "ubuntu"
-  "centos"
-)
 pkgname="carbonio-tasks-ce"
 pkgver="0.2.0"
 pkgrel="1"
 pkgdesc="Carbonio Tasks"
-pkgdesclong=(
-  "Carbonio Tasks"
-)
 maintainer="Zextras <packages@zextras.com>"
-arch="amd64"
+arch=('x86_64')
 license=("AGPL-3.0-only")
 section="admin"
 priority="optional"
@@ -24,7 +17,7 @@ depends=(
   "pending-setups"
   "carbonio-openjdk"
 )
-sources=(
+source=(
   "carbonio-tasks"
   "carbonio-tasks.hcl"
   "carbonio-tasks.service"
@@ -36,20 +29,20 @@ sources=(
   "policies.json"
   "service-protocol.json"
 )
-hashsums=(
+sha256sums=(
   "7135cf2a9b330e0b8f22d59e0dc553dc350418bb554cb28cc0fb33c2579825da"
   "f2778df8b28cbe98a99f07f0f64b4d99b5d9a9d321ae99c0a2b88ed77a195174"
   "d5ccbb18bb7f30cde59cf84d0eb8c49c5091675ed8dd1ee82d1bbff28f8782be"
   "2b95446703d3502f9782b690b7350e1ac2ad7a48dc603d0b380d4e36e2a09016"
   "f5251be5f0b8eaa7f9e81f447a36f39b7ec70cf127fe4393f99e14aa57fa6a6d"
   "ee799c0a123155de85e29710662d0cb835f64d60b06bb640dd50abbd30d22b80"
-  "skip"
+  "SKIP"
   "6915995b96568ffc4f207b74b126908231e0a4df12a97d83f07307258640cc2d"
   "9f837e3573888b27c2ee3723414982bfa55388564de5e3d801cb55e8e6836b32"
   "a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e"
 )
 backup=(
-    "/etc/zextras/service-discover/carbonio-tasks.hcl"
+  "etc/zextras/service-discover/carbonio-tasks.hcl"
 )
 
 package() {
