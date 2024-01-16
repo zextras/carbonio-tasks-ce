@@ -8,7 +8,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.0.1](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.1.0...v0.0.1) (2023-10-27)
+### [0.2.1](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.2.0...v0.2.1) (2024-01-16)
+
+### Features
+
+* move to yap agent and add rhel9 support ([#27](https://github.com/Zextras/carbonio-tasks-ce/issues/27)) ([190c41d](https://github.com/Zextras/carbonio-tasks-ce/commit/190c41d71e27737495ac843bd2bbd0d25f3d9418))
+
+### [0.2.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.2.0...v0.1.0) (2023-10-27)
 
 ### Features
 
