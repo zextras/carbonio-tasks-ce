@@ -4,9 +4,9 @@
 
 services {
   check {
-    http = "http://127.78.0.16:10000/rest/health/ready/",
-    method = "GET",
-    timeout = "1s"
+    http     = "http://127.78.0.16:10000/rest/health/ready/"
+    method   = "GET"
+    timeout  = "1s"
     interval = "5s"
   }
   connect {
@@ -15,14 +15,14 @@ services {
         local_service_address = "127.78.0.16"
         upstreams = [
           {
-            destination_name = "carbonio-tasks-db"
+            destination_name   = "carbonio-tasks-db"
             local_bind_address = "127.78.0.16"
-            local_bind_port = 20000
+            local_bind_port    = 20000
           },
           {
-            destination_name = "carbonio-user-management"
+            destination_name   = "carbonio-user-management"
             local_bind_address = "127.78.0.16"
-            local_bind_port = 20001
+            local_bind_port    = 20001
           }
         ]
       }
