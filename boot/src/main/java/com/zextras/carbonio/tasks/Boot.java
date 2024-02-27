@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class Boot {
   private static final Logger rootLogger = (Logger) LoggerFactory.getLogger("root");
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     // Set configuration level
     String logLevel = System.getProperty("TASKS_LOG_LEVEL");
     rootLogger.setLevel(logLevel == null ? Level.INFO : Level.toLevel(logLevel));
@@ -27,6 +27,7 @@ public class Boot {
       injector.getInstance(JettyServer.class).start();
     } catch (Exception exception) {
       rootLogger.error("Service stopped unexpectedly: ", exception);
+      throw exception;
     }
   }
 }
