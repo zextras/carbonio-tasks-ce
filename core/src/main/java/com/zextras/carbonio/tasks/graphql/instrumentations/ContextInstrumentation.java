@@ -11,8 +11,8 @@ import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.SimpleInstrumentationContext;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.NoSuchElementException;
-import javax.servlet.http.HttpServletRequest;
 
 public class ContextInstrumentation extends SimpleInstrumentation {
 

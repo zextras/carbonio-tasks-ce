@@ -8,11 +8,11 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.GuiceFilter;
 import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
+import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
-import javax.servlet.DispatcherType;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 
@@ -48,11 +48,12 @@ public class JettyServer {
         server.addConnector(connector);
       }
       ServletContextHandler servletContextHandler =
-          new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+          new ServletContextHandler("/", ServletContextHandler.SESSIONS);
 
       servletContextHandler.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
       servletContextHandler.addEventListener(guiceRestEasyListener);
 
+      server.setHandler(servletContextHandler);
       server.start();
       server.join();
 

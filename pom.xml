@@ -40,8 +40,8 @@ SPDX-License-Identifier: AGPL-3.0-only
     <graphql-java-servlet.version>15.2.0</graphql-java-servlet.version>
     <guice.version>7.0.0</guice.version>
     <hikaricp.version>5.1.0</hikaricp.version>
-    <jetty-server.version>12.0.6</jetty-server.version>
-    <jetty-servlet.version>11.0.20</jetty-servlet.version>
+    <jakarta-servlet-api.version>6.0.0</jakarta-servlet-api.version>
+    <jetty.version>12.0.6</jetty.version>
     <jsonassert.version>1.5.1</jsonassert.version>
     <junit5.version>5.10.2</junit5.version>
     <logback-classic.version>1.5.0</logback-classic.version>
@@ -50,7 +50,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <postgresql.version>42.7.2</postgresql.version>
     <testcontainers.version>1.19.6</testcontainers.version>
     <resteasy.version>6.2.7.Final</resteasy.version>
-    <resteasy-guice.version>4.7.9.Final</resteasy-guice.version>
+    <resteasy-guice.version>6.2.7.Final-SNAPSHOT</resteasy-guice.version>
 
     <!-- Plugins -->
     <build-helper-maven.version>3.4.0</build-helper-maven.version>
@@ -106,14 +106,21 @@ SPDX-License-Identifier: AGPL-3.0-only
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
-        <version>${jetty-server.version}</version>
+        <version>${jetty.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlet</artifactId>
-        <version>${jetty-servlet.version}</version>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-servlet</artifactId>
+        <version>${jetty.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta-servlet-api.version}</version>
+      </dependency>
+
 
       <!-- GraphQL servlet -->
       <dependency>

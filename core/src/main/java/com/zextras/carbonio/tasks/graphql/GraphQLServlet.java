@@ -11,8 +11,8 @@ import graphql.kickstart.servlet.GraphQLHttpServlet;
 import java.util.Arrays;
 
 /**
- * Represents a {@link javax.servlet.http.HttpServlet} for the GraphQL endpoint with a configuration
- * containing:
+ * Represents a {@link jakarta.servlet.http.HttpServlet} for the GraphQL endpoint with a
+ * configuration containing:
  *
  * <ul>
  *   <li>The GraphQL SDL schema loaded from resources

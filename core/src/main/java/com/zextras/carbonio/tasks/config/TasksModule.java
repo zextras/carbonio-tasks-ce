@@ -23,6 +23,7 @@ import com.zextras.carbonio.usermanagement.UserManagementClient;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 
 public class TasksModule extends AbstractModule {
@@ -42,6 +43,7 @@ public class TasksModule extends AbstractModule {
         new ServletModule() {
           @Override
           protected void configureServlets() {
+            bind(ResteasyJackson2Provider.class);
             bind(GraphQLServlet.class).in(Singleton.class);
             bind(HttpServlet30Dispatcher.class).in(Singleton.class);
             bind(AuthenticationServletFilter.class).in(Singleton.class);
@@ -50,7 +52,7 @@ public class TasksModule extends AbstractModule {
             serve(Endpoints.GRAPHQL).with(GraphQLServlet.class);
 
             Map<String, String> initParam = new HashMap<>();
-            initParam.put("javax.ws.rs.Application", RestApplication.class.getName());
+            initParam.put("jakarta.ws.rs.core.Application", RestApplication.class.getName());
             initParam.put("resteasy.servlet.mapping.prefix", Endpoints.REST);
             serve(Endpoints.REST + "/*").with(HttpServlet30Dispatcher.class, initParam);
           }
