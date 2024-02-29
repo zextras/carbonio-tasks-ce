@@ -50,7 +50,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <postgresql.version>42.7.2</postgresql.version>
     <testcontainers.version>1.19.6</testcontainers.version>
     <resteasy.version>6.2.7.Final</resteasy.version>
-    <resteasy-guice.version>6.2.7.Final-SNAPSHOT</resteasy-guice.version>
+    <resteasy-guice.version>6.2.7-alpha</resteasy-guice.version>
 
     <!-- Plugins -->
     <build-helper-maven.version>3.4.0</build-helper-maven.version>
@@ -143,7 +143,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.resteasy</groupId>
+        <groupId>com.federicorispo</groupId>
         <artifactId>resteasy-guice</artifactId>
         <version>${resteasy-guice.version}</version>
       </dependency>
