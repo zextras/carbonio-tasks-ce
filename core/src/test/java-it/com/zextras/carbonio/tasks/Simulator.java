@@ -15,10 +15,10 @@ import jakarta.servlet.DispatcherType;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.Map;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -245,12 +245,13 @@ public class Simulator implements AutoCloseable {
       jettyServer.addConnector(httpLocalConnector);
 
       ServletContextHandler servletContextHandler =
-          new ServletContextHandler(jettyServer, "/", ServletContextHandler.SESSIONS);
+          new ServletContextHandler("/", ServletContextHandler.SESSIONS);
 
       servletContextHandler.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
       servletContextHandler.addEventListener(
           injector.getInstance(GuiceResteasyBootstrapServletContextListener.class));
 
+      jettyServer.setHandler(servletContextHandler);
       jettyServer.start();
     } catch (Exception e) {
       throw new RuntimeException(e);
