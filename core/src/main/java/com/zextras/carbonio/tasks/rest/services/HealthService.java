@@ -44,6 +44,7 @@ public class HealthService {
 
   public ServiceHealth getDatabaseHealth() {
     boolean databaseIsLive = dbInfoRepository.isDatabaseLive();
+    //TODO check db version here
 
     return new ServiceHealth()
         .setName("database")

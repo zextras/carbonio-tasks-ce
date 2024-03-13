@@ -70,6 +70,7 @@ public class Simulator implements AutoCloseable {
     System.setProperty(
         Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
+    //TODO
     return this;
   }
 
@@ -288,6 +289,7 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder withDatabase() {
       simulator.startDatabase();
+      //TODO inject dbinitializer
       return this;
     }
 
