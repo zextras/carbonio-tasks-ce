@@ -5,9 +5,9 @@
 package com.zextras.carbonio.tasks.dal.dao;
 
 import com.zextras.carbonio.tasks.Constants.Database.Tables;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 /**
  * Represents an Ebean {@link DbInfo} entity that matches a record of the {@link Tables#DB_INFO}

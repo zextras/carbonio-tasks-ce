@@ -7,11 +7,11 @@ package com.zextras.carbonio.tasks.dal.repositories;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
+import jakarta.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /** Represents all the allowed CRUD operations executable on a {@link Task} element. */
 public interface TaskRepository {

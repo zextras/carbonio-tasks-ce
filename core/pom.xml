@@ -24,7 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <parent>
     <groupId>com.zextras.carbonio.tasks</groupId>
     <artifactId>carbonio-tasks-ce</artifactId>
-    <version>0.2.0-1</version>
+    <version>0.2.1-SNAPSHOT</version>
   </parent>
 
   <dependencies>
@@ -38,6 +38,12 @@ SPDX-License-Identifier: AGPL-3.0-only
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-servlet</artifactId>
+    </dependency>
+
+    <!-- Servlet -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
 
     <!-- Logger -->
@@ -128,10 +134,11 @@ SPDX-License-Identifier: AGPL-3.0-only
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-servlet</artifactId>
+      <groupId>org.eclipse.jetty.ee10</groupId>
+      <artifactId>jetty-ee10-servlet</artifactId>
       <scope>test</scope>
     </dependency>
+
 
     <!-- RESTEasy servlet initializer -->
     <dependency>
@@ -141,11 +148,10 @@ SPDX-License-Identifier: AGPL-3.0-only
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
+      <groupId>com.federicorispo</groupId>
       <artifactId>resteasy-guice</artifactId>
       <scope>test</scope>
     </dependency>
-
 
 
     <!-- Authentication -->

@@ -10,7 +10,7 @@ import com.zextras.carbonio.tasks.config.TasksConfig;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
-import javax.sql.DataSource;
+import jakarta.activation.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

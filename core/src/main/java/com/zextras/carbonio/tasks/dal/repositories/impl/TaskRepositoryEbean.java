@@ -12,12 +12,12 @@ import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
 import io.ebean.ExpressionList;
+import jakarta.annotation.Nullable;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class TaskRepositoryEbean implements TaskRepository {
 

@@ -7,8 +7,8 @@ package com.zextras.carbonio.tasks.rest.controllers;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.rest.services.HealthService;
 import com.zextras.carbonio.tasks.rest.types.health.HealthStatus;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

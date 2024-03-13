@@ -8,8 +8,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jetty.http.HttpMethod;
 import org.junit.jupiter.api.AfterAll;
@@ -162,7 +162,7 @@ class TaskConfigTest {
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
-    List<Class<?>> entityClasses = databaseConfig.getClasses();
+    Set<Class<?>> entityClasses = databaseConfig.classes();
     Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
@@ -207,7 +207,7 @@ class TaskConfigTest {
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
-    List<Class<?>> entityClasses = databaseConfig.getClasses();
+    Set<Class<?>> entityClasses = databaseConfig.classes();
     Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);

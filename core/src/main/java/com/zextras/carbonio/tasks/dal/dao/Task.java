@@ -6,16 +6,16 @@ package com.zextras.carbonio.tasks.dal.dao;
 
 import com.zextras.carbonio.tasks.Constants.Database;
 import com.zextras.carbonio.tasks.Constants.Database.Tables;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * Represents an Ebean {@link Task} entity that matches a record of the {@link Tables#TASK} table.
