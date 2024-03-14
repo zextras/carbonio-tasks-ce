@@ -5,6 +5,7 @@
 package com.zextras.carbonio.tasks.dal.impl;
 
 import com.google.inject.Inject;
+import com.zextras.carbonio.tasks.config.TasksConfig;
 import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
 import com.zextras.carbonio.tasks.dal.DatabaseInitializer;
 import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
@@ -16,11 +17,11 @@ public class DatabaseFlywayInitializer implements DatabaseInitializer {
 
   private static final Logger logger = LoggerFactory.getLogger(DatabaseFlywayInitializer.class);
 
-  private final DatabaseConnectionManager databaseConnectionManager;
+  private final TasksConfig tasksConfig;
 
   @Inject
-  public DatabaseFlywayInitializer(DatabaseConnectionManager databaseConnectionManager) {
-    this.databaseConnectionManager = databaseConnectionManager;
+  public DatabaseFlywayInitializer(TasksConfig tasksConfig) {
+    this.tasksConfig = tasksConfig;
   }
 
   @Override
@@ -29,7 +30,7 @@ public class DatabaseFlywayInitializer implements DatabaseInitializer {
     // the database already exists and the credentials are working properly.
 
     Flyway flyway = Flyway.configure()
-            .dataSource(databaseConnectionManager.getEbeanDatabase().dataSource())
+            .dataSource(tasksConfig.getDataSource())
             .baselineOnMigrate(true) //if schema is not empty create baseline, if it is ignore
             .baselineVersion("0")
             .load();

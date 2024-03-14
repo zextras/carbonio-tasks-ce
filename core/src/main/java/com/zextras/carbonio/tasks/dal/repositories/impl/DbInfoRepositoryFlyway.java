@@ -25,12 +25,12 @@ public class DbInfoRepositoryFlyway implements DbInfoRepository {
   }
 
   @Override
-  public int getDatabaseVersion() {
+  public String getDatabaseVersion() {
     Flyway flyway = Flyway.configure()
             .dataSource(tasksConfig.getDataSource())
             .load();
 
-    return flyway.info().current() != null ? Integer.parseInt(flyway.info().current().getVersion().getVersion()) : 0;
+    return flyway.info().current() != null ? flyway.info().current().getVersion().getVersion() : "0";
   }
 
   @Override

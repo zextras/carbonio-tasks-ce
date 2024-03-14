@@ -11,7 +11,7 @@ public interface DbInfoRepository {
   /**
    * @return an <code>int</code> representing the current version of the database.
    */
-  int getDatabaseVersion();
+  String getDatabaseVersion();
 
   /**
    * @return true if the database has the {@link Tables#DB_INFO} table, false otherwise.
