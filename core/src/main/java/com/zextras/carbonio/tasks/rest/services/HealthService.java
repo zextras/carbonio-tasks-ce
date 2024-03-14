@@ -5,35 +5,29 @@
 package com.zextras.carbonio.tasks.rest.services;
 
 import com.google.inject.Inject;
-import com.zextras.carbonio.tasks.config.TasksConfig;
-import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
+import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.rest.types.health.DependencyType;
 import com.zextras.carbonio.tasks.rest.types.health.HealthStatus;
 import com.zextras.carbonio.tasks.rest.types.health.ServiceHealth;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.MigrationVersion;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HealthService {
 
-  private final DbInfoRepository dbInfoRepository;
+  private final DatabaseManager databaseManager;
   private final UserManagementClient userManagementClient;
-
-  private final TasksConfig tasksConfig;
 
   @Inject
   public HealthService(
-          DbInfoRepository dbInfoRepository, UserManagementClient userManagementClient, TasksConfig tasksConfig) {
-    this.dbInfoRepository = dbInfoRepository;
+          DatabaseManager databaseManager, UserManagementClient userManagementClient) {
+    this.databaseManager = databaseManager;
     this.userManagementClient = userManagementClient;
-    this.tasksConfig = tasksConfig;
   }
 
   public boolean areServiceDependenciesReady() {
-    return dbInfoRepository.isDatabaseLive() && userManagementClient.healthCheck();
+    return databaseManager.isDatabaseLive() && userManagementClient.healthCheck();
   }
 
   public HealthStatus getServiceHealthStatus() {
@@ -50,24 +44,16 @@ public class HealthService {
   }
 
   public ServiceHealth getDatabaseHealth() {
-    boolean databaseIsLive = dbInfoRepository.isDatabaseLive();
-    //has dbflywayinitializer.initialize already been called here?
-    //in other words can i assume flyway migration has already happened?
+    boolean databaseIsLive = databaseManager.isDatabaseLive();
 
-    Flyway flyway = Flyway.configure()
-            .dataSource(tasksConfig.getDataSource())
-            .load();
-
-    //flyway resolver will return an empty physical path if the last database version's script is not included in
-    //local migration path (db/migration). if the last version's script is not in path the database was migrated
-    //to a newer version by another client and this client must be updated
-    boolean clientIsUpdated = !flyway.info().current().getPhysicalLocation().isEmpty();
+    //db is ready if db is live and is on correct version
+    boolean databaseIsReady = databaseIsLive ? databaseManager.isDatabaseCorrectVersion() : false;
 
     return new ServiceHealth()
         .setName("database")
         .setType(DependencyType.REQUIRED)
-        .setLive(databaseIsLive && clientIsUpdated)
-        .setReady(databaseIsLive && clientIsUpdated);
+        .setLive(databaseIsLive)
+        .setReady(databaseIsReady);
   }
 
   public ServiceHealth getUserManagementHealth() {

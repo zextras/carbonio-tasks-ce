@@ -58,6 +58,42 @@ class DbInfoRepositoryEbeanTest {
   }
 
   @Test
+  void givenAnInitializedDatabaseTheIsDatabaseInitializedShouldReturnTrue() {
+    // Given
+    String rawSQLQuery =
+        String.format(
+            "SELECT 1 FROM information_schema.tables where table_name = '%s';",
+            Tables.DB_INFO.toLowerCase());
+
+    Mockito.when(ebeanDatabaseMock.sqlQuery(rawSQLQuery).findOneOrEmpty())
+        .thenReturn(Optional.of(Mockito.mock(SqlRow.class)));
+
+    // When
+    boolean isDatabaseInitialized = dbInfoRepository.isDatabaseInitialized();
+
+    // Then
+    Assertions.assertThat(isDatabaseInitialized).isTrue();
+  }
+
+  @Test
+  void givenADatabaseNotInitializedTheIsDatabaseInitializedShouldReturnFalse() {
+    // Given
+    String rawSQLQuery =
+        String.format(
+            "SELECT 1 FROM information_schema.tables where table_name = '%s';",
+            Tables.DB_INFO.toLowerCase());
+
+    Mockito.when(ebeanDatabaseMock.sqlQuery(rawSQLQuery).findOneOrEmpty())
+        .thenReturn(Optional.empty());
+
+    // When
+    boolean isDatabaseInitialized = dbInfoRepository.isDatabaseInitialized();
+
+    // Then
+    Assertions.assertThat(isDatabaseInitialized).isFalse();
+  }
+
+  @Test
   void givenAnInitializedDatabaseTheIsDatabaseLiveShouldReturnTrue() {
     // Given
     Mockito.when(ebeanDatabaseMock.find(DbInfo.class).findOneOrEmpty())
