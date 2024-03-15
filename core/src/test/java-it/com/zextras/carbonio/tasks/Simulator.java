@@ -11,6 +11,7 @@ import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Properties;
 import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.config.TasksModule;
+import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import jakarta.servlet.DispatcherType;
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -58,9 +59,6 @@ public class Simulator implements AutoCloseable {
 
     if (postgreSQLContainer == null) {
       postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
-      postgreSQLContainer.withCopyFileToContainer(
-          MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
-          "/docker-entrypoint-initdb.d/init.sql");
     }
 
     postgreSQLContainer.start();
@@ -70,7 +68,12 @@ public class Simulator implements AutoCloseable {
     System.setProperty(
         Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
-    //TODO
+    return this;
+  }
+
+  private Simulator initializeDatabase() {
+    DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
+    databaseManager.initialize();
     return this;
   }
 
@@ -289,7 +292,7 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder withDatabase() {
       simulator.startDatabase();
-      //TODO inject dbinitializer
+      simulator.initializeDatabase();
       return this;
     }
 
