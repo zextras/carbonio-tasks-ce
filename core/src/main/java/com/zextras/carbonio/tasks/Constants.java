@@ -79,16 +79,9 @@ public final class Constants {
 
     public static final class Tables {
 
-      public static final String DB_INFO = "db_info";
       public static final String TASK = "task";
 
       private Tables() {}
-
-      public static final class DbInfo {
-        public static final String VERSION = "version";
-
-        private DbInfo() {}
-      }
 
       public static final class Task {
         public static final String ID = "id";
