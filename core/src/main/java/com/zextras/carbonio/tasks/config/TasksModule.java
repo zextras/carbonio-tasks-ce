@@ -11,6 +11,8 @@ import com.google.inject.servlet.ServletModule;
 import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
+import com.zextras.carbonio.tasks.config.providers.FlywayProvider;
+import com.zextras.carbonio.tasks.config.providers.UserManagementClientProvider;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.dal.impl.DatabaseManagerFlyway;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
@@ -40,7 +42,8 @@ public class TasksModule extends AbstractModule {
     bind(HealthController.class).to(HealthControllerImpl.class);
     bind(TaskRepository.class).to(TaskRepositoryEbean.class);
     bind(DatabaseManager.class).to(DatabaseManagerFlyway.class);
-    bind(Flyway.class).in(Singleton.class);
+    bind(Flyway.class).toProvider(FlywayProvider.class).in(Singleton.class);
+    bind(UserManagementClient.class).toProvider(UserManagementClientProvider.class);
 
     install(
         new ServletModule() {
@@ -60,10 +63,5 @@ public class TasksModule extends AbstractModule {
             serve(Endpoints.REST + "/*").with(HttpServlet30Dispatcher.class, initParam);
           }
         });
-  }
-
-  @Provides
-  public UserManagementClient getUserManagementClient() {
-    return UserManagementClient.atURL(UserService.PROTOCOL, UserService.URL, UserService.PORT);
   }
 }
