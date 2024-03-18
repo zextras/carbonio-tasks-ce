@@ -51,6 +51,10 @@ public class DatabaseManagerFlyway implements DatabaseManager {
     //to a newer version by another client and this client must be updated
     //this is to be sure that no other client has updated db and thus this instance doesn't have the updated code
     //and is using old/no more existing tables
+
+    //I think flyway.info() uses two connections at the same time. setting Constants.Hikari.MAX_POOL_SIZE to 3 instead
+    //of 2 makes this call work; with MAX_POOL_SIZE = 2 this crashes with an InterruptException.
+    //https://github.com/flyway/flyway/issues/3237
     return !flyway.info().current().getPhysicalLocation().isEmpty();
   }
 }

@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
-import org.testcontainers.utility.MountableFile;
 
 @Testcontainers
 public class Simulator implements AutoCloseable {
@@ -55,7 +54,7 @@ public class Simulator implements AutoCloseable {
     return this;
   }
 
-  private Simulator startDatabase() {
+  private Simulator startDatabaseContainer() {
 
     if (postgreSQLContainer == null) {
       postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
@@ -286,13 +285,11 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder init() {
       simulator = new Simulator();
-      simulator.createInjector();
       return this;
     }
 
     public SimulatorBuilder withDatabase() {
-      simulator.startDatabase();
-      simulator.initializeDatabase();
+      simulator.startDatabaseContainer();
       return this;
     }
 
@@ -313,6 +310,18 @@ public class Simulator implements AutoCloseable {
     }
 
     public Simulator build() {
+      simulator.createInjector();
+      boolean postgreIsRunning = simulator.postgreSQLContainer != null && simulator.postgreSQLContainer.isRunning();
+      boolean serviceDiscoverIsRunning = simulator.serviceDiscoverMock != null && simulator.serviceDiscoverMock.hasStarted();
+      if(postgreIsRunning && serviceDiscoverIsRunning){
+        simulator.initializeDatabase();
+      }
+      if(postgreIsRunning && !serviceDiscoverIsRunning){
+        logger.warn("Database not initialized since service discover is not running (add withServiceDiscover to your simulator builder to initialize database)");
+      }
+      if(!postgreIsRunning && serviceDiscoverIsRunning){
+        logger.warn("Database not initialized since database container is not running (add withDatabase to your simulator builder to initialize database)");
+      }
       return simulator;
     }
   }
