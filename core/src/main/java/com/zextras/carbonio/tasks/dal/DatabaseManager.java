@@ -6,7 +6,10 @@ package com.zextras.carbonio.tasks.dal;
 
 public interface DatabaseManager {
   void initialize();
+
   String getDatabaseVersion();
+
   boolean isDatabaseLive();
+
   boolean isDatabaseCorrectVersion();
 }

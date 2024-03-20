@@ -5,12 +5,13 @@
 package com.zextras.carbonio.tasks.config.providers;
 
 import com.google.inject.Provider;
-import com.zextras.carbonio.tasks.Constants;
+import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 
 public class UserManagementClientProvider implements Provider<UserManagementClient> {
   @Override
   public UserManagementClient get() {
-    return UserManagementClient.atURL(Constants.Config.UserService.PROTOCOL, Constants.Config.UserService.URL, Constants.Config.UserService.PORT);
+    return UserManagementClient.atURL(
+        Config.UserService.PROTOCOL, Config.UserService.URL, Config.UserService.PORT);
   }
 }

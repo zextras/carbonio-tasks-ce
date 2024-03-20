@@ -73,8 +73,6 @@ public final class Constants {
 
   public static final class Database {
 
-    public static final int DB_VERSION = 1;
-
     private Database() {}
 
     public static final class Tables {

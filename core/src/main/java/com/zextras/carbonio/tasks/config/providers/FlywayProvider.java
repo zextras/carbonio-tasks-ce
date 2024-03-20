@@ -20,9 +20,9 @@ public class FlywayProvider implements Provider<Flyway> {
   @Override
   public Flyway get() {
     return Flyway.configure()
-            .dataSource(tasksConfig.getDataSource())
-            .baselineOnMigrate(true) //if schema is not empty create baseline, if it is ignore
-            .baselineVersion("0")
-            .load();
+        .dataSource(tasksConfig.getDataSource())
+        .baselineOnMigrate(true) // if schema is not empty create baseline, if it is ignore
+        .baselineVersion("0")
+        .load();
   }
 }

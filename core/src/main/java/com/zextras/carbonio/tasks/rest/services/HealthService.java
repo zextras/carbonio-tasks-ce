@@ -10,7 +10,6 @@ import com.zextras.carbonio.tasks.rest.types.health.DependencyType;
 import com.zextras.carbonio.tasks.rest.types.health.HealthStatus;
 import com.zextras.carbonio.tasks.rest.types.health.ServiceHealth;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +19,7 @@ public class HealthService {
   private final UserManagementClient userManagementClient;
 
   @Inject
-  public HealthService(
-          DatabaseManager databaseManager, UserManagementClient userManagementClient) {
+  public HealthService(DatabaseManager databaseManager, UserManagementClient userManagementClient) {
     this.databaseManager = databaseManager;
     this.userManagementClient = userManagementClient;
   }

@@ -2,13 +2,16 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-package com.zextras.carbonio.tasks.config.providers.utils;
+package com.zextras.carbonio.tasks.utilities;
 
 import java.net.URL;
 
-public class Utils {
+public class DatabaseUtils {
   public static boolean isScriptInPath(String filename, String relativePath) {
-    URL resourceUrl = Utils.class.getClassLoader().getResource(relativePath + "/" + filename);
+    URL resourceUrl =
+        DatabaseUtils.class
+            .getClassLoader()
+            .getResource(String.format("%s/%s", relativePath, filename));
     return resourceUrl != null;
   }
 }
