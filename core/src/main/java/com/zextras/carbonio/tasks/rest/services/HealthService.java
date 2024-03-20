@@ -45,8 +45,6 @@ public class HealthService {
 
   public ServiceHealth getDatabaseHealth() {
     boolean databaseIsLive = databaseManager.isDatabaseLive();
-
-    //db is ready if db is live and is on correct version
     boolean databaseIsReady = databaseIsLive ? databaseManager.isDatabaseCorrectVersion() : false;
 
     return new ServiceHealth()
