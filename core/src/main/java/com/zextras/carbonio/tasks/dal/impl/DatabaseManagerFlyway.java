@@ -69,8 +69,7 @@ public class DatabaseManagerFlyway implements DatabaseManager {
     //since I can't change max pool size here I manually implement "return !flyway.info().current().getPhysicalLocation().isEmpty();"
     //using a single connection
 
-    try {
-      ResultSet flywayInfo = fetchFlywayInfo();
+    try(ResultSet flywayInfo = fetchFlywayInfo()) {
       String lastMigrationScript = flywayInfo.getString("script");
 
       //check if lastMigrationScript is in one of flyway locations
