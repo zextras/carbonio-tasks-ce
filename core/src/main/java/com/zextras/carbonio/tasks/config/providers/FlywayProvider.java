@@ -6,6 +6,7 @@ package com.zextras.carbonio.tasks.config.providers;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.config.TasksConfig;
 import org.flywaydb.core.Flyway;
 
@@ -19,9 +20,10 @@ public class FlywayProvider implements Provider<Flyway> {
 
   @Override
   public Flyway get() {
+    HikariDataSource dataSource = tasksConfig.getDataSource();
     return Flyway.configure()
-        .dataSource(tasksConfig.getDataSource())
-        .baselineOnMigrate(true) // if schema is not empty create baseline, if it is ignore
+        .dataSource(dataSource.getJdbcUrl(), dataSource.getUsername(), dataSource.getPassword())
+        .baselineOnMigrate(true) // if schema is not empty create baseline, if it is ignored
         .baselineVersion("0")
         .load();
   }
