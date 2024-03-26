@@ -20,6 +20,12 @@ public class FlywayProvider implements Provider<Flyway> {
 
   @Override
   public Flyway get() {
+    // flyway uses its own implementation of datasource if db credentials are passed instead of a
+    // datasource object; this
+    // implementation closes every connection that has been created thus avoiding the saturation of
+    // the connection pool.
+    // hikaridatasource does not have this behaviour, so passing the datasource directly would
+    // saturate the pool.
     HikariDataSource dataSource = tasksConfig.getDataSource();
     return Flyway.configure()
         .dataSource(dataSource.getJdbcUrl(), dataSource.getUsername(), dataSource.getPassword())
