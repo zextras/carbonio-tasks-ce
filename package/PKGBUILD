@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 pkgname="carbonio-tasks-ce"
-pkgver="0.2.1"
+pkgver="0.2.2"
 pkgrel="SNAPSHOT"
 pkgdesc="Carbonio Tasks"
 maintainer="Zextras <packages@zextras.com>"
