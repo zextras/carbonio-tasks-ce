@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.dal.impl;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.utilities.DatabaseUtils;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -46,7 +47,9 @@ public class DatabaseManagerFlyway implements DatabaseManager {
   @Override
   public boolean isDatabaseLive() {
     try {
-      return flyway.getConfiguration().getDataSource().getConnection().isValid(1);
+      try (Connection connection = flyway.getConfiguration().getDataSource().getConnection()) {
+        return connection.isValid(1);
+      }
     } catch (SQLException e) {
       return false;
     }
@@ -89,16 +92,18 @@ public class DatabaseManagerFlyway implements DatabaseManager {
   }
 
   private ResultSet fetchFlywayInfo() throws SQLException {
-    Statement stm = flyway.getConfiguration().getDataSource().getConnection().createStatement();
-    ResultSet rs =
-        stm.executeQuery(
-            "select version, script "
-                + "from flyway_schema_history "
-                + "where success = true "
-                + "order by installed_on desc "
-                + "limit 1");
+    try (Connection connection = flyway.getConfiguration().getDataSource().getConnection()) {
+      Statement stm = connection.createStatement();
+      ResultSet rs =
+          stm.executeQuery(
+              "select version, script "
+                  + "from flyway_schema_history "
+                  + "where success = true "
+                  + "order by installed_on desc "
+                  + "limit 1");
 
-    rs.next(); // this query returns only one row and should not be empty
-    return rs;
+      rs.next(); // this query returns only one row and should not be empty
+      return rs;
+    }
   }
 }
