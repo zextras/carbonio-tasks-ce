@@ -104,6 +104,7 @@ public class DatabaseManagerFlyway implements DatabaseManager {
 
       rs.next(); // this query returns only one row and should not be empty
       return rs;
+      //
     }
   }
 }
