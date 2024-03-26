@@ -65,14 +65,14 @@ public class DatabaseManagerFlyway implements DatabaseManager {
     // the updated code
     // and is using old/no more existing tables
 
-    // flyway.info() uses two connections at the same time. setting Constants.Hikari.MAX_POOL_SIZE
-    // to 3 instead
+    // flyway.info() uses two connections at the same time and does not close them.
+    // setting Constants.Hikari.MAX_POOL_SIZE to 3 instead
     // of 2 makes this call work; with MAX_POOL_SIZE = 2 this crashes with an InterruptException.
     // https://github.com/flyway/flyway/issues/3237
 
     // since I can't change max pool size here I manually implement "return
     // !flyway.info().current().getPhysicalLocation().isEmpty();"
-    // using a single connection
+    // using a single connection and closing it manually
 
     try (ResultSet flywayInfo = fetchFlywayInfo()) {
       String lastMigrationScript = flywayInfo.getString("script");
@@ -104,7 +104,6 @@ public class DatabaseManagerFlyway implements DatabaseManager {
 
       rs.next(); // this query returns only one row and should not be empty
       return rs;
-      //
     }
   }
 }
