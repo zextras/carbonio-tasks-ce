@@ -55,7 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     <!-- Plugins -->
     <build-helper-maven.version>3.4.0</build-helper-maven.version>
-    <maven-assembly.version>3.6.0</maven-assembly.version>
+    <maven-shade.version>3.5.2</maven-shade.version>
     <maven-compiler.version>3.12.0</maven-compiler.version>
     <maven-failsafe.version>3.2.5</maven-failsafe.version>
     <maven-jacoco.version>0.8.11</maven-jacoco.version>
