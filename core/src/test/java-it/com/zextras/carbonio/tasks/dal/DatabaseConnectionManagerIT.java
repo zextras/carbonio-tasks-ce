@@ -15,6 +15,7 @@ class DatabaseConnectionManagerIT {
 
   @Test
   void givenAReachableDatabaseTheGetEbeanDatabaseShouldReturnAnEbeanDatabase() {
+
     try (Simulator simulator =
         SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().build().start()) {
 

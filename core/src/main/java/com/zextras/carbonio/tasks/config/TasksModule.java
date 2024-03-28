@@ -11,20 +11,24 @@ import com.google.inject.servlet.ServletModule;
 import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
-import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
+import com.zextras.carbonio.tasks.config.providers.FlywayProvider;
+import com.zextras.carbonio.tasks.config.providers.UserManagementClientProvider;
+import com.zextras.carbonio.tasks.dal.DatabaseManager;
+import com.zextras.carbonio.tasks.dal.impl.DatabaseManagerFlyway;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
-import com.zextras.carbonio.tasks.dal.repositories.impl.DbInfoRepositoryEbean;
 import com.zextras.carbonio.tasks.dal.repositories.impl.TaskRepositoryEbean;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
 import com.zextras.carbonio.tasks.rest.controllers.HealthController;
 import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
+import org.flywaydb.core.Flyway;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
+import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
+
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
-import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 
 public class TasksModule extends AbstractModule {
 
@@ -36,8 +40,10 @@ public class TasksModule extends AbstractModule {
 
     bind(Clock.class).toInstance(Clock.systemUTC());
     bind(HealthController.class).to(HealthControllerImpl.class);
-    bind(DbInfoRepository.class).to(DbInfoRepositoryEbean.class);
     bind(TaskRepository.class).to(TaskRepositoryEbean.class);
+    bind(DatabaseManager.class).to(DatabaseManagerFlyway.class);
+    bind(Flyway.class).toProvider(FlywayProvider.class).in(Singleton.class);
+    bind(UserManagementClient.class).toProvider(UserManagementClientProvider.class);
 
     install(
         new ServletModule() {
@@ -57,10 +63,5 @@ public class TasksModule extends AbstractModule {
             serve(Endpoints.REST + "/*").with(HttpServlet30Dispatcher.class, initParam);
           }
         });
-  }
-
-  @Provides
-  public UserManagementClient getUserManagementClient() {
-    return UserManagementClient.atURL(UserService.PROTOCOL, UserService.URL, UserService.PORT);
   }
 }

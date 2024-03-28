@@ -5,7 +5,7 @@
 package com.zextras.carbonio.tasks.rest.services;
 
 import com.google.inject.Inject;
-import com.zextras.carbonio.tasks.dal.repositories.DbInfoRepository;
+import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.rest.types.health.DependencyType;
 import com.zextras.carbonio.tasks.rest.types.health.HealthStatus;
 import com.zextras.carbonio.tasks.rest.types.health.ServiceHealth;
@@ -15,18 +15,17 @@ import java.util.List;
 
 public class HealthService {
 
-  private final DbInfoRepository dbInfoRepository;
+  private final DatabaseManager databaseManager;
   private final UserManagementClient userManagementClient;
 
   @Inject
-  public HealthService(
-      DbInfoRepository dbInfoRepository, UserManagementClient userManagementClient) {
-    this.dbInfoRepository = dbInfoRepository;
+  public HealthService(DatabaseManager databaseManager, UserManagementClient userManagementClient) {
+    this.databaseManager = databaseManager;
     this.userManagementClient = userManagementClient;
   }
 
   public boolean areServiceDependenciesReady() {
-    return dbInfoRepository.isDatabaseLive() && userManagementClient.healthCheck();
+    return databaseManager.isDatabaseLive() && userManagementClient.healthCheck();
   }
 
   public HealthStatus getServiceHealthStatus() {
@@ -43,13 +42,14 @@ public class HealthService {
   }
 
   public ServiceHealth getDatabaseHealth() {
-    boolean databaseIsLive = dbInfoRepository.isDatabaseLive();
+    boolean databaseIsLive = databaseManager.isDatabaseLive();
+    boolean databaseIsReady = databaseIsLive ? databaseManager.isDatabaseCorrectVersion() : false;
 
     return new ServiceHealth()
         .setName("database")
         .setType(DependencyType.REQUIRED)
         .setLive(databaseIsLive)
-        .setReady(databaseIsLive);
+        .setReady(databaseIsReady);
   }
 
   public ServiceHealth getUserManagementHealth() {

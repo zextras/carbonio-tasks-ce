@@ -11,6 +11,7 @@ import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Properties;
 import com.zextras.carbonio.tasks.Constants.Config.UserService;
 import com.zextras.carbonio.tasks.config.TasksModule;
+import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import jakarta.servlet.DispatcherType;
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
-import org.testcontainers.utility.MountableFile;
 
 @Testcontainers
 public class Simulator implements AutoCloseable {
@@ -54,13 +54,10 @@ public class Simulator implements AutoCloseable {
     return this;
   }
 
-  private Simulator startDatabase() {
+  private Simulator startDatabaseContainer() {
 
     if (postgreSQLContainer == null) {
       postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
-      postgreSQLContainer.withCopyFileToContainer(
-          MountableFile.forClasspathResource("/sql/postgresql_1.sql"),
-          "/docker-entrypoint-initdb.d/init.sql");
     }
 
     postgreSQLContainer.start();
@@ -70,6 +67,12 @@ public class Simulator implements AutoCloseable {
     System.setProperty(
         Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
+    return this;
+  }
+
+  private Simulator initializeDatabase() {
+    DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
+    databaseManager.initialize();
     return this;
   }
 
@@ -282,12 +285,11 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder init() {
       simulator = new Simulator();
-      simulator.createInjector();
       return this;
     }
 
     public SimulatorBuilder withDatabase() {
-      simulator.startDatabase();
+      simulator.startDatabaseContainer();
       return this;
     }
 
@@ -308,6 +310,18 @@ public class Simulator implements AutoCloseable {
     }
 
     public Simulator build() {
+      simulator.createInjector();
+      boolean postgreIsRunning = simulator.postgreSQLContainer != null && simulator.postgreSQLContainer.isRunning();
+      boolean serviceDiscoverIsRunning = simulator.serviceDiscoverMock != null && simulator.serviceDiscoverMock.hasStarted();
+      if(postgreIsRunning && serviceDiscoverIsRunning){
+        simulator.initializeDatabase();
+      }
+      if(postgreIsRunning && !serviceDiscoverIsRunning){
+        logger.warn("Database not initialized since service discover is not running (add withServiceDiscover to your simulator builder to initialize database)");
+      }
+      if(!postgreIsRunning && serviceDiscoverIsRunning){
+        logger.warn("Database not initialized since database container is not running (add withDatabase to your simulator builder to initialize database)");
+      }
       return simulator;
     }
   }

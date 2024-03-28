@@ -9,14 +9,12 @@ import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Properties;
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
-import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,19 +60,17 @@ class DatabaseInitializerIT {
     // Given
     Injector injector = simulator.getInjector();
 
-    DatabaseInitializer databaseInitializer = injector.getInstance(DatabaseInitializer.class);
+    DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
     DatabaseConnectionManager databaseConnectionManager =
         injector.getInstance(DatabaseConnectionManager.class);
 
     // When
-    databaseInitializer.initialize();
+    databaseManager.initialize();
 
     // Then
-    Optional<DbInfo> optDbInfo =
-        databaseConnectionManager.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty();
+    String version = databaseManager.getDatabaseVersion();
 
-    Assertions.assertThat(optDbInfo).isPresent();
-    Assertions.assertThat(optDbInfo.get().getVersion()).isEqualTo(1);
+    Assertions.assertThat(version).isNotEqualTo("0");
   }
 
   @Test
@@ -83,11 +79,11 @@ class DatabaseInitializerIT {
     // Given
     Injector injector = simulator.getInjector();
 
-    DatabaseInitializer databaseInitializer = injector.getInstance(DatabaseInitializer.class);
+    DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
     DatabaseConnectionManager dbConnection = injector.getInstance(DatabaseConnectionManager.class);
 
     // First initialization
-    databaseInitializer.initialize();
+    databaseManager.initialize();
 
     // Insert a new task
     injector
@@ -96,14 +92,12 @@ class DatabaseInitializerIT {
 
     // When
     // Second initialization
-    databaseInitializer.initialize();
+    databaseManager.initialize();
 
     // Then
-    Optional<DbInfo> optDbInfo =
-        dbConnection.getEbeanDatabase().find(DbInfo.class).findOneOrEmpty();
+    String version = databaseManager.getDatabaseVersion();
 
-    Assertions.assertThat(optDbInfo).isPresent();
-    Assertions.assertThat(optDbInfo.get().getVersion()).isEqualTo(1);
+    Assertions.assertThat(version).isNotEqualTo("0");
 
     // Checking if the content of the database is still there. If yes, it means that the second
     // initialization was correctly skipped

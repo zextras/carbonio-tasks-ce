@@ -5,7 +5,6 @@
 package com.zextras.carbonio.tasks.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import com.zextras.carbonio.tasks.dal.dao.DbInfo;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
 import java.util.Properties;
@@ -163,7 +162,7 @@ class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     Set<Class<?>> entityClasses = databaseConfig.classes();
-    Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
+    Assertions.assertThat(entityClasses).hasSize(1).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
     HikariDataSource dataSource = (HikariDataSource) databaseConfig.getDataSource();
@@ -208,7 +207,7 @@ class TaskConfigTest {
     Assertions.assertThat(databaseConfig.isDefaultServer()).isTrue();
 
     Set<Class<?>> entityClasses = databaseConfig.classes();
-    Assertions.assertThat(entityClasses).hasSize(2).contains(DbInfo.class).contains(Task.class);
+    Assertions.assertThat(entityClasses).hasSize(1).contains(Task.class);
 
     Assertions.assertThat(databaseConfig.getDataSource()).isInstanceOf(HikariDataSource.class);
     HikariDataSource dataSource = (HikariDataSource) databaseConfig.getDataSource();
