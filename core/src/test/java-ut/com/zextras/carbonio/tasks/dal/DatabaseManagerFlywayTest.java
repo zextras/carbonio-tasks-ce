@@ -7,17 +7,12 @@ package com.zextras.carbonio.tasks.dal;
 import static org.mockito.Mockito.*;
 
 import com.zextras.carbonio.tasks.dal.impl.DatabaseManagerFlyway;
-import com.zextras.carbonio.tasks.utilities.DatabaseUtils;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.assertj.core.api.Assertions;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 class DatabaseManagerFlywayTest {
@@ -45,25 +40,7 @@ class DatabaseManagerFlywayTest {
   @Test
   void givenAnInitializedDatabaseGetDatabaseVersionShouldReturnTheRightDbVersion() {
     // Given
-    Statement mockStatement = Mockito.mock(Statement.class);
-    ResultSet mockResultSet = Mockito.mock(ResultSet.class);
-
-    String query =
-        "select version, script "
-            + "from flyway_schema_history "
-            + "where success = true "
-            + "order by installed_on desc "
-            + "limit 1";
-
-    try {
-      Mockito.when(flywayMock.getConfiguration().getDataSource().getConnection().createStatement())
-          .thenReturn(mockStatement);
-      Mockito.when(mockStatement.executeQuery(query)).thenReturn(mockResultSet);
-      Mockito.when(mockResultSet.next()).thenReturn(true);
-      Mockito.when(mockResultSet.getString("version")).thenReturn("1");
-    } catch (SQLException e) {
-      Assertions.fail("something returns sqlexception and should not");
-    }
+    when(flywayMock.info().current().getVersion().getVersion()).thenReturn("1");
 
     // When
     String databaseVersion = databaseManager.getDatabaseVersion();
@@ -75,22 +52,7 @@ class DatabaseManagerFlywayTest {
   @Test
   void givenADatabaseNotInitializedGetDatabaseVersionShouldReturnZero() {
     // Given
-    Statement mockStatement = Mockito.mock(Statement.class);
-
-    String query =
-        "select version, script "
-            + "from flyway_schema_history "
-            + "where success = true "
-            + "order by installed_on desc "
-            + "limit 1";
-
-    try {
-      Mockito.when(flywayMock.getConfiguration().getDataSource().getConnection().createStatement())
-          .thenReturn(mockStatement);
-      Mockito.when(mockStatement.executeQuery(query)).thenThrow(SQLException.class);
-    } catch (SQLException e) {
-      Assertions.fail("something returns sqlexception and should not");
-    }
+    when(flywayMock.info().current()).thenReturn(null);
 
     // When
     String databaseVersion = databaseManager.getDatabaseVersion();
@@ -154,79 +116,26 @@ class DatabaseManagerFlywayTest {
   void
       givenADatabaseWithVersionEqualToLastLocalMigrationScriptIsDatabaseCorrectVersionShouldReturnTrue() {
     // Given
-    Statement mockStatement = Mockito.mock(Statement.class);
-    ResultSet mockResultSet = Mockito.mock(ResultSet.class);
-    Location location = new Location("classpath://test/test");
-    Location[] locations = new Location[] {location};
-    MockedStatic<DatabaseUtils> utilities = Mockito.mockStatic(DatabaseUtils.class);
-    utilities
-        .when(() -> DatabaseUtils.isScriptInPath("V1_FAKE_SCRIPT.sql", location.getPath()))
-        .thenReturn(true);
-
-    String query =
-        "select version, script "
-            + "from flyway_schema_history "
-            + "where success = true "
-            + "order by installed_on desc "
-            + "limit 1";
-
-    try {
-      Mockito.when(flywayMock.getConfiguration().getDataSource().getConnection().createStatement())
-          .thenReturn(mockStatement);
-      Mockito.when(mockStatement.executeQuery(query)).thenReturn(mockResultSet);
-      Mockito.when(mockResultSet.next()).thenReturn(true);
-      Mockito.when(mockResultSet.getString("script")).thenReturn("V1_FAKE_SCRIPT.sql");
-      Mockito.when(flywayMock.getConfiguration().getLocations()).thenReturn(locations);
-    } catch (SQLException e) {
-      Assertions.fail("something returns sqlexception and should not");
-    }
+    when(flywayMock.info().current().getPhysicalLocation())
+        .thenReturn("/db/migration/V1__FAKE.sql");
 
     // When
     boolean databaseCorrectVersion = databaseManager.isDatabaseCorrectVersion();
 
     // Then
     Assertions.assertThat(databaseCorrectVersion).isTrue();
-
-    utilities.close();
   }
 
   @Test
   void
       givenADatabaseWithVersionDifferentFromLastLocalMigrationScriptIsDatabaseCorrectVersionShouldReturnFalse() {
     // Given
-    Statement mockStatement = Mockito.mock(Statement.class);
-    ResultSet mockResultSet = Mockito.mock(ResultSet.class);
-    Location location = new Location("classpath://test/test");
-    Location[] locations = new Location[] {location};
-    MockedStatic<DatabaseUtils> utilities = Mockito.mockStatic(DatabaseUtils.class);
-    utilities
-        .when(() -> DatabaseUtils.isScriptInPath("V2_FAKE_SCRIPT.sql", location.getPath()))
-        .thenReturn(false);
-
-    String query =
-        "select version, script "
-            + "from flyway_schema_history "
-            + "where success = true "
-            + "order by installed_on desc "
-            + "limit 1";
-
-    try {
-      Mockito.when(flywayMock.getConfiguration().getDataSource().getConnection().createStatement())
-          .thenReturn(mockStatement);
-      Mockito.when(mockStatement.executeQuery(query)).thenReturn(mockResultSet);
-      Mockito.when(mockResultSet.next()).thenReturn(true);
-      Mockito.when(mockResultSet.getString("script")).thenReturn("V2_FAKE_SCRIPT.sql");
-      Mockito.when(flywayMock.getConfiguration().getLocations()).thenReturn(locations);
-    } catch (SQLException e) {
-      Assertions.fail("something returns sqlexception and should not");
-    }
+    when(flywayMock.info().current().getPhysicalLocation()).thenReturn("");
 
     // When
     boolean databaseCorrectVersion = databaseManager.isDatabaseCorrectVersion();
 
     // Then
     Assertions.assertThat(databaseCorrectVersion).isFalse();
-
-    utilities.close();
   }
 }

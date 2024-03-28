@@ -6,8 +6,8 @@ package com.zextras.carbonio.tasks.config.providers;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.config.TasksConfig;
+import java.util.Map;
 import org.flywaydb.core.Flyway;
 
 public class FlywayProvider implements Provider<Flyway> {
@@ -20,13 +20,10 @@ public class FlywayProvider implements Provider<Flyway> {
 
   @Override
   public Flyway get() {
-    // passing to flyway the databases credentials makes it use its own datasource implementation
-    // that closes the connection after each migration (it is still required to manually close every
-    // other
-    // connection)
-    HikariDataSource dataSource = tasksConfig.getDataSource();
     return Flyway.configure()
-        .dataSource(dataSource.getJdbcUrl(), dataSource.getUsername(), dataSource.getPassword())
+        .dataSource(tasksConfig.getDataSource())
+        .configuration(
+            Map.of("flyway.postgresql.transactional.lock", "false")) // use only one connection
         .baselineOnMigrate(true) // if schema is not empty create baseline, if it is ignore
         .baselineVersion("0")
         .load();
