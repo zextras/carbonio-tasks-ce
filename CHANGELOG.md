@@ -8,6 +8,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.2.1...v0.3.0) (2024-04-12)
+
+
+### Features
+
+* add Flyway to manage database migrations ([#32](https://github.com/Zextras/carbonio-tasks-ce/issues/32)) ([a694542](https://github.com/Zextras/carbonio-tasks-ce/commit/a69454232487807ff0699642911f725c52ffcbca))
+
+
+### Bug Fixes
+
+* *.hcl: apply corrections to validate with hclfmt ([#29](https://github.com/Zextras/carbonio-tasks-ce/issues/29)) ([1215f93](https://github.com/Zextras/carbonio-tasks-ce/commit/1215f935407bf7be18475ce87182efdef0beac1d))
+* make the service re-throws runtime exception in the Boot class ([#31](https://github.com/Zextras/carbonio-tasks-ce/issues/31)) ([7189173](https://github.com/Zextras/carbonio-tasks-ce/commit/718917357fec8164f12eefbbd0c1b978cd951f69))
+
 ### [0.2.1](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.2.0...v0.2.1) (2024-01-16)
 
 ### Features
