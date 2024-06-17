@@ -8,7 +8,7 @@ JAVA_HOME="/usr/share/carbonio:/opt/zextras/common/lib/jvm/java"
 export JAVA_HOME
 /opt/zextras/common/bin/java \
   -Djava.net.preferIPv4Stack=true \
-  -Xmx1024m \
   -Xms1024m \
+  -Xmx2048m \
   -DTASKS_LOG_LEVEL=warn \
   -jar /usr/share/carbonio/carbonio-tasks.jar
