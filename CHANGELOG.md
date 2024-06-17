@@ -8,6 +8,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.3.0...v0.4.0) (2024-06-17)
+
+
+### Features
+
+* update tasks to use new user management sdk with returned user type ([#36](https://github.com/Zextras/carbonio-tasks-ce/issues/36)) ([c342609](https://github.com/Zextras/carbonio-tasks-ce/commit/c34260933431e04da90b3c3ada890672051868e4))
+* use new user management sdk with returned user status ([#35](https://github.com/Zextras/carbonio-tasks-ce/issues/35)) ([54c111e](https://github.com/Zextras/carbonio-tasks-ce/commit/54c111e3ac57b6bd94c8ca7790ea9e540e80b4df))
+
 ## [0.3.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.2.1...v0.3.0) (2024-04-12)
 
 
