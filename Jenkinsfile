@@ -91,12 +91,14 @@ pipeline {
                     when {
                         branch 'develop'
                     }
-                    script {
-                        def timestamp = sh(script: 'date +%s', returnStdout: true).trim()
-                        def gitCommitShort = env.GIT_COMMIT.take(8)
-                        sh """
-                            sed -i "s/pkgrel=\\".*\\"/pkgrel=\\"${timestamp}+${gitCommitShort}\\"/" ./package/PKGBUILD
-                        """
+                    steps {
+                        script {
+                            def timestamp = sh(script: 'date +%s', returnStdout: true).trim()
+                            def gitCommitShort = env.GIT_COMMIT.take(8)
+                            sh """
+                                sed -i "s/pkgrel=\\".*\\"/pkgrel=\\"${timestamp}+${gitCommitShort}\\"/" ./package/PKGBUILD
+                            """
+                        }
                     }
                 }
                 stage('Stash') {
