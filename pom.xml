@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <groupId>com.zextras.carbonio.tasks</groupId>
   <artifactId>carbonio-tasks-ce</artifactId>
-  <version>0.4.1-1</version>
+  <version>0.4.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>carbonio-tasks-ce</name>
@@ -49,7 +49,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <mockito.version>5.13.0</mockito.version>
     <postgresql.version>42.7.4</postgresql.version>
     <testcontainers.version>1.20.1</testcontainers.version>
-    <resteasy.version>6.2.10.Final</resteasy.version>
+    <resteasy.version>6.2.7.Final</resteasy.version>
     <resteasy-guice.version>6.2.7-alpha</resteasy-guice.version>
     <flyway-database-postgresql.version>10.17.3</flyway-database-postgresql.version>
 
