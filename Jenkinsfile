@@ -26,6 +26,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                script {
+                    env.GIT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                }
             }
         }
         stage('Setup') {
@@ -89,11 +92,13 @@ pipeline {
                         branch 'develop'
                     }
                     steps {
-                        sh'''
-                            export TIMESTAMP=$(date +%s)
-                            export GIT_COMMIT_SHORT=$(git rev-parse HEAD | head -c 8)
-                            sed -i "s/pkgrel=\\".*\\"/pkgrel=\\"$TIMESTAMP+$GIT_COMMIT_SHORT\\"/" ./package/PKGBUILD
-                        '''
+                        script {
+                            def timestamp = sh(script: 'date +%s', returnStdout: true).trim()
+                            def gitCommitShort = env.GIT_COMMIT.take(8)
+                            sh """
+                                sed -i "s/pkgrel=\\".*\\"/pkgrel=\\"${timestamp}+${gitCommitShort}\\"/" ./package/PKGBUILD
+                            """
+                        }
                     }
                 }
                 stage('Stash') {
@@ -159,25 +164,25 @@ pipeline {
                     def uploadSpec
 
                     buildInfo = Artifactory.newBuildInfo()
-                    uploadSpec = '''{
+                    uploadSpec = """{
                         "files": [
                             {
                                 "pattern": "artifacts/*.deb",
                                 "target": "ubuntu-devel/pool/",
-                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64"
+                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64;vcs.revision=${env.GIT_COMMIT}"
                             },
                             {
                                 "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "centos8-devel/zextras/{1}/{1}-{2}.x86_64.rpm",
-                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras"
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             },
                             {
                                 "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "rhel9-devel/zextras/{1}/{1}-{2}.x86_64.rpm",
-                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras"
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
-                    }'''
+                    }"""
                     server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
                 }
             }
@@ -197,15 +202,15 @@ pipeline {
                     def uploadSpec
 
                     buildInfo = Artifactory.newBuildInfo()
-                    uploadSpec = '''{
+                    uploadSpec = """{
                         "files": [
                             {
                                 "pattern": "artifacts/carbonio-tasks*.deb",
                                 "target": "ubuntu-playground/pool/",
-                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64"
+                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
-                    }'''
+                    }"""
                     server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
                 }
             }
@@ -229,15 +234,15 @@ pipeline {
                     //ubuntu
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-ubuntu'
-                    uploadSpec= '''{
+                    uploadSpec= """{
                         "files": [
                             {
                                 "pattern": "artifacts/carbonio-tasks*.deb",
                                 "target": "ubuntu-rc/pool/",
-                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64"
+                                "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
-                    }'''
+                    }"""
                     server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
                     config = [
                             'buildName'          : buildInfo.name,
@@ -256,15 +261,15 @@ pipeline {
                     //rhel 8
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-centos8'
-                    uploadSpec= '''{
+                    uploadSpec= """{
                         "files": [
                             {
                                 "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "centos8-rc/zextras/{1}/{1}-{2}.x86_64.rpm",
-                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras"
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
-                    }'''
+                    }"""
                     server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
                     config = [
                             'buildName'          : buildInfo.name,
@@ -283,15 +288,15 @@ pipeline {
                     //rhel 9
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-rhel9'
-                    uploadSpec= '''{
+                    uploadSpec= """{
                         "files": [
                             {
                                 "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "rhel9-rc/zextras/{1}/{1}-{2}.x86_64.rpm",
-                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras"
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
-                    }'''
+                    }"""
                     server.upload spec: uploadSpec, buildInfo: buildInfo, failNoOp: false
                     config = [
                             'buildName'          : buildInfo.name,
