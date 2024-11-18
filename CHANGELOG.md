@@ -8,6 +8,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.4.1...v0.5.0) (2024-11-17)
+
+
+### Features
+
+* replace health checks from ready to live ([#44](https://github.com/Zextras/carbonio-tasks-ce/issues/44)) ([378569f](https://github.com/Zextras/carbonio-tasks-ce/commit/378569f48f2e5f06c1c3b63709b3908d0a1f21ec))
+
 ### [0.4.1](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.4.0...v0.4.1) (2024-08-27)
 
 
