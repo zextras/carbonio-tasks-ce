@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <groupId>com.zextras.carbonio.tasks</groupId>
   <artifactId>carbonio-tasks-ce</artifactId>
-  <version>0.5.1-1</version>
+  <version>0.5.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>carbonio-tasks-ce</name>
@@ -33,11 +33,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
-    <assertj.version>3.26.3</assertj.version>
-    <apache-httpclient.version>5.3.1</apache-httpclient.version>
+    <assertj.version>3.27.3</assertj.version>
+    <apache-httpclient.version>5.4.4</apache-httpclient.version>
     <carbonio-user-management-sdk.version>0.5.3</carbonio-user-management-sdk.version>
     <ebean.version>15.5.1</ebean.version>
-    <graphql-java-servlet.version>15.2.0</graphql-java-servlet.version>
+    <graphql-java-servlet.version>16.0.0</graphql-java-servlet.version>
     <guice.version>7.0.0</guice.version>
     <hikaricp.version>5.1.0</hikaricp.version>
     <jakarta-servlet-api.version>6.1.0</jakarta-servlet-api.version>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <testcontainers.version>1.20.1</testcontainers.version>
     <resteasy.version>6.2.7.Final</resteasy.version>
     <resteasy-guice.version>6.2.7-alpha</resteasy-guice.version>
-    <flyway-database-postgresql.version>10.17.3</flyway-database-postgresql.version>
+    <flyway-database-postgresql.version>11.8.1</flyway-database-postgresql.version>
 
     <!-- Plugins -->
     <build-helper-maven.version>3.6.0</build-helper-maven.version>
