@@ -8,6 +8,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.2](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.1...v0.5.2) (2025-05-15)
+
 ### [0.5.1](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.0...v0.5.1) (2024-11-27)
 
 ## [0.5.0](https://github.com/Zextras/carbonio-tasks-ce/compare/v0.4.1...v0.5.0) (2024-11-17)
