@@ -5,7 +5,7 @@
 pipeline {
     agent {
         node {
-            label 'openjdk17-agent-v1'
+            label 'zextras-v1'
         }
     }
     environment {
@@ -34,38 +34,38 @@ pipeline {
         stage('Setup') {
             steps {
                 withCredentials([file(credentialsId: 'jenkins-maven-settings.xml', variable: 'SETTINGS_PATH')]) {
-                    sh "cp ${SETTINGS_PATH} settings-jenkins.xml"
+                    sh 'cp $SETTINGS_PATH settings-jenkins.xml'
                 }
             }
         }
         stage('Build jar') {
             steps {
-                sh 'mvn -B --settings settings-jenkins.xml clean package'
-                sh 'cp boot/target/carbonio-tasks-ce-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
+                container('jdk-17') {
+                    sh 'mvn -B --settings settings-jenkins.xml clean package'
+                    sh 'cp boot/target/carbonio-tasks-ce-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
+                }
             }
         }
         stage("Unit tests") {
             steps {
-                sh 'mvn -B --settings settings-jenkins.xml verify -P run-unit-tests'
+                container('jdk-17') {
+                    sh 'mvn -B --settings settings-jenkins.xml verify -P run-unit-tests'
+                }
             }
         }
         stage("Integration tests") {
             steps {
-                sh 'mvn -B --settings settings-jenkins.xml verify -P run-integration-tests'
+                container('jdk-17') {
+                    sh 'mvn -B --settings settings-jenkins.xml verify -P run-integration-tests'
+                }
             }
         }
         stage('Coverage') {
             steps {
-                sh 'mvn -B --settings settings-jenkins.xml verify -P generate-jacoco-full-report'
-                recordCoverage(tools: [[parser: 'JACOCO']],sourceCodeRetention: 'MODIFIED')
-            }
-        }
-        stage('Dependency check') {
-            when {
-                expression { params.RUN_DEPENDENCY_CHECK == true }
-            }
-            steps {
-                dependencyCheck additionalArguments: '''-f "HTML" --prettyPrint''', odcInstallation: 'dependency-check'
+                container('jdk-17') {
+                    sh 'mvn -B --settings settings-jenkins.xml verify -P generate-jacoco-full-report'
+                    recordCoverage(tools: [[parser: 'JACOCO']],sourceCodeRetention: 'MODIFIED')
+                }
             }
         }
         stage('SonarQube analysis') {
@@ -76,8 +76,10 @@ pipeline {
                }
             }
             steps {
-                withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
- 		            sh 'mvn -B --settings settings-jenkins.xml sonar:sonar'
+                container('jdk-17') {
+                    withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
+	                sh 'mvn -B --settings settings-jenkins.xml sonar:sonar'
+                    }
                 }
             }
         }
@@ -111,15 +113,15 @@ pipeline {
                         stage('Ubuntu') {
                             agent {
                                 node {
-                                    label 'yap-agent-ubuntu-20.04-v2'
+                                    label 'yap-ubuntu-20-v1'
                                 }
                             }
                             steps {
-                                dir('/tmp/staging'){
+                                container('yap') {
                                     unstash 'binaries'
+                                    sh 'sudo yap build ubuntu .'
+                                    stash includes: 'artifacts/', name: 'artifacts-deb'
                                 }
-                                sh 'sudo yap build ubuntu /tmp/staging/'
-                                stash includes: 'artifacts/', name: 'artifacts-deb'
                             }
                             post {
                                 always {
@@ -130,19 +132,19 @@ pipeline {
                         stage('RHEL') {
                             agent {
                                 node {
-                                    label 'yap-agent-rocky-8-v2'
+                                    label 'yap-rocky-8-v1'
                                 }
                             }
                             steps {
-                                dir('/tmp/staging'){
+                                container('yap') {
                                     unstash 'binaries'
+                                    sh 'sudo yap build rocky .'
+                                    stash includes: 'artifacts/*.rpm', name: 'artifacts-rpm'
                                 }
-                                sh 'sudo yap build rocky /tmp/staging/'
-                                stash includes: 'artifacts/x86_64/*.rpm', name: 'artifacts-rpm'
                             }
                             post {
                                 always {
-                                    archiveArtifacts artifacts: 'artifacts/x86_64/*.rpm', fingerprint: true
+                                    archiveArtifacts artifacts: 'artifacts/*.rpm', fingerprint: true
                                 }
                             }
                         }
@@ -172,12 +174,12 @@ pipeline {
                                 "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64;vcs.revision=${env.GIT_COMMIT}"
                             },
                             {
-                                "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "centos8-devel/zextras/{1}/{1}-{2}.x86_64.rpm",
                                 "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             },
                             {
-                                "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "rhel9-devel/zextras/{1}/{1}-{2}.x86_64.rpm",
                                 "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
@@ -196,6 +198,7 @@ pipeline {
             }
             steps {
                 unstash 'artifacts-deb'
+                unstash 'artifacts-rpm'
                 script {
                     def server = Artifactory.server 'zextras-artifactory'
                     def buildInfo
@@ -208,6 +211,16 @@ pipeline {
                                 "pattern": "artifacts/carbonio-tasks*.deb",
                                 "target": "ubuntu-playground/pool/",
                                 "props": "deb.distribution=focal;deb.distribution=jammy;deb.distribution=noble;deb.component=main;deb.architecture=amd64;vcs.revision=${env.GIT_COMMIT}"
+                            },
+                            {
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "target": "centos8-playground/zextras/{1}/{1}-{2}.x86_64.rpm",
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
+                            },
+                            {
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "target": "rhel9-playground/zextras/{1}/{1}-{2}.x86_64.rpm",
+                                "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
                         ]
                     }"""
@@ -234,7 +247,7 @@ pipeline {
                     //ubuntu
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-ubuntu'
-                    uploadSpec= """{
+                    uploadSpec = """{
                         "files": [
                             {
                                 "pattern": "artifacts/carbonio-tasks*.deb",
@@ -261,10 +274,10 @@ pipeline {
                     //rhel 8
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-centos8'
-                    uploadSpec= """{
+                    uploadSpec = """{
                         "files": [
                             {
-                                "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "centos8-rc/zextras/{1}/{1}-{2}.x86_64.rpm",
                                 "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
@@ -288,10 +301,10 @@ pipeline {
                     //rhel 9
                     buildInfo = Artifactory.newBuildInfo()
                     buildInfo.name += '-rhel9'
-                    uploadSpec= """{
+                    uploadSpec = """{
                         "files": [
                             {
-                                "pattern": "artifacts/x86_64/(carbonio-tasks-ce)-(*).x86_64.rpm",
+                                "pattern": "artifacts/(carbonio-tasks-ce)-(*).x86_64.rpm",
                                 "target": "rhel9-rc/zextras/{1}/{1}-{2}.x86_64.rpm",
                                 "props": "rpm.metadata.arch=x86_64;rpm.metadata.vendor=zextras;vcs.revision=${env.GIT_COMMIT}"
                             }
