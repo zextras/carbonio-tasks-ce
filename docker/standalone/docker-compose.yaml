@@ -1,0 +1,42 @@
+services:
+  consul-mock:
+    image: mockserver/mockserver:latest
+    container_name: consul-mock
+    ports:
+      - "8500:1080"
+    volumes:
+      - ./mockserver/config.json:/config/config.json
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/config.json
+    command: -serverPort 1080 -logLevel WARN
+
+  postgres:
+    network_mode: host
+    image: postgres:16
+    container_name: postgres-16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: carbonio-tasks-db
+    restart: on-failure
+
+  carbonio-tasks:
+    network_mode: host
+    image: openjdk:17-jdk-slim
+    container_name: carbonio-tasks
+    depends_on:
+      - postgres
+      - consul-mock
+    volumes:
+      - ../../boot/target:/app
+    working_dir: /app
+    command: >
+      java
+      -Djava.net.preferIPv4Stack=true
+      -Xms1024m
+      -Xmx2048m
+      -DTASKS_LOG_LEVEL=warn
+      -Dcarbonio.tasks.db.url=localhost
+      -Dcarbonio.tasks.db.port=5432
+      -jar carbonio-tasks-ce-0.5.2-1-jar-with-dependencies.jar
+    restart: on-failure
