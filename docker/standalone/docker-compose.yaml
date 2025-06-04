@@ -1,19 +1,28 @@
 services:
   consul-mock:
-    image: mockserver/mockserver:latest
+    image: mockserver/mockserver:5.15.0
     container_name: consul-mock
-    ports:
-      - "8500:1080"
+    network_mode: "host"
     volumes:
-      - ./mockserver/config.json:/config/config.json
+      - ./mockserver/consul.json:/config/consul.json
     environment:
-      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/config.json
-    command: -serverPort 1080 -logLevel WARN
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/consul.json
+    command: -serverPort 8500 -logLevel WARN
+
+  soap-mock:
+    image: mockserver/mockserver:5.15.0
+    container_name: soap-mock
+    network_mode: "host"
+    volumes:
+      - ./mockserver/soap.json:/config/soap.json
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/soap.json
+    command: -serverPort 8888 -logLevel WARN
 
   postgres:
-    network_mode: host
     image: postgres:16
-    container_name: postgres-16
+    container_name: postgres
+    network_mode: "host"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -21,22 +30,26 @@ services:
     restart: on-failure
 
   carbonio-tasks:
-    network_mode: host
-    image: openjdk:17-jdk-slim
+    build:
+      context: ./carbonio-tasks
+      dockerfile: Dockerfile
     container_name: carbonio-tasks
+    network_mode: "host"
+    volumes:
+      - ../../boot/target:/app
     depends_on:
       - postgres
       - consul-mock
-    volumes:
-      - ../../boot/target:/app
-    working_dir: /app
-    command: >
-      java
-      -Djava.net.preferIPv4Stack=true
-      -Xms1024m
-      -Xmx2048m
-      -DTASKS_LOG_LEVEL=warn
-      -Dcarbonio.tasks.db.url=localhost
-      -Dcarbonio.tasks.db.port=5432
-      -jar carbonio-tasks-ce-0.5.2-1-jar-with-dependencies.jar
+    restart: on-failure
+
+  carbonio-tasks-ui:
+    build:
+      context: ./carbonio-tasks-ui
+      dockerfile: Dockerfile
+    container_name: carbonio-tasks-ui
+    network_mode: "host"
+    depends_on:
+      - postgres
+      - consul-mock
+      - carbonio-tasks
     restart: on-failure
