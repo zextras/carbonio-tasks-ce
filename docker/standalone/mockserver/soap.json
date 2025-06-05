@@ -3,17 +3,14 @@
     "httpRequest": {
       "method": "POST",
       "path": "/service/soap/AuthRequest",
-      "headers": {
-        "content-type": ["application/json"]
-      },
       "body": {
         "type": "JSON",
         "json": {
           "Body": {
             "AuthRequest": {
               "_jsns": "urn:zimbraAccount",
-              "account": { "by": "name", "_content": "a" },
-              "password": { "_content": "a" }
+              "account": { "by": "name", "_content": "test" },
+              "password": { "_content": "assext" }
             }
           }
         },
