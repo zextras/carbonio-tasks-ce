@@ -20,7 +20,8 @@
     "httpResponse": {
       "statusCode": 200,
       "headers": {
-        "Content-Type": ["application/xml"]
+        "Content-Type": ["application/xml"],
+        "Set-Cookie": ["ZM_AUTH_TOKEN=MOCK_AUTH_TOKEN; Path=/; HttpOnly"]
       },
       "body": "<AuthResponse>\n  <prefs>\n    <pref name=\"zimbraPrefMailPollingInterval\">10</pref>\n  </prefs>\n  <attrs/>\n  <authToken>MOCK_AUTH_TOKEN</authToken>\n  <lifetime>3600000</lifetime>\n  <trustLifetime>3600000</trustLifetime>\n  <session id=\"MOCK_SESSION_ID\">MOCK_SESSION_ID</session>\n  <refer>http://localhost:9000</refer>\n  <csrfToken>MOCK_CSRF_TOKEN</csrfToken>\n</AuthResponse>"
     }
