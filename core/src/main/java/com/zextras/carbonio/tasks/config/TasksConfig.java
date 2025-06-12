@@ -4,23 +4,17 @@
 
 package com.zextras.carbonio.tasks.config;
 
-import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.Constants;
-import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Hikari;
 import com.zextras.carbonio.tasks.Constants.Service;
 import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
-import com.zextras.carbonio.tasks.dal.dao.Task;
-import io.ebean.config.DatabaseConfig;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import org.slf4j.Logger;

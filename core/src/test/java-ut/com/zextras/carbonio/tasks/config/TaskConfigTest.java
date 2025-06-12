@@ -28,16 +28,11 @@ class TaskConfigTest {
 
   private static ClientAndServer clientAndServer;
   private static MockServerClient serviceDiscoverMock;
-  private static HikariDataSource dataSource;
-  private static DatabaseConfig databaseConfig;
 
   @BeforeAll
   static void init() {
     clientAndServer = ClientAndServer.startClientAndServer(8500);
     serviceDiscoverMock = new MockServerClient("localhost", 8500);
-    Injector injector = Guice.createInjector(new TasksModule());
-    dataSource = injector.getInstance(HikariDataSource.class);
-    databaseConfig = injector.getInstance(DatabaseConfig.class);
   }
 
   @AfterAll
@@ -56,6 +51,8 @@ class TaskConfigTest {
     createServiceDiscoverMock();
 
     // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -91,6 +88,8 @@ class TaskConfigTest {
     // Given
 
     // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -110,6 +109,8 @@ class TaskConfigTest {
     System.setProperty("carbonio.tasks.db.port", "888");
 
     // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -158,7 +159,10 @@ class TaskConfigTest {
   void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
     // Given
     createServiceDiscoverMock();
+
     // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    DatabaseConfig databaseConfig = injector.getInstance(DatabaseConfig.class);
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
@@ -203,6 +207,8 @@ class TaskConfigTest {
     // Given
 
     // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    DatabaseConfig databaseConfig = injector.getInstance(DatabaseConfig.class);
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
