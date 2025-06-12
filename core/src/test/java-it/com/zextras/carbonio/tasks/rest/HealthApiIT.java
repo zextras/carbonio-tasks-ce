@@ -33,8 +33,6 @@ class HealthApiIT {
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator()
             .init()
-            .withDatabase()
-            .withServiceDiscover()
             .withUserManagement(Collections.emptyMap())
             .withMinimalServices();
 
@@ -85,7 +83,7 @@ class HealthApiIT {
     // Given
     // Notice tha absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
-        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withMinimalServices();
+        SimulatorBuilder.aSimulator().init().withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
@@ -153,8 +151,6 @@ class HealthApiIT {
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator()
             .init()
-            .withDatabase()
-            .withServiceDiscover()
             .withUserManagement(Collections.emptyMap())
             .withMinimalServices();
 
@@ -187,7 +183,7 @@ class HealthApiIT {
     // Given
     // Notice tha absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
-        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withMinimalServices();
+        SimulatorBuilder.aSimulator().init().withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
