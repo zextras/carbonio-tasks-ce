@@ -39,6 +39,7 @@ public final class Constants {
     public static final class Properties {
       public static final String DATABASE_URL = "carbonio.tasks.db.url";
       public static final String DATABASE_PORT = "carbonio.tasks.db.port";
+      public static final String USER_MANAGEMENT_URL = "carbonio.mailbox.url";
 
       private Properties() {}
     }

@@ -61,8 +61,6 @@ class DatabaseInitializerIT {
     Injector injector = simulator.getInjector();
 
     DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
-    DatabaseConnectionManager databaseConnectionManager =
-        injector.getInstance(DatabaseConnectionManager.class);
 
     // When
     databaseManager.initialize();
@@ -80,7 +78,6 @@ class DatabaseInitializerIT {
     Injector injector = simulator.getInjector();
 
     DatabaseManager databaseManager = injector.getInstance(DatabaseManager.class);
-    DatabaseConnectionManager dbConnection = injector.getInstance(DatabaseConnectionManager.class);
 
     // First initialization
     databaseManager.initialize();
@@ -101,7 +98,7 @@ class DatabaseInitializerIT {
 
     // Checking if the content of the database is still there. If yes, it means that the second
     // initialization was correctly skipped
-    List<Task> tasks = dbConnection.getEbeanDatabase().find(Task.class).findList();
+    List<Task> tasks = injector.getInstance(io.ebean.Database.class).find(Task.class).findList();
     Assertions.assertThat(tasks).hasSize(1);
   }
 }

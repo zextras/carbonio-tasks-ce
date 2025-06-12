@@ -6,6 +6,7 @@ package com.zextras.carbonio.tasks.dal;
 
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
+import com.zextras.carbonio.tasks.config.TasksModule;
 import io.ebean.Database;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
@@ -20,11 +21,10 @@ class DatabaseConnectionManagerIT {
         SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().build().start()) {
 
       // Given
-      DatabaseConnectionManager connectionManager =
-          simulator.getInjector().getInstance(DatabaseConnectionManager.class);
+      Database database =
+          simulator.getInjector().getInstance(Database.class);
 
       // When
-      Database database = connectionManager.getEbeanDatabase();
 
       // Then
       Assertions.assertThat(database.sqlQuery("SELECT 1").findOneOrEmpty()).isPresent();
@@ -38,11 +38,9 @@ class DatabaseConnectionManagerIT {
     // Given
     try (Simulator simulator = SimulatorBuilder.aSimulator().init().build().start()) {
 
-      DatabaseConnectionManager connectionManager =
-          simulator.getInjector().getInstance(DatabaseConnectionManager.class);
-
       // When
-      ThrowableAssert.ThrowingCallable throwable = connectionManager::getEbeanDatabase;
+      ThrowableAssert.ThrowingCallable throwable = () ->
+        simulator.getInjector().getInstance(Database.class);
 
       // Then
       Assertions.assertThatRuntimeException().isThrownBy(throwable);
@@ -57,11 +55,9 @@ class DatabaseConnectionManagerIT {
     try (Simulator simulator =
         SimulatorBuilder.aSimulator().init().withDatabase().build().start()) {
 
-      DatabaseConnectionManager connectionManager =
-          simulator.getInjector().getInstance(DatabaseConnectionManager.class);
-
       // When
-      ThrowableAssert.ThrowingCallable throwable = connectionManager::getEbeanDatabase;
+      ThrowableAssert.ThrowingCallable throwable = () ->
+        simulator.getInjector().getInstance(Database.class);
 
       // Then
       Assertions.assertThatRuntimeException().isThrownBy(throwable);

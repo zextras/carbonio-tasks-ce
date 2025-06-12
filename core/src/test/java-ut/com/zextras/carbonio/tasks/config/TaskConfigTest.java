@@ -4,6 +4,8 @@
 
 package com.zextras.carbonio.tasks.config;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
@@ -26,11 +28,16 @@ class TaskConfigTest {
 
   private static ClientAndServer clientAndServer;
   private static MockServerClient serviceDiscoverMock;
+  private static HikariDataSource dataSource;
+  private static DatabaseConfig databaseConfig;
 
   @BeforeAll
   static void init() {
     clientAndServer = ClientAndServer.startClientAndServer(8500);
     serviceDiscoverMock = new MockServerClient("localhost", 8500);
+    Injector injector = Guice.createInjector(new TasksModule());
+    dataSource = injector.getInstance(HikariDataSource.class);
+    databaseConfig = injector.getInstance(DatabaseConfig.class);
   }
 
   @AfterAll
@@ -49,7 +56,6 @@ class TaskConfigTest {
     createServiceDiscoverMock();
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -85,7 +91,6 @@ class TaskConfigTest {
     // Given
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -105,7 +110,6 @@ class TaskConfigTest {
     System.setProperty("carbonio.tasks.db.port", "888");
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -155,7 +159,6 @@ class TaskConfigTest {
     // Given
     createServiceDiscoverMock();
     // When
-    DatabaseConfig databaseConfig = new TasksConfig().getEbeanDatabaseConfig();
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
@@ -200,7 +203,6 @@ class TaskConfigTest {
     // Given
 
     // When
-    DatabaseConfig databaseConfig = new TasksConfig().getEbeanDatabaseConfig();
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");

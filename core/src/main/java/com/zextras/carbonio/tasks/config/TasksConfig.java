@@ -5,6 +5,7 @@
 package com.zextras.carbonio.tasks.config;
 
 import com.zaxxer.hikari.HikariDataSource;
+import com.zextras.carbonio.tasks.Constants;
 import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Hikari;
@@ -13,8 +14,14 @@ import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,76 +30,96 @@ public class TasksConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(TasksConfig.class);
 
+  private final Properties properties;
+
+  public TasksConfig() {
+    properties = new Properties();
+  }
+
+  // Load config from files or system properties.
+  public void loadConfig() throws IOException {
+    loadFromEtc() // the official way
+      .or(this::loadFromCurrent) // the fallback way
+      .or(this::loadFromResources) // the last resort way
+      .ifPresent(config -> {
+        try {
+          properties.load(config);
+        } catch (IOException e) {
+          logger.warn("Error loading configuration file: {}", e.getMessage());
+        }
+      });
+
+    properties.putAll(System.getProperties()); // the dev way, overriding existing properties
+  }
+
+  private Optional<InputStream> loadFromEtc() {
+    return loadFile("/etc/carbonio/tasks/config.properties");
+  }
+
+  private Optional<InputStream> loadFromCurrent() {
+    return loadFile("resources/carbonio-tasks.properties");
+  }
+
+  private Optional<InputStream> loadFromResources() {
+    return Optional.ofNullable(
+      getClass().getClassLoader().getResourceAsStream("carbonio-tasks.properties"));
+  }
+
+  private Optional<InputStream> loadFile(String path) {
+    try {
+      return Optional.of(new FileInputStream(path));
+    } catch (FileNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
+  public Properties getProperties() {
+    return properties;
+  }
+
+  public String getDatabaseUrl() {
+    return properties.getProperty(
+        Constants.Config.Properties.DATABASE_URL,
+        Database.URL);
+  }
+
+  public String getDatabasePort() {
+    return properties.getProperty(
+        Constants.Config.Properties.DATABASE_PORT,
+        Database.PORT);
+  }
+
   public String getDatabaseName() {
     return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
         .getConfig(Key.DB_NAME)
         .orElse(Database.NAME);
   }
 
-  public HikariDataSource getDataSource() {
-    String databaseURL = System.getProperty(Config.Properties.DATABASE_URL);
-    if (databaseURL == null) {
-      databaseURL = Database.URL;
-    }
-
-    String databasePort = System.getProperty(Config.Properties.DATABASE_PORT);
-    if (databasePort == null) {
-      databasePort = Database.PORT;
-    }
-
-    String postgresUser =
-        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
-            .getConfig(Key.DB_USERNAME)
-            .orElse(Database.USERNAME);
-
-    String postgresPassword =
-        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
-            .getConfig(Key.DB_PASSWORD)
-            .orElse("");
-
-    String jdbcPostgresUrl =
-        String.format("jdbc:postgresql://%s:%s/%s", databaseURL, databasePort, getDatabaseName());
-
-    int maximumPoolSize =
-        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
-            .getConfig(Key.HIKARI_MAX_POOL_SIZE)
-            .map(Integer::parseInt)
-            .orElse(Hikari.MAX_POOL_SIZE);
-
-    int minimumIdleConnections =
-        ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
-            .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
-            .map(
-                minIdleConnections ->
-                    Math.min(Integer.parseInt(minIdleConnections), maximumPoolSize))
-            .orElse(Hikari.MIN_IDLE_CONNECTIONS);
-
-    logger.info("Hikari: maximum pool size: {}", maximumPoolSize);
-    logger.info("Hikari: minimum idle connections: {}", minimumIdleConnections);
-
-    Properties dataSourceProperties = new Properties();
-    dataSourceProperties.setProperty("sslmode", "disable");
-
-    HikariDataSource dataSource = new HikariDataSource();
-    dataSource.setJdbcUrl(jdbcPostgresUrl);
-    dataSource.setUsername(postgresUser);
-    dataSource.setPassword(postgresPassword);
-    dataSource.setMaximumPoolSize(maximumPoolSize);
-    dataSource.setMinimumIdle(minimumIdleConnections);
-    dataSource.setDataSourceProperties(dataSourceProperties);
-    return dataSource;
+  public String getDatabaseUsername() {
+    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+        .getConfig(Key.DB_USERNAME)
+        .orElse(Database.USERNAME);
   }
 
-  public DatabaseConfig getEbeanDatabaseConfig() {
-    List<Class<?>> entityList = new ArrayList<>();
-    entityList.add(Task.class);
+  public String getDatabasePassword() {
+    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+        .getConfig(Key.DB_PASSWORD)
+        .orElse("");
+  }
 
-    DatabaseConfig databaseConfig = new DatabaseConfig();
-    databaseConfig.setName("carbonio-tasks-postgres");
-    databaseConfig.setDataSource(getDataSource());
-    databaseConfig.setDefaultServer(true);
-    databaseConfig.addAll(entityList);
+  public int getHikariMaxPoolSize() {
+    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+        .getConfig(Key.HIKARI_MAX_POOL_SIZE)
+        .map(Integer::parseInt)
+        .orElse(Hikari.MAX_POOL_SIZE);
+  }
 
-    return databaseConfig;
+  public int getHikariMinIdleConnections() {
+    int maxPoolSize = getHikariMaxPoolSize();
+    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+        .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
+        .map(minIdleConnections ->
+            Math.min(Integer.parseInt(minIdleConnections), maxPoolSize))
+        .orElse(Hikari.MIN_IDLE_CONNECTIONS);
   }
 }

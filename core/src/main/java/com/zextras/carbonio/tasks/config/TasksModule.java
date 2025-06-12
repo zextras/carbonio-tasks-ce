@@ -8,12 +8,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.servlet.ServletModule;
-import com.zextras.carbonio.tasks.Constants.Config.UserService;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zextras.carbonio.tasks.Constants;
 import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
 import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
-import com.zextras.carbonio.tasks.config.providers.FlywayProvider;
-import com.zextras.carbonio.tasks.config.providers.UserManagementClientProvider;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
+import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.impl.DatabaseManagerFlyway;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
 import com.zextras.carbonio.tasks.dal.repositories.impl.TaskRepositoryEbean;
@@ -22,29 +22,31 @@ import com.zextras.carbonio.tasks.rest.RestApplication;
 import com.zextras.carbonio.tasks.rest.controllers.HealthController;
 import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
+import io.ebean.Database;
+import io.ebean.DatabaseFactory;
+import io.ebean.config.DatabaseConfig;
 import org.flywaydb.core.Flyway;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class TasksModule extends AbstractModule {
 
+  private static final Logger logger = LoggerFactory.getLogger(TasksModule.class);
+
   @Override
   protected void configure() {
-    // Be aware that the binding of the all servlet objects and the RequestScoped annotation
-    // are done in the GuiceFilter InternalServletModule. It is used when the ServletModule is
-    // instantiated (see below)
-
+    // Basic bindings
     bind(Clock.class).toInstance(Clock.systemUTC());
     bind(HealthController.class).to(HealthControllerImpl.class);
     bind(TaskRepository.class).to(TaskRepositoryEbean.class);
     bind(DatabaseManager.class).to(DatabaseManagerFlyway.class);
-    bind(Flyway.class).toProvider(FlywayProvider.class).in(Singleton.class);
-    bind(UserManagementClient.class).toProvider(UserManagementClientProvider.class);
 
+    // Servlet configuration
     install(
         new ServletModule() {
           @Override
@@ -63,5 +65,106 @@ public class TasksModule extends AbstractModule {
             serve(Endpoints.REST + "/*").with(HttpServlet30Dispatcher.class, initParam);
           }
         });
+  }
+
+  @Provides
+  @Singleton
+  public TasksConfig provideConfig() throws Exception {
+    final TasksConfig config = new TasksConfig();
+    config.loadConfig();
+    return config;
+  }
+
+  @Provides
+  @Singleton
+  public HikariDataSource provideDataSource(TasksConfig config) {
+    String jdbcPostgresUrl = String.format("jdbc:postgresql://%s:%s/%s",
+        config.getDatabaseUrl(),
+        config.getDatabasePort(),
+        config.getDatabaseName());
+
+    int maximumPoolSize = config.getHikariMaxPoolSize();
+    int minimumIdleConnections = config.getHikariMinIdleConnections();
+
+    logger.info("Hikari: maximum pool size: {}", maximumPoolSize);
+    logger.info("Hikari: minimum idle connections: {}", minimumIdleConnections);
+
+    Properties dataSourceProperties = new Properties();
+    dataSourceProperties.setProperty("sslmode", "disable");
+
+    HikariDataSource dataSource = new HikariDataSource();
+    dataSource.setJdbcUrl(jdbcPostgresUrl);
+    dataSource.setUsername(config.getDatabaseUsername());
+    dataSource.setPassword(config.getDatabasePassword());
+    dataSource.setMaximumPoolSize(maximumPoolSize);
+    dataSource.setMinimumIdle(minimumIdleConnections);
+    dataSource.setDataSourceProperties(dataSourceProperties);
+    return dataSource;
+  }
+
+  @Provides
+  @Singleton
+  public DatabaseConfig provideEbeanDatabaseConfig(HikariDataSource dataSource) {
+    List<Class<?>> entityList = new ArrayList<>();
+    entityList.add(Task.class);
+
+    DatabaseConfig databaseConfig = new DatabaseConfig();
+    databaseConfig.setName("carbonio-tasks-postgres");
+    databaseConfig.setDataSource(dataSource);
+    databaseConfig.setDefaultServer(true);
+    databaseConfig.addAll(entityList);
+
+    return databaseConfig;
+  }
+
+  @Provides
+  @Singleton
+  public Database provideEbeanDatabase(DatabaseConfig databaseConfig) {
+    try {
+      Database ebeanDatabase = DatabaseFactory.createWithContextClassLoader(
+          databaseConfig,
+          TasksModule.class.getClassLoader());
+
+      logger.info("Database connection created successfully");
+      return ebeanDatabase;
+    } catch (Exception exception) {
+      String error = String.format(
+          "%s: e.g. %s, %s or %s",
+          "Unable to create the database connection! Something went wrong",
+          "database is not reachable",
+          "the database does not exist",
+          "the database credentials are wrong");
+
+      throw new RuntimeException(error, exception);
+    }
+  }
+
+  @Provides
+  @Singleton
+  public Flyway provideFlyway(HikariDataSource dataSource) {
+    return Flyway.configure()
+        .dataSource(dataSource)
+        .configuration(
+            Map.of("flyway.postgresql.transactional.lock", "false")) // use only one connection
+        .baselineOnMigrate(true) // if schema is not empty create baseline, if it is ignore
+        .baselineVersion("0")
+        .load();
+  }
+
+  @Provides
+  @Singleton
+  public UserManagementClient provideUserManagementClient(TasksConfig config) {
+    final String carbonioUserManagementUrl =
+        config
+          .getProperties()
+          .getProperty(
+              Constants.Config.Properties.USER_MANAGEMENT_URL,
+              String.format(
+                  "%s://%s:%d",
+                  Constants.Config.UserService.PROTOCOL,
+                  Constants.Config.UserService.URL,
+                  Constants.Config.UserService.PORT));
+
+    return UserManagementClient.atURL(carbonioUserManagementUrl);
   }
 }
