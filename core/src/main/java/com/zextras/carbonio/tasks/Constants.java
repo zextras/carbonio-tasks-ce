@@ -37,9 +37,9 @@ public final class Constants {
     private Config() {}
 
     public static final class Properties {
-      public static final String DATABASE_URL = "carbonio.tasks.db.url";
-      public static final String DATABASE_PORT = "carbonio.tasks.db.port";
-      public static final String USER_MANAGEMENT_URL = "carbonio.mailbox.url";
+      public static final String DATABASE_URL = "carbonio.postgres.url";
+      public static final String DATABASE_PORT = "carbonio.postgres.port";
+      public static final String USER_MANAGEMENT_URL = "carbonio.user-management.url";
 
       private Properties() {}
     }
