@@ -36,7 +36,7 @@ class HealthApiIT {
             .withDatabase()
             .withServiceDiscover()
             .withUserManagement(Collections.emptyMap())
-            .withServer();
+            .withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
 
@@ -85,7 +85,7 @@ class HealthApiIT {
     // Given
     // Notice tha absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
-        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withServer();
+        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
@@ -124,7 +124,12 @@ class HealthApiIT {
   @Test
   void givenAnHealthServiceTheHealthLiveShouldReturn204StatusCode() throws Exception {
     // Given
-    try (Simulator simulator = SimulatorBuilder.aSimulator().init().withServer().build().start()) {
+    try (Simulator simulator =
+             SimulatorBuilder.aSimulator()
+                 .init()
+                 .withMinimalServices()
+                 .build()
+                 .start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();
 
       HttpTester.Request request = HttpTester.newRequest();
@@ -151,7 +156,7 @@ class HealthApiIT {
             .withDatabase()
             .withServiceDiscover()
             .withUserManagement(Collections.emptyMap())
-            .withServer();
+            .withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
 
@@ -182,7 +187,7 @@ class HealthApiIT {
     // Given
     // Notice tha absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
-        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withServer();
+        SimulatorBuilder.aSimulator().init().withDatabase().withServiceDiscover().withMinimalServices();
 
     try (Simulator simulator = simulatorBuilder.build().start()) {
       LocalConnector localConnector = simulator.getHttpLocalConnector();

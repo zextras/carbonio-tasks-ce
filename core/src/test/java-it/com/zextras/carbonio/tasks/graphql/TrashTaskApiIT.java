@@ -40,7 +40,7 @@ public class TrashTaskApiIT {
             .withDatabase()
             .withServiceDiscover()
             .withUserManagement(ImmutableMap.of("fake-user-cookie", REQUESTER_ID))
-            .withServer()
+            .withMinimalServices()
             .build()
             .start();
 

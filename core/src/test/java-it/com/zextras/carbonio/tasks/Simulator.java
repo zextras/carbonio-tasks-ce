@@ -304,7 +304,14 @@ public class Simulator implements AutoCloseable {
       return this;
     }
 
-    public SimulatorBuilder withServer() {
+    public Simulator withServer() {
+      simulator.enableJettyServer();
+      return simulator;
+    }
+
+    public SimulatorBuilder withMinimalServices() {
+      // Since db and service discover are required we consider it minimal config to even start tasks.
+      this.withDatabase().withServiceDiscover();
       simulator.enableJettyServer();
       return this;
     }

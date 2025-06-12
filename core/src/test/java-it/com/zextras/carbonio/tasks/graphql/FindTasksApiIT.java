@@ -43,7 +43,7 @@ class FindTasksApiIT {
                 ImmutableMap.<String, String>builder()
                     .put("fake-user-cookie", "00000000-0000-0000-0000-000000000000")
                     .build())
-            .withServer()
+            .withMinimalServices()
             .build()
             .start();
 
