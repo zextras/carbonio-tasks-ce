@@ -33,8 +33,6 @@ public class TasksConfig {
   // Load config from files or system properties.
   public void loadConfig() throws IOException {
     loadFromEtc() // the official way
-      .or(this::loadFromCurrent) // the fallback way
-      .or(this::loadFromResources) // the last resort way
       .ifPresent(config -> {
         try {
           properties.load(config);
@@ -48,15 +46,6 @@ public class TasksConfig {
 
   private Optional<InputStream> loadFromEtc() {
     return loadFile("/etc/carbonio/tasks/config.properties");
-  }
-
-  private Optional<InputStream> loadFromCurrent() {
-    return loadFile("resources/carbonio-tasks.properties");
-  }
-
-  private Optional<InputStream> loadFromResources() {
-    return Optional.ofNullable(
-      getClass().getClassLoader().getResourceAsStream("carbonio-tasks.properties"));
   }
 
   private Optional<InputStream> loadFile(String path) {
