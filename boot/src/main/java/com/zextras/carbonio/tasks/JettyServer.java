@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks;
 import com.google.inject.Inject;
 import com.google.inject.servlet.GuiceFilter;
 import com.zextras.carbonio.tasks.Constants.Tasks;
+import com.zextras.carbonio.tasks.config.TasksConfig;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -19,10 +20,12 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 public class JettyServer {
 
   private final GuiceResteasyBootstrapServletContextListener guiceRestEasyListener;
+  private final TasksConfig tasksConfig;
 
   @Inject
-  public JettyServer(GuiceResteasyBootstrapServletContextListener guiceRestEasyListener) {
+  public JettyServer(GuiceResteasyBootstrapServletContextListener guiceRestEasyListener, TasksConfig tasksConfig) {
     this.guiceRestEasyListener = guiceRestEasyListener;
+    this.tasksConfig = tasksConfig;
   }
 
   /**
@@ -43,8 +46,8 @@ public class JettyServer {
     try {
       try (ServerConnector connector = new ServerConnector(server)) {
         connector.setDefaultProtocol("HTTP/1.1");
-        connector.setHost(Tasks.IP);
-        connector.setPort(Tasks.PORT);
+        connector.setHost(tasksConfig.getTasksHost());
+        connector.setPort(Integer.parseInt(tasksConfig.getTasksPort()));
         server.addConnector(connector);
       }
       ServletContextHandler servletContextHandler =

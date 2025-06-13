@@ -86,6 +86,18 @@ public class TasksConfig {
         .orElse("");
   }
 
+  public String getTasksHost() {
+    return properties.getProperty(
+        Constants.Tasks.HOST_PROPERTY,
+        Constants.Tasks.DEFAULT_HOST);
+  }
+
+  public String getTasksPort() {
+    return properties.getProperty(
+        Constants.Tasks.PORT_PROPERTY,
+        String.valueOf(Constants.Tasks.DEFAULT_PORT));
+  }
+
   public String getUserManagementHost() {
     return properties.getProperty(
         Constants.Config.UserManagement.HOST_PROPERTY,

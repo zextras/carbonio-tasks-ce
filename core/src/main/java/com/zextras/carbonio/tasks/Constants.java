@@ -9,8 +9,10 @@ public final class Constants {
 
   public static final class Tasks {
 
-    public static final String IP = "127.78.0.16";
-    public static final int PORT = 10_000;
+    public static final String DEFAULT_HOST = "127.78.0.16";
+    public static final int DEFAULT_PORT = 10_000;
+    public static final String HOST_PROPERTY = "carbonio.tasks.host";
+    public static final String PORT_PROPERTY = "carbonio.tasks.port";
     public static final String SERVICE_NAME = "carbonio-tasks";
     public static final String VERSION = "0.0.1";
     public static final String FLAVOUR = "community edition";
