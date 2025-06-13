@@ -6,7 +6,6 @@ package com.zextras.carbonio.tasks.dal;
 
 import com.google.inject.Injector;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
-import com.zextras.carbonio.tasks.Constants.Config.Properties;
 import com.zextras.carbonio.tasks.Simulator;
 import com.zextras.carbonio.tasks.Simulator.SimulatorBuilder;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
@@ -35,15 +34,15 @@ class DatabaseInitializerIT {
   void setUp() {
     postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
     postgreSQLContainer
-        .withDatabaseName(Database.NAME)
-        .withUsername(Database.USERNAME)
+        .withDatabaseName(Database.DEFAULT_NAME)
+        .withUsername(Database.DEFAULT_USERNAME)
         .withPassword(Simulator.DATABASE_PASSWORD)
         .start();
 
     // Set the System.properties for the datasource created in TaskConfig
-    System.setProperty(Properties.DATABASE_URL, postgreSQLContainer.getHost());
+    System.setProperty(Database.HOST_PROPERTY, postgreSQLContainer.getHost());
     System.setProperty(
-        Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
+        Database.PORT_PROPERTY, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
     simulator = SimulatorBuilder.aSimulator().init().withServiceDiscover().build().start();
   }

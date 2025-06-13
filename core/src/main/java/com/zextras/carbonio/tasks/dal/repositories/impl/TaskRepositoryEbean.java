@@ -5,7 +5,7 @@
 package com.zextras.carbonio.tasks.dal.repositories.impl;
 
 import com.google.inject.Inject;
-import com.zextras.carbonio.tasks.Constants.Database.Tables;
+import com.zextras.carbonio.tasks.Constants.DatabaseSchema.Tables;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;

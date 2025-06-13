@@ -4,7 +4,7 @@
 
 package com.zextras.carbonio.tasks.rest;
 
-import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
+import com.zextras.carbonio.tasks.Constants.Tasks.API.Endpoints;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 

@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import com.google.inject.servlet.ServletModule;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.Constants;
-import com.zextras.carbonio.tasks.Constants.Service.API.Endpoints;
+import com.zextras.carbonio.tasks.Constants.Tasks.API.Endpoints;
 import com.zextras.carbonio.tasks.auth.AuthenticationServletFilter;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.dal.dao.Task;
@@ -79,7 +79,7 @@ public class TasksModule extends AbstractModule {
   @Singleton
   public HikariDataSource provideDataSource(TasksConfig config) {
     String jdbcPostgresUrl = String.format("jdbc:postgresql://%s:%s/%s",
-        config.getDatabaseUrl(),
+        config.getDatabaseHost(),
         config.getDatabasePort(),
         config.getDatabaseName());
 
@@ -158,12 +158,12 @@ public class TasksModule extends AbstractModule {
         config
           .getProperties()
           .getProperty(
-              Constants.Config.Properties.USER_MANAGEMENT_URL,
-              String.format(
-                  "%s://%s:%d",
-                  Constants.Config.UserService.PROTOCOL,
-                  Constants.Config.UserService.URL,
-                  Constants.Config.UserService.PORT));
+              Constants.Config.UserManagement.URL_PROPERTY,
+                String.format(
+                    "%s://%s:%d",
+                    Constants.Config.UserManagement.DEFAULT_PROTOCOL,
+                    Constants.Config.UserManagement.DEFAULT_HOST,
+                    Constants.Config.UserManagement.DEFAULT_PORT));
 
     return UserManagementClient.atURL(carbonioUserManagementUrl);
   }

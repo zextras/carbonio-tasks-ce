@@ -7,7 +7,7 @@ package com.zextras.carbonio.tasks;
 public final class Constants {
   private Constants() {}
 
-  public static final class Service {
+  public static final class Tasks {
 
     public static final String IP = "127.78.0.16";
     public static final int PORT = 10_000;
@@ -15,7 +15,7 @@ public final class Constants {
     public static final String VERSION = "0.0.1";
     public static final String FLAVOUR = "community edition";
 
-    private Service() {}
+    private Tasks() {}
 
     public static final class API {
 
@@ -36,20 +36,15 @@ public final class Constants {
 
     private Config() {}
 
-    public static final class Properties {
-      public static final String DATABASE_URL = "carbonio.postgres.url";
-      public static final String DATABASE_PORT = "carbonio.postgres.port";
-      public static final String USER_MANAGEMENT_URL = "carbonio.user-management.url";
-
-      private Properties() {}
-    }
-
     public static final class Database {
 
-      public static final String URL = "127.78.0.16";
-      public static final String PORT = "20000";
-      public static final String NAME = "carbonio-tasks-db";
-      public static final String USERNAME = "carbonio-tasks-db";
+      public static final String HOST_PROPERTY = "carbonio.postgres.host";
+      public static final String PORT_PROPERTY = "carbonio.postgres.port";
+
+      public static final String DEFAULT_HOST = "127.78.0.16";
+      public static final String DEFAULT_PORT = "20000";
+      public static final String DEFAULT_NAME = "carbonio-tasks-db";
+      public static final String DEFAULT_USERNAME = "carbonio-tasks-db";
 
       private Database() {}
     }
@@ -62,19 +57,20 @@ public final class Constants {
       private Hikari() {}
     }
 
-    public static final class UserService {
+    public static final class UserManagement {
 
-      public static final String PROTOCOL = "http";
-      public static final String URL = "127.78.0.16";
-      public static final int PORT = 20001;
+      public static final String URL_PROPERTY = "carbonio.user-management.url";
+      public static final String DEFAULT_HOST = "127.78.0.16";
+      public static final String DEFAULT_PROTOCOL = "http";
+      public static final Integer DEFAULT_PORT = 20001;
 
-      private UserService() {}
+      private UserManagement() {}
     }
   }
 
-  public static final class Database {
+  public static final class DatabaseSchema {
 
-    private Database() {}
+    private DatabaseSchema() {}
 
     public static final class Tables {
 

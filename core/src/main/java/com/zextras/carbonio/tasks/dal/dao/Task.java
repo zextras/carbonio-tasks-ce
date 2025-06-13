@@ -4,8 +4,8 @@
 
 package com.zextras.carbonio.tasks.dal.dao;
 
-import com.zextras.carbonio.tasks.Constants.Database;
-import com.zextras.carbonio.tasks.Constants.Database.Tables;
+import com.zextras.carbonio.tasks.Constants.DatabaseSchema;
+import com.zextras.carbonio.tasks.Constants.DatabaseSchema.Tables;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +21,7 @@ import java.util.UUID;
  * Represents an Ebean {@link Task} entity that matches a record of the {@link Tables#TASK} table.
  */
 @Entity
-@Table(name = Database.Tables.TASK)
+@Table(name = DatabaseSchema.Tables.TASK)
 public class Task {
 
   @Id

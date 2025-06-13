@@ -7,7 +7,7 @@ package com.zextras.carbonio.tasks.config;
 import com.zextras.carbonio.tasks.Constants;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Hikari;
-import com.zextras.carbonio.tasks.Constants.Service;
+import com.zextras.carbonio.tasks.Constants.Tasks;
 import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
 
@@ -60,38 +60,38 @@ public class TasksConfig {
     return properties;
   }
 
-  public String getDatabaseUrl() {
+  public String getDatabaseHost() {
     return properties.getProperty(
-        Constants.Config.Properties.DATABASE_URL,
-        Database.URL);
+        Database.HOST_PROPERTY,
+        Database.DEFAULT_HOST);
   }
 
   public String getDatabasePort() {
     return properties.getProperty(
-        Constants.Config.Properties.DATABASE_PORT,
-        Database.PORT);
+        Database.PORT_PROPERTY,
+        Database.DEFAULT_PORT);
   }
 
   public String getDatabaseName() {
-    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.DB_NAME)
-        .orElse(Database.NAME);
+        .orElse(Database.DEFAULT_NAME);
   }
 
   public String getDatabaseUsername() {
-    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.DB_USERNAME)
-        .orElse(Database.USERNAME);
+        .orElse(Database.DEFAULT_USERNAME);
   }
 
   public String getDatabasePassword() {
-    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.DB_PASSWORD)
         .orElse("");
   }
 
   public int getHikariMaxPoolSize() {
-    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.HIKARI_MAX_POOL_SIZE)
         .map(Integer::parseInt)
         .orElse(Hikari.MAX_POOL_SIZE);
@@ -99,7 +99,7 @@ public class TasksConfig {
 
   public int getHikariMinIdleConnections() {
     int maxPoolSize = getHikariMaxPoolSize();
-    return ServiceDiscoverHttpClient.defaultURL(Service.SERVICE_NAME)
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
         .map(minIdleConnections ->
             Math.min(Integer.parseInt(minIdleConnections), maxPoolSize))

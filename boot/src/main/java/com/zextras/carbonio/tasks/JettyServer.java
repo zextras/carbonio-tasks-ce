@@ -6,7 +6,7 @@ package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
 import com.google.inject.servlet.GuiceFilter;
-import com.zextras.carbonio.tasks.Constants.Service;
+import com.zextras.carbonio.tasks.Constants.Tasks;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -43,8 +43,8 @@ public class JettyServer {
     try {
       try (ServerConnector connector = new ServerConnector(server)) {
         connector.setDefaultProtocol("HTTP/1.1");
-        connector.setHost(Service.IP);
-        connector.setPort(Service.PORT);
+        connector.setHost(Tasks.IP);
+        connector.setPort(Tasks.PORT);
         server.addConnector(connector);
       }
       ServletContextHandler servletContextHandler =
