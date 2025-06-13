@@ -59,7 +59,8 @@ public final class Constants {
 
     public static final class UserManagement {
 
-      public static final String URL_PROPERTY = "carbonio.user-management.url";
+      public static final String HOST_PROPERTY = "carbonio.user-management.host";
+      public static final String PORT_PROPERTY = "carbonio.user-management.port";
       public static final String DEFAULT_HOST = "127.78.0.16";
       public static final String DEFAULT_PROTOCOL = "http";
       public static final Integer DEFAULT_PORT = 20001;

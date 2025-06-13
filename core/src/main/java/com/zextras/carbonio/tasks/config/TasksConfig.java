@@ -56,10 +56,6 @@ public class TasksConfig {
     }
   }
 
-  public Properties getProperties() {
-    return properties;
-  }
-
   public String getDatabaseHost() {
     return properties.getProperty(
         Database.HOST_PROPERTY,
@@ -88,6 +84,18 @@ public class TasksConfig {
     return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
         .getConfig(Key.DB_PASSWORD)
         .orElse("");
+  }
+
+  public String getUserManagementHost() {
+    return properties.getProperty(
+        Constants.Config.UserManagement.HOST_PROPERTY,
+        Constants.Config.UserManagement.DEFAULT_HOST);
+  }
+
+  public String getUserManagementPort() {
+    return properties.getProperty(
+        Constants.Config.UserManagement.PORT_PROPERTY,
+        String.valueOf(Constants.Config.UserManagement.DEFAULT_PORT));
   }
 
   public int getHikariMaxPoolSize() {

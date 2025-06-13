@@ -154,16 +154,11 @@ public class TasksModule extends AbstractModule {
   @Provides
   @Singleton
   public UserManagementClient provideUserManagementClient(TasksConfig config) {
-    final String carbonioUserManagementUrl =
-        config
-          .getProperties()
-          .getProperty(
-              Constants.Config.UserManagement.URL_PROPERTY,
-                String.format(
-                    "%s://%s:%d",
-                    Constants.Config.UserManagement.DEFAULT_PROTOCOL,
-                    Constants.Config.UserManagement.DEFAULT_HOST,
-                    Constants.Config.UserManagement.DEFAULT_PORT));
+    final String carbonioUserManagementUrl = String.format(
+        "%s://%s:%s",
+        Constants.Config.UserManagement.DEFAULT_PROTOCOL,
+        config.getUserManagementHost(),
+        config.getUserManagementPort());
 
     return UserManagementClient.atURL(carbonioUserManagementUrl);
   }
