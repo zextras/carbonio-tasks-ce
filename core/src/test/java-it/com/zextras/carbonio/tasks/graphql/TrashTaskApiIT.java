@@ -37,10 +37,8 @@ public class TrashTaskApiIT {
     simulator =
         SimulatorBuilder.aSimulator()
             .init()
-            .withDatabase()
-            .withServiceDiscover()
             .withUserManagement(ImmutableMap.of("fake-user-cookie", REQUESTER_ID))
-            .withServer()
+            .withMinimalServices()
             .build()
             .start();
 

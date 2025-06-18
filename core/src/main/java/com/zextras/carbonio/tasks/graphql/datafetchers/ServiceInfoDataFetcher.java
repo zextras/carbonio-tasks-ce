@@ -6,7 +6,7 @@ package com.zextras.carbonio.tasks.graphql.datafetchers;
 
 import com.google.common.collect.ImmutableMap;
 import com.zextras.carbonio.tasks.Constants.GraphQL.ServiceInfo;
-import com.zextras.carbonio.tasks.Constants.Service;
+import com.zextras.carbonio.tasks.Constants.Tasks;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -30,9 +30,9 @@ public class ServiceInfoDataFetcher implements DataFetcher<DataFetcherResult<Map
   public DataFetcherResult<Map<String, Object>> get(DataFetchingEnvironment environment) {
     Map<String, Object> serviceInfo =
         ImmutableMap.<String, Object>builder()
-            .put(ServiceInfo.NAME, Service.SERVICE_NAME)
-            .put(ServiceInfo.VERSION, Service.VERSION)
-            .put(ServiceInfo.FLAVOUR, Service.FLAVOUR)
+            .put(ServiceInfo.NAME, Tasks.SERVICE_NAME)
+            .put(ServiceInfo.VERSION, Tasks.VERSION)
+            .put(ServiceInfo.FLAVOUR, Tasks.FLAVOUR)
             .build();
 
     return DataFetcherResult.<Map<String, Object>>newResult().data(serviceInfo).build();

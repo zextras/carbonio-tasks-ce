@@ -5,12 +5,12 @@
 package com.zextras.carbonio.tasks.dal.repositories.impl;
 
 import com.google.inject.Inject;
-import com.zextras.carbonio.tasks.Constants.Database.Tables;
-import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
+import com.zextras.carbonio.tasks.Constants.DatabaseSchema.Tables;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
+import io.ebean.Database;
 import io.ebean.ExpressionList;
 import jakarta.annotation.Nullable;
 import java.time.Clock;
@@ -21,12 +21,12 @@ import java.util.UUID;
 
 public class TaskRepositoryEbean implements TaskRepository {
 
-  private final DatabaseConnectionManager dbConnectionManager;
+  private final Database database;
   private final Clock clock;
 
   @Inject
-  public TaskRepositoryEbean(DatabaseConnectionManager dbConnectionManager, Clock clock) {
-    this.dbConnectionManager = dbConnectionManager;
+  public TaskRepositoryEbean(Database database, Clock clock) {
+    this.database = database;
     this.clock = clock;
   }
 
@@ -52,19 +52,18 @@ public class TaskRepositoryEbean implements TaskRepository {
             reminderAt,
             reminderAllDay);
 
-    dbConnectionManager.getEbeanDatabase().insert(newTask);
+    database.insert(newTask);
     return newTask;
   }
 
   @Override
   public void updateTask(Task taskToUpdate) {
-    dbConnectionManager.getEbeanDatabase().update(taskToUpdate);
+    database.update(taskToUpdate);
   }
 
   @Override
   public Optional<Task> getTask(UUID taskId, String userId) {
-    return dbConnectionManager
-        .getEbeanDatabase()
+    return database
         .find(Task.class)
         .where()
         .idEq(taskId)
@@ -76,8 +75,7 @@ public class TaskRepositoryEbean implements TaskRepository {
   @Override
   public List<Task> getTasks(String userId, @Nullable Priority priority, @Nullable Status status) {
     ExpressionList<Task> query =
-        dbConnectionManager
-            .getEbeanDatabase()
+        database
             .find(Task.class)
             .where()
             .eq(Tables.Task.USER_ID, userId);

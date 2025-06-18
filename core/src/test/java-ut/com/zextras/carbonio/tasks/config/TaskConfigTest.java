@@ -4,7 +4,10 @@
 
 package com.zextras.carbonio.tasks.config;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zextras.carbonio.tasks.Constants;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
 import java.util.Properties;
@@ -49,7 +52,8 @@ class TaskConfigTest {
     createServiceDiscoverMock();
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -85,7 +89,8 @@ class TaskConfigTest {
     // Given
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
@@ -101,15 +106,16 @@ class TaskConfigTest {
   @Test
   void givenDatabaseUrlAndPortSystemPropertiesTheTasksConfigShouldReturnADataSource() {
     // Given
-    System.setProperty("carbonio.tasks.db.url", "different-url");
-    System.setProperty("carbonio.tasks.db.port", "888");
+    System.setProperty(Constants.Config.Database.HOST_PROPERTY, "different-host");
+    System.setProperty(Constants.Config.Database.PORT_PROPERTY, "888");
 
     // When
-    HikariDataSource dataSource = new TasksConfig().getDataSource();
+    Injector injector = Guice.createInjector(new TasksModule());
+    HikariDataSource dataSource = injector.getInstance(HikariDataSource.class);
 
     // Then
     Assertions.assertThat(dataSource.getJdbcUrl())
-        .isEqualTo("jdbc:postgresql://different-url:888/carbonio-tasks-db");
+        .isEqualTo("jdbc:postgresql://different-host:888/carbonio-tasks-db");
   }
 
   @Test
@@ -154,8 +160,10 @@ class TaskConfigTest {
   void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnAnEbeanDatabaseConfig() {
     // Given
     createServiceDiscoverMock();
+
     // When
-    DatabaseConfig databaseConfig = new TasksConfig().getEbeanDatabaseConfig();
+    Injector injector = Guice.createInjector(new TasksModule());
+    DatabaseConfig databaseConfig = injector.getInstance(DatabaseConfig.class);
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");
@@ -200,7 +208,8 @@ class TaskConfigTest {
     // Given
 
     // When
-    DatabaseConfig databaseConfig = new TasksConfig().getEbeanDatabaseConfig();
+    Injector injector = Guice.createInjector(new TasksModule());
+    DatabaseConfig databaseConfig = injector.getInstance(DatabaseConfig.class);
 
     // Then
     Assertions.assertThat(databaseConfig.getName()).isEqualTo("carbonio-tasks-postgres");

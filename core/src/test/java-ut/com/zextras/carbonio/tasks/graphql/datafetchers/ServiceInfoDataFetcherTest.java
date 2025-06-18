@@ -4,7 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql.datafetchers;
 
-import com.zextras.carbonio.tasks.Constants.Service;
+import com.zextras.carbonio.tasks.Constants.Tasks;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.Map;
@@ -31,7 +31,7 @@ class ServiceInfoDataFetcherTest {
     Assertions.assertThat(dataFetcherResult.getData())
         .hasSize(3)
         .containsEntry("name", "carbonio-tasks")
-        .containsEntry("version", Service.VERSION)
-        .containsEntry("flavour", Service.FLAVOUR);
+        .containsEntry("version", Tasks.VERSION)
+        .containsEntry("flavour", Tasks.FLAVOUR);
   }
 }

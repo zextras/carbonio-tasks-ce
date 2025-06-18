@@ -43,6 +43,7 @@ sha256sums=(
 )
 backup=(
   "etc/zextras/service-discover/carbonio-tasks.hcl"
+  "etc/carbonio/tasks/config.properties"
 )
 
 package() {

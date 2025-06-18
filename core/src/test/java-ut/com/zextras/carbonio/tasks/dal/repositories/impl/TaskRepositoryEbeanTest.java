@@ -4,7 +4,6 @@
 
 package com.zextras.carbonio.tasks.dal.repositories.impl;
 
-import com.zextras.carbonio.tasks.dal.DatabaseConnectionManager;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
@@ -35,10 +34,8 @@ class TaskRepositoryEbeanTest {
   @BeforeEach
   void setup() {
     ebeanDatabaseMock = Mockito.mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
-    DatabaseConnectionManager connectionManagerMock = Mockito.mock(DatabaseConnectionManager.class);
-    Mockito.when(connectionManagerMock.getEbeanDatabase()).thenReturn(ebeanDatabaseMock);
     fakeClock = Mockito.mock(Clock.class);
-    taskRepository = new TaskRepositoryEbean(connectionManagerMock, fakeClock);
+    taskRepository = new TaskRepositoryEbean(ebeanDatabaseMock, fakeClock);
   }
 
   @Test

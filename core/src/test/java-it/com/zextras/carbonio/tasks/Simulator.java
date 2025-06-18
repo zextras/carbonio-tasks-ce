@@ -8,8 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
-import com.zextras.carbonio.tasks.Constants.Config.Properties;
-import com.zextras.carbonio.tasks.Constants.Config.UserService;
+import com.zextras.carbonio.tasks.Constants.Config.UserManagement;
 import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import jakarta.servlet.DispatcherType;
@@ -63,9 +62,8 @@ public class Simulator implements AutoCloseable {
     postgreSQLContainer.start();
 
     // Set the System.properties for the dynamic database url and port
-    System.setProperty(Properties.DATABASE_URL, postgreSQLContainer.getHost());
-    System.setProperty(
-        Properties.DATABASE_PORT, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
+    System.setProperty(Database.HOST_PROPERTY, postgreSQLContainer.getHost());
+    System.setProperty(Database.PORT_PROPERTY, String.valueOf(postgreSQLContainer.getFirstMappedPort()));
 
     return this;
   }
@@ -94,8 +92,8 @@ public class Simulator implements AutoCloseable {
           "The ServiceDiscover will be mocked without a database container. The database "
               + "credentials are the default one specified in the Constants class");
 
-      dbName = Database.NAME;
-      dbUsername = Database.USERNAME;
+      dbName = Database.DEFAULT_NAME;
+      dbUsername = Database.DEFAULT_USERNAME;
       dbPassword = DATABASE_PASSWORD;
     }
 
@@ -148,7 +146,7 @@ public class Simulator implements AutoCloseable {
   public Simulator startUserManagement() {
 
     startMockServer();
-    userManagementMock = new MockServerClient(UserService.URL, UserService.PORT);
+    userManagementMock = new MockServerClient(UserManagement.DEFAULT_HOST, UserManagement.DEFAULT_PORT);
     return this;
   }
 
@@ -237,7 +235,7 @@ public class Simulator implements AutoCloseable {
 
   private void startMockServer() {
     if (clientAndServer == null) {
-      clientAndServer = ClientAndServer.startClientAndServer(8500, UserService.PORT);
+      clientAndServer = ClientAndServer.startClientAndServer(8500, UserManagement.DEFAULT_PORT);
     }
   }
 
@@ -304,7 +302,14 @@ public class Simulator implements AutoCloseable {
       return this;
     }
 
-    public SimulatorBuilder withServer() {
+    public Simulator withServer() {
+      simulator.enableJettyServer();
+      return simulator;
+    }
+
+    public SimulatorBuilder withMinimalServices() {
+      // Since db and service discover are required we consider it minimal config to even start tasks.
+      this.withDatabase().withServiceDiscover();
       simulator.enableJettyServer();
       return this;
     }
