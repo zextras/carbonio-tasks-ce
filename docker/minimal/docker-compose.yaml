@@ -1,0 +1,142 @@
+services:
+  mailbox:
+    networks:
+      - carbonio-tasks-network
+    depends_on:
+      openldap:
+        condition: service_healthy
+      postfix:
+        condition: service_healthy
+    image: registry.dev.zextras.com/dev/carbonio-mailbox:latest
+    hostname: docker.demo.zextras.io
+    restart: on-failure
+    healthcheck:
+      interval: 60s
+      retries: 10
+      start_period: 20s
+      test: netcat -z localhost 8080 || exit 1
+      timeout: 10s
+    ports:
+      - "7071:7071"
+      - "8080:8080"
+      - "5005:5005"
+      - "7025:7025"
+      - "7143:7143"
+
+  openldap:
+    networks:
+      - carbonio-tasks-network
+    image: registry.dev.zextras.com/dev/carbonio-openldap:latest
+    restart: on-failure
+    healthcheck:
+      interval: 60s
+      retries: 10
+      start_period: 20s
+      test: nc -z localhost 1389 || exit 1
+      timeout: 10s
+    ports:
+      - "1389:1389"
+
+  mariadb:
+    networks:
+      - carbonio-tasks-network
+    image: registry.dev.zextras.com/dev/carbonio-mariadb:latest
+    ports:
+      - "3306:3306"
+
+  postfix:
+    networks:
+      - carbonio-tasks-network
+    depends_on:
+      openldap:
+        condition: service_healthy
+    healthcheck:
+      interval: 60s
+      retries: 10
+      start_period: 20s
+      test: netcat -z localhost 25 || exit 1
+      timeout: 10s
+    image: registry.dev.zextras.com/dev/carbonio-mta:latest
+    ports:
+      - "20025:25"
+
+  user-management:
+    networks:
+      - carbonio-tasks-network
+    depends_on:
+      - mailbox
+    image: registry.dev.zextras.com/dev/carbonio-user-management:latest
+    container_name: carbonio-user-management
+    restart: on-failure
+    environment:
+      - CARBONIO_MAILBOX_HOST=mailbox
+      - CARBONIO_MAILBOX_PORT=8080
+    ports:
+      - "20001:10000"
+
+  consul-mock:
+    networks:
+      - carbonio-tasks-network
+    image: mockserver/mockserver:5.15.0
+    container_name: consul-mock
+    ports:
+      - "8500:8000"
+    volumes:
+      - ./mockserver/consul.json:/config/consul.json
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/consul.json
+    command: -serverPort 8000 -logLevel WARN
+
+  postgres:
+    networks:
+      - carbonio-tasks-network
+    image: postgres:16
+    container_name: carbonio-postgres
+    restart: on-failure
+    environment:
+      - POSTGRES_DB=carbonio-tasks-db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - PGPORT=20000
+    ports:
+      - "20000:20000"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  tasks:
+    networks:
+      - carbonio-tasks-network
+    depends_on:
+      - user-management
+      - consul-mock
+      - postgres
+    build:
+      context: ../../
+      dockerfile: docker/minimal/carbonio-tasks/Dockerfile
+    container_name: carbonio-tasks
+    restart: on-failure
+    environment:
+      - CARBONIO_POSTGRES_HOST=postgres
+      - CARBONIO_POSTGRES_PORT=20000
+      - CARBONIO_USER_MANAGEMENT_HOST=user-management
+      - CARBONIO_USER_MANAGEMENT_PORT=20001
+    ports:
+      - "20002:10000"
+    extra_hosts:
+      - "localhost:host-gateway" #useful so tasks can "see" consul on localhost without using network mode host
+
+  composed-ui:
+    depends_on:
+      - tasks
+    build:
+      dockerfile: composed-ui/Dockerfile
+    network_mode: "host"
+    ports:
+      - "9000:9000"
+      - "6071:6071"
+
+networks:
+  carbonio-tasks-network:
+
+volumes:
+  postgres_data:
