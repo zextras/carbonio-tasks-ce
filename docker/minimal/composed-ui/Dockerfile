@@ -1,4 +1,4 @@
-FROM nginx:1.16
+FROM ubuntu/nginx:1.18-20.04_beta
 
 USER root
 

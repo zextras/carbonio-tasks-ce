@@ -27,5 +27,5 @@ JAR=$(ls carbonio-tasks-*-jar-with-dependencies.jar | head -n 1) && \
 java -Djava.net.preferIPv4Stack=true \
      -Xms1024m \
      -Xmx2048m \
-     -DTASKS_LOG_LEVEL=debug \
+     -DTASKS_LOG_LEVEL=info \
      -jar "$JAR"'
