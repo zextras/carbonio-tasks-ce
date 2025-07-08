@@ -1,10 +1,10 @@
 services:
   mailbox:
     image: registry.dev.zextras.com/dev/carbonio-mailbox:latest
-    hostname: docker.demo.zextras.io
+    hostname: docker.carbonio.localhost
     restart: on-failure
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "7071:7071"
       - "8080:8080"
@@ -27,7 +27,7 @@ services:
   provisioner:
     image: alpinelinux/docker-cli:latest
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     depends_on:
       - mailbox
     volumes:
@@ -40,7 +40,7 @@ services:
     image: registry.dev.zextras.com/dev/carbonio-openldap:latest
     restart: on-failure
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "1389:1389"
     healthcheck:
@@ -53,14 +53,14 @@ services:
   mariadb:
     image: registry.dev.zextras.com/dev/carbonio-mariadb:latest
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "3306:3306"
 
   postfix:
     image: registry.dev.zextras.com/dev/carbonio-mta:latest
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "20025:25"
     healthcheck:
@@ -78,7 +78,7 @@ services:
     container_name: carbonio-user-management
     restart: on-failure
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "20001:10000"
     environment:
@@ -93,7 +93,7 @@ services:
     image: mockserver/mockserver:5.15.0
     container_name: consul-mock
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "8500:8000"
     environment:
@@ -107,21 +107,22 @@ services:
     container_name: carbonio-postgres
     restart: on-failure
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "20000:5432"
     environment:
-      - POSTGRES_DB=carbonio-tasks-db
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_tasks_ce:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  tasks:
-    container_name: carbonio-tasks
+  tasks-ce:
+    container_name: carbonio-tasks-ce
     restart: on-failure
     networks:
-      - carbonio-tasks-network
+      - carbonio-tasks-ce-network
     ports:
       - "20002:10000"
     environment:
@@ -142,18 +143,20 @@ services:
       - "localhost:host-gateway" #useful so tasks can "see" consul on localhost without using network mode host
 
   composed-ui:
-    networks:
-      - carbonio-tasks-network
-    ports:
-      - "9000:9000"
-      - "6071:6071"
     build:
       dockerfile: composed-ui/Dockerfile
+    restart: on-failure
+    networks:
+      - carbonio-tasks-ce-network
+    ports:
+      - "80:80"
+      - "6071:6071"
     depends_on:
-      - tasks
+      - tasks-ce
 
 networks:
-  carbonio-tasks-network:
+  carbonio-tasks-ce-network:
 
 volumes:
-  postgres_data:
+  postgres_data_tasks_ce:
+  storages_data_tasks_ce:

@@ -4,15 +4,7 @@ WORKDIR /app
 
 RUN mkdir -p /etc/carbonio/tasks
 
-COPY ../../boot/target/carbonio-tasks-*-SNAPSHOT-jar-with-dependencies.jar .
-
-# Default values
-ENV CARBONIO_TASKS_HOST=0.0.0.0
-ENV CARBONIO_TASKS_PORT=10000
-ENV CARBONIO_POSTGRES_HOST=127.0.0.1
-ENV CARBONIO_POSTGRES_PORT=20000
-ENV CARBONIO_USER_MANAGEMENT_HOST=127.0.0.1
-ENV CARBONIO_USER_MANAGEMENT_PORT=20001
+COPY ../../boot/target/carbonio-tasks-*-jar-with-dependencies.jar .
 
 CMD sh -c 'echo "\n\
 carbonio.tasks.host=${CARBONIO_TASKS_HOST}\n\
