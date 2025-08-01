@@ -7,6 +7,7 @@ Description=Carbonio Tasks daemon
 Wants=network.target
 Requires=network-online.target
 After=network-online.target
+PartOf=carbonio.target
 
 [Service]
 Type=simple
@@ -18,6 +19,5 @@ RestartSec=15
 TimeoutSec=60
 TimeoutStopSec=120
 
-
 [Install]
-WantedBy=multi-user.target
+WantedBy=carbonio.target

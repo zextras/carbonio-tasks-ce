@@ -6,6 +6,7 @@
 Description=Carbonio Tasks sidecar proxy
 Requires=network-online.target
 After=network-online.target
+PartOf=carbonio.target
 
 [Service]
 Type=simple
@@ -23,4 +24,4 @@ TimeoutSec=120
 TimeoutStopSec=120
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=carbonio.target
