@@ -16,6 +16,7 @@ ExecStart=/usr/bin/consul connect envoy \
     -sidecar-for carbonio-tasks
 Restart=on-failure
 RestartSec=15
+ExecReload=/usr/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 LimitNOFILE=65536
 
