@@ -8,6 +8,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.3](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.2...v0.5.3) (2025-08-20)
+
+
+### Features
+
+* build packages from docker ([#57](https://github.com/zextras/carbonio-tasks-ce/issues/57)) ([a9c4f9c](https://github.com/zextras/carbonio-tasks-ce/commit/a9c4f9c934df6789daf905e9cc94ac7cd3a2c093))
+
+
+### Bug Fixes
+
+* host network on frontend docker ([#51](https://github.com/zextras/carbonio-tasks-ce/issues/51)) ([63d503b](https://github.com/zextras/carbonio-tasks-ce/commit/63d503be0b5188af2eda2fb93e512d2be2fcdd27))
+* revert WantedBy for compatibility with older systems ([#58](https://github.com/zextras/carbonio-tasks-ce/issues/58)) ([50a6e08](https://github.com/zextras/carbonio-tasks-ce/commit/50a6e08a03ca5d9f39ecc221ff0d768e7296ef85))
+
 ### [0.5.2](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.1...v0.5.2) (2025-05-15)
 
 ### [0.5.1](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.0...v0.5.1) (2024-11-27)
