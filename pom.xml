@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <groupId>com.zextras.carbonio.tasks</groupId>
   <artifactId>carbonio-tasks-ce</artifactId>
-  <version>0.5.3-1</version>
+  <version>${revision}${changelist}</version>
   <packaging>pom</packaging>
 
   <name>carbonio-tasks-ce</name>
@@ -78,6 +78,10 @@ SPDX-License-Identifier: AGPL-3.0-only
     <skip.integration.tests>true</skip.integration.tests>
     <skip.unit.tests>true</skip.unit.tests>
     <skip.jacoco.full.report.generation>true</skip.jacoco.full.report.generation>
+    <!-- CI-friendly versioning -->
+    <revision>0.5.3-1</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <maven.ci.version>${revision}${changelist}</maven.ci.version>
   </properties>
 
   <dependencyManagement>
@@ -276,5 +280,23 @@ SPDX-License-Identifier: AGPL-3.0-only
       <url>https://zextras.jfrog.io/artifactory/java-sdk</url>
     </repository>
   </repositories>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <changelist>-SNAPSHOT</changelist>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <changelist></changelist>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>
