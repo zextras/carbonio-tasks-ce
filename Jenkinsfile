@@ -97,10 +97,11 @@ pipeline {
 
         stage('SonarQube analysis') {
             when {
-                anyOf {
-                    branch 'develop'
-                    expression { env.BRANCH_NAME.contains('PR') }
-                }
+
+               anyOf {
+                   branch 'devel'
+                   expression { env.BRANCH_NAME.contains("PR") }
+               }
             }
             steps {
                 container('jdk-17') {
