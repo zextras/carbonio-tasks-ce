@@ -90,7 +90,7 @@ pipeline {
         stage('SonarQube analysis') {
             when {
                anyOf {
-                   branch 'develop'
+                   branch 'devel'
                    expression { env.BRANCH_NAME.contains("PR") }
                }
             }
