@@ -52,9 +52,17 @@ pipeline {
 
         stage('Build jar') {
             steps {
-                container('jdk-17') {
-                    sh 'mvn -B clean package'
-                    sh 'cp boot/target/carbonio-tasks-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
+                script {
+                    def profile = '-P dev'
+                    if (env.TAG_NAME) {
+                        profile = '-P prod'
+                    }
+                    container('jdk-17') {
+                        sh """
+                            mvn -B clean package ${profile}
+                            cp boot/target/carbonio-tasks-*-jar-with-dependencies.jar package/carbonio-tasks.jar
+                        """
+                    }
                 }
             }
         }
@@ -89,6 +97,7 @@ pipeline {
 
         stage('SonarQube analysis') {
             when {
+
                anyOf {
                    branch 'devel'
                    expression { env.BRANCH_NAME.contains("PR") }
@@ -129,7 +138,7 @@ pipeline {
                 not {
                     anyOf {
                         buildingTag()
-                        expression { env.BRANCH_NAME.startsWith("PR-") }
+                        expression { env.BRANCH_NAME.startsWith('PR-') }
                     }
                 }
             }
