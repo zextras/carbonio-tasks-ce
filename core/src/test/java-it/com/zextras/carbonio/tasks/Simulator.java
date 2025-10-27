@@ -11,10 +11,10 @@ import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.UserManagement;
 import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
+import com.zextras.carbonio.usermanagement.entities.UserId;
+import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import jakarta.servlet.DispatcherType;
-import java.sql.SQLException;
-import java.util.EnumSet;
-import java.util.Map;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
@@ -22,13 +22,20 @@ import org.eclipse.jetty.server.Server;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.Cookie;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
+import org.mockserver.model.JsonBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
+
+import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Map;
 
 @Testcontainers
 public class Simulator implements AutoCloseable {
@@ -150,16 +157,23 @@ public class Simulator implements AutoCloseable {
     return this;
   }
 
-  private void validateUser(String cookie, String userId) {
+  private void getUser(String cookie, String userId) {
+    final UserMyself userInfo =
+        new UserMyself(
+            new UserId(userId),
+            "fake-email@example.com",
+            "Fake User",
+            "example.com",
+            Locale.ENGLISH,
+            UserType.INTERNAL);
+
     userManagementMock
         .when(
             HttpRequest.request()
                 .withMethod(HttpMethod.GET.toString())
-                .withPath("/auth/token/" + cookie))
-        .respond(
-            HttpResponse.response()
-                .withStatusCode(200)
-                .withBody("{\"userId\":\"" + userId + "\"}"));
+                .withPath("/users/myself/")
+                .withCookie(Cookie.cookie("ZM_AUTH_TOKEN", cookie)))
+        .respond(HttpResponse.response().withStatusCode(200).withBody(JsonBody.json(userInfo)));
   }
 
   public Simulator enableJettyServer() {
@@ -298,7 +312,10 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder withUserManagement(Map<String, String> users) {
       simulator.startUserManagement();
-      users.forEach((cookie, userId) -> simulator.validateUser(cookie, userId));
+      users.forEach(
+          (cookie, userId) -> {
+            simulator.getUser(cookie, userId);
+          });
       return this;
     }
 
@@ -318,13 +335,13 @@ public class Simulator implements AutoCloseable {
       simulator.createInjector();
       boolean postgreIsRunning = simulator.postgreSQLContainer != null && simulator.postgreSQLContainer.isRunning();
       boolean serviceDiscoverIsRunning = simulator.serviceDiscoverMock != null && simulator.serviceDiscoverMock.hasStarted();
-      if(postgreIsRunning && serviceDiscoverIsRunning){
+      if (postgreIsRunning && serviceDiscoverIsRunning) {
         simulator.initializeDatabase();
       }
-      if(postgreIsRunning && !serviceDiscoverIsRunning){
+      if (postgreIsRunning && !serviceDiscoverIsRunning) {
         logger.warn("Database not initialized since service discover is not running (add withServiceDiscover to your simulator builder to initialize database)");
       }
-      if(!postgreIsRunning && serviceDiscoverIsRunning){
+      if (!postgreIsRunning && serviceDiscoverIsRunning) {
         logger.warn("Database not initialized since database container is not running (add withDatabase to your simulator builder to initialize database)");
       }
       return simulator;

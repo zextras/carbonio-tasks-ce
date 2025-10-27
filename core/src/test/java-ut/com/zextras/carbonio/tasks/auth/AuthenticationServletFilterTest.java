@@ -6,6 +6,8 @@ package com.zextras.carbonio.tasks.auth;
 
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import com.zextras.carbonio.usermanagement.entities.UserId;
+import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import com.zextras.carbonio.usermanagement.exceptions.UnAuthorized;
 import io.vavr.control.Try;
 import jakarta.servlet.FilterChain;
@@ -63,8 +65,13 @@ class AuthenticationServletFilterTest {
 
     UserId userId = new UserId();
     userId.setUserId("00000000-0000-0000-0000-000000000000");
-    Mockito.when(userManagementClientMock.validateUserToken("zm-token"))
-        .thenReturn(Try.success(userId));
+
+    UserMyself userMyself = new UserMyself();
+    userMyself.setId(userId);
+    userMyself.setType(UserType.INTERNAL);
+
+    Mockito.when(userManagementClientMock.getUserMyself("zm-token"))
+        .thenReturn(Try.success(userMyself));
 
     AuthenticationServletFilter authenticationServletFilter =
         new AuthenticationServletFilter(userManagementClientMock);
@@ -75,7 +82,7 @@ class AuthenticationServletFilterTest {
     // Then
     Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
 
-    Mockito.verify(userManagementClientMock, Mockito.times(1)).validateUserToken("zm-token");
+    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("zm-token");
 
     Mockito.verify(httpRequestMock, Mockito.times(1))
         .setAttribute("requesterId", "00000000-0000-0000-0000-000000000000");
@@ -140,7 +147,7 @@ class AuthenticationServletFilterTest {
     HttpServletResponse httpResponseMock = Mockito.mock(HttpServletResponse.class);
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
-    Mockito.when(userManagementClientMock.validateUserToken("invalid-token"))
+    Mockito.when(userManagementClientMock.getUserMyself("invalid-token"))
         .thenReturn(Try.failure(new UnAuthorized()));
 
     AuthenticationServletFilter authenticationServletFilter =
@@ -152,7 +159,46 @@ class AuthenticationServletFilterTest {
     // Then
     Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
 
-    Mockito.verify(userManagementClientMock, Mockito.times(1)).validateUserToken("invalid-token");
+    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("invalid-token");
+
+    Mockito.verify(httpResponseMock, Mockito.times(1))
+        .setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+    Mockito.verify(httpRequestMock, Mockito.never())
+        .setAttribute(Mockito.anyString(), Mockito.anyString());
+    Mockito.verifyNoInteractions(filterChainMock);
+  }
+
+  @Test
+  void givenARequestFromAGuestUserTheDoFilterShouldRespondWithA401StatusCode()
+      throws ServletException, IOException {
+    // Given
+    Cookie[] cookies = {new Cookie("ZM_AUTH_TOKEN", "guest-token")};
+    HttpServletRequest httpRequestMock = Mockito.mock(HttpServletRequest.class);
+    Mockito.when(httpRequestMock.getCookies()).thenReturn(cookies);
+    HttpServletResponse httpResponseMock = Mockito.mock(HttpServletResponse.class);
+    FilterChain filterChainMock = Mockito.mock(FilterChain.class);
+
+    UserId userId = new UserId();
+    userId.setUserId("guest-user-id");
+
+    UserMyself guestUser = new UserMyself();
+    guestUser.setId(userId);
+    guestUser.setType(UserType.GUEST);
+
+    Mockito.when(userManagementClientMock.getUserMyself("guest-token"))
+        .thenReturn(Try.success(guestUser));
+
+    AuthenticationServletFilter authenticationServletFilter =
+        new AuthenticationServletFilter(userManagementClientMock);
+
+    // When
+    authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
+
+    // Then
+    Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
+
+    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("guest-token");
 
     Mockito.verify(httpResponseMock, Mockito.times(1))
         .setStatus(HttpServletResponse.SC_UNAUTHORIZED);

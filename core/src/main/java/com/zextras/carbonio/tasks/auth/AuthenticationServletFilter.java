@@ -9,6 +9,8 @@ import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import com.zextras.carbonio.usermanagement.entities.UserId;
+import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import io.vavr.control.Try;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -65,10 +67,12 @@ public class AuthenticationServletFilter implements Filter {
       }
 
       // Unfortunately doFilter throws an exception, using the .map would lead to an unreadable code
-      Try<UserId> tryUserId = userManagementClient.validateUserToken(optZmCookie.get().getValue());
+      String cookieHeader = Config.ACCEPTED_COOKIE_TYPE + "=" + optZmCookie.get().getValue();
+      Try<UserMyself> tryUserMyself = userManagementClient.getUserMyself(cookieHeader);
 
-      if (tryUserId.isSuccess()) {
-        httpRequest.setAttribute(Context.REQUESTER_ID, tryUserId.get().getUserId());
+      // Reject calls from guest users since for now they are not used on Tasks
+      if (tryUserMyself.isSuccess() && tryUserMyself.get().getType().equals(UserType.INTERNAL)) {
+        httpRequest.setAttribute(Context.REQUESTER_ID, tryUserMyself.get().getId().getUserId());
         filterChain.doFilter(httpRequest, httpResponse);
       } else {
         logger.error("The request is unauthorized: the cookie is invalid");
