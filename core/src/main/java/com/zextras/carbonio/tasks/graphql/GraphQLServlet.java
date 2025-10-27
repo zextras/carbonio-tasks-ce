@@ -22,11 +22,24 @@ import java.util.Arrays;
  */
 public class GraphQLServlet extends GraphQLHttpServlet {
 
-  private final GraphQLProvider graphQLProvider;
+  // Config handles threads for async operations: caching this is necessary because
+  // not doing so results in a new config getting created for each request that then creates a new thread and never
+  // closes it.
+  private final GraphQLConfiguration cachedConfiguration;
 
   @Inject
   public GraphQLServlet(GraphQLProvider graphQLProvider) {
-    this.graphQLProvider = graphQLProvider;
+    GraphQLQueryInvoker queryInvoker =
+        GraphQLQueryInvoker.newBuilder()
+            .with(
+                Arrays.asList(
+                    graphQLProvider.buildValidationInstrumentation(),
+                    graphQLProvider.getContextInstrumentation()))
+            .build();
+
+    this.cachedConfiguration = GraphQLConfiguration.with(graphQLProvider.buildSchema())
+        .with(queryInvoker)
+        .build();
   }
 
   /**
@@ -36,14 +49,6 @@ public class GraphQLServlet extends GraphQLHttpServlet {
    */
   @Override
   protected GraphQLConfiguration getConfiguration() {
-    GraphQLQueryInvoker queryInvoker =
-        GraphQLQueryInvoker.newBuilder()
-            .with(
-                Arrays.asList(
-                    graphQLProvider.buildValidationInstrumentation(),
-                    graphQLProvider.getContextInstrumentation()))
-            .build();
-
-    return GraphQLConfiguration.with(graphQLProvider.buildSchema()).with(queryInvoker).build();
+    return cachedConfiguration;
   }
 }
