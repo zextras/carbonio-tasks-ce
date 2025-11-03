@@ -13,6 +13,7 @@ import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.usermanagement.entities.UserId;
 import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
 import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -164,8 +165,10 @@ public class Simulator implements AutoCloseable {
             "fake-email@example.com",
             "Fake User",
             "example.com",
+            UserStatus.ACTIVE,
             Locale.ENGLISH,
-            UserType.INTERNAL);
+            UserType.INTERNAL,
+            Map.of("carbonioFeatureTasksEnabled", "TRUE"));
 
     userManagementMock
         .when(

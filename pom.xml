@@ -35,7 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <!-- Dependencies -->
     <assertj.version>3.27.3</assertj.version>
     <apache-httpclient.version>5.4.4</apache-httpclient.version>
-    <carbonio-user-management-sdk.version>0.5.3</carbonio-user-management-sdk.version>
+    <carbonio-user-management-sdk.version>0.5.9</carbonio-user-management-sdk.version>
     <ebean.version>15.5.1</ebean.version>
     <graphql-java-servlet.version>16.0.0</graphql-java-servlet.version>
     <guice.version>7.0.0</guice.version>

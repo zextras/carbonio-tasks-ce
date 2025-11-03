@@ -10,6 +10,7 @@ import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import com.zextras.carbonio.usermanagement.entities.UserId;
 import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
 import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import io.vavr.control.Try;
 import jakarta.servlet.Filter;
@@ -70,10 +71,29 @@ public class AuthenticationServletFilter implements Filter {
       String cookieHeader = Config.ACCEPTED_COOKIE_TYPE + "=" + optZmCookie.get().getValue();
       Try<UserMyself> tryUserMyself = userManagementClient.getUserMyself(cookieHeader);
 
-      // Reject calls from guest users since for now they are not used on Tasks
-      if (tryUserMyself.isSuccess() && tryUserMyself.get().getType().equals(UserType.INTERNAL)) {
+      if (tryUserMyself.isSuccess()){
+        if(tryUserMyself.get().getType().equals(UserType.GUEST)) {
+          logger.error("The request is unauthorized: the user is not an internal one");
+          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          return;
+        }
+
+        if(!tryUserMyself.get().getStatus().equals(UserStatus.ACTIVE)) {
+          logger.error("The request is unauthorized: the user is not active");
+          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          return;
+        }
+
+        String carbonioFeatureTasksEnabled = tryUserMyself.get().getCarbonioAttributes().getOrDefault("carbonioFeatureTasksEnabled", "FALSE");
+        if(carbonioFeatureTasksEnabled.equals("FALSE")) {
+          logger.error("The request is unauthorized: the user is not an internal one");
+          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          return;
+        }
+
         httpRequest.setAttribute(Context.REQUESTER_ID, tryUserMyself.get().getId().getUserId());
         filterChain.doFilter(httpRequest, httpResponse);
+
       } else {
         logger.error("The request is unauthorized: the cookie is invalid");
         httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
