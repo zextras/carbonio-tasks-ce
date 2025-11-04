@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.auth;
 import com.zextras.carbonio.usermanagement.UserManagementClient;
 import com.zextras.carbonio.usermanagement.entities.UserId;
 import com.zextras.carbonio.usermanagement.entities.UserMyself;
+import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
 import com.zextras.carbonio.usermanagement.enumerations.UserType;
 import com.zextras.carbonio.usermanagement.exceptions.UnAuthorized;
 import io.vavr.control.Try;
@@ -20,6 +21,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -65,6 +68,8 @@ class AuthenticationServletFilterTest {
     UserMyself userMyself = new UserMyself();
     userMyself.setId(userId);
     userMyself.setType(UserType.INTERNAL);
+    userMyself.setStatus(UserStatus.ACTIVE);
+    userMyself.setCarbonioAttributes(Map.of("carbonioFeatureTasksEnabled", "TRUE"));
 
     Mockito.when(userManagementClientMock.getUserMyself("ZM_AUTH_TOKEN=zm-token"))
         .thenReturn(Try.success(userMyself));
