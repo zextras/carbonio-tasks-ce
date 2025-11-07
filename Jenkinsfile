@@ -22,6 +22,7 @@ pipeline {
         JAVA_OPTS = '-Dfile.encoding=UTF8'
         LC_ALL = 'C.UTF-8'
         jenkins_build = 'true'
+        GITHUB_TOKEN = credentials('jenkins-integration-with-github-account')
     }
 
     options {
@@ -34,6 +35,11 @@ pipeline {
         booleanParam defaultValue: false,
             description: 'Whether to upload the packages in playground repositories',
             name: 'PLAYGROUND'
+        booleanParam(
+            name: 'RELEASE_TO_RC',
+            defaultValue: false,
+            description: 'Check this to prepare a new release (creates pre-release branch and PR)'
+        )
     }
 
     tools {
@@ -46,6 +52,12 @@ pipeline {
                 checkout scm
                 script {
                     gitMetadata()
+                    sh 'git fetch --tags --force'
+
+                    env.GIT_COMMIT_MSG = sh(
+                        script: 'git log -1 --pretty=%B',
+                        returnStdout: true
+                    ).trim()
                 }
             }
         }
@@ -112,13 +124,39 @@ pipeline {
             }
         }
 
+        /*
+        * Here we build the deb/rpm packages: since the build uses the PKGBUILD file, we set its pkgrel
+        * value here dynamically without committing the changes.
+        */
         stage('Build deb/rpm') {
             steps {
+                script {
+                    // Determine pkgrel based on branch
+                    if (env.GIT_BRANCH == 'devel') {
+                        env.PKGREL = '1'
+                        echo "Building RELEASE packages with pkgrel=1"
+                    } else {
+                        env.PKGREL = "SNAPSHOT-${env.GIT_COMMIT_SHORT}"
+                        echo "Building SNAPSHOT packages with pkgrel=${env.PKGREL}"
+                    }
+
+                    // Modify PKGBUILD file
+                    sh """
+                        sed -i 's/pkgrel="SNAPSHOT"/pkgrel="${env.PKGREL}"/' package/PKGBUILD
+                        cat package/PKGBUILD | grep pkgrel
+                    """
+                }
+
                 echo 'Building deb/rpm packages'
                 buildStage([
                     rockySinglePkg: true,
                     ubuntuSinglePkg: true
                 ])
+
+                script {
+                    // Restore PKGBUILD to avoid committing changes
+                    sh 'git checkout -- package/PKGBUILD'
+                }
             }
         }
 
@@ -130,6 +168,130 @@ pipeline {
                     rockySinglePkg: true,
                     ubuntuSinglePkg: true
                 )
+            }
+        }
+
+        /*
+        * This creates a pre-release branch using semantic release to bump version and generate changelog
+        */
+        stage('Prepare Release') {
+            when {
+                allOf {
+                    branch 'devel'
+                    expression { params.RELEASE_TO_RC == true }
+                    not {
+                        expression {
+                            return env.GIT_COMMIT_MSG.contains('[skip ci]') ||
+                                   env.GIT_COMMIT_MSG.contains('chore(release):')
+                        }
+                    }
+                }
+            }
+            steps {
+                script {
+                    sh '''
+                        git config user.name "Jenkins CI"
+                        git config user.email "ci@zextras.com"
+                    '''
+
+                    env.PRE_RELEASE_BRANCH = "pre-release"
+
+                    sh """
+                        git checkout devel
+                        git pull origin devel
+
+                        git branch -D ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+                        git push origin --delete ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+
+                        git checkout -b ${env.PRE_RELEASE_BRANCH}
+                        git push origin ${env.PRE_RELEASE_BRANCH}
+                    """
+
+                    withEnv([
+                        "GIT_BRANCH=${env.PRE_RELEASE_BRANCH}",
+                        "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}"
+                    ]) {
+                        sh 'npx semantic-release --no-ci'
+                    }
+
+                    env.RELEASE_VERSION = sh(
+                        script: 'git describe --tags --abbrev=0',
+                        returnStdout: true
+                    ).trim()
+
+                    sh """
+                        git push origin --delete ${env.RELEASE_VERSION} 2>/dev/null || true
+                        git tag -d ${env.RELEASE_VERSION}
+                        git push origin ${env.PRE_RELEASE_BRANCH}
+                    """
+
+                    def prBody = """🤖 Automated release preparation for ${env.RELEASE_VERSION}"""
+
+                    sh """
+                        curl -X POST \
+                          -H "Authorization: token ${GITHUB_TOKEN_PSW}" \
+                          -H "Accept: application/vnd.github.v3+json" \
+                          https://api.github.com/repos/zextras/carbonio-tasks-ce/pulls \
+                          -d '{"title": "Release ${env.RELEASE_VERSION}", "head": "${env.PRE_RELEASE_BRANCH}", "base": "devel", "body": ${groovy.json.JsonOutput.toJson(prBody)}}' > pr-response.json
+                    """
+
+                    env.PR_NUMBER = sh(
+                        script: 'cat pr-response.json | grep -o \'"number": [0-9]*\' | grep -o \'[0-9]*\'',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Created PR #${env.PR_NUMBER} for release ${env.RELEASE_VERSION}"
+                }
+            }
+        }
+
+        stage('Tag for release') {
+            when {
+                allOf {
+                    branch 'devel'
+                    expression {
+                        return env.GIT_COMMIT_MSG.contains('chore(release):') &&
+                               env.GIT_COMMIT_MSG.contains('[skip ci]')
+                    }
+                    expression {
+                        def version = sh(
+                            script: 'echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\\\(release\\\\): \\\\K[0-9]+\\\\.[0-9]+\\\\.[0-9]+" || echo ""',
+                            returnStdout: true
+                        ).trim()
+
+                        if (!version) {
+                            return false
+                        }
+
+                        sh 'git fetch --tags --force'
+
+                        def tagExists = sh(
+                            script: "git tag -l v${version}",
+                            returnStdout: true
+                        ).trim()
+
+                        return tagExists == ''
+                    }
+                }
+            }
+            steps {
+                script {
+                    sh '''
+                        git config user.name "Jenkins CI"
+                        git config user.email "ci@zextras.com"
+
+                        VERSION=$(echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\(release\\): \\K[0-9]+\\.[0-9]+\\.[0-9]+")
+                        TAG="v${VERSION}"
+
+                        git tag -a "${TAG}" -m "chore(release): ${VERSION}"
+                        git push origin "${TAG}"
+                    '''
+
+                    env.TAG_CREATED = 'true'
+
+                    def tagName = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                    echo "Created and pushed tag ${tagName}"
+                }
             }
         }
 
