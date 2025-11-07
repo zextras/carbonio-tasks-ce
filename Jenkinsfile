@@ -49,11 +49,16 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    userRemoteConfigs: scm.userRemoteConfigs,
+                    extensions: [
+                        [$class: 'CloneOption', noTags: false, shallow: false]
+                    ]
+                ])
                 script {
                     gitMetadata()
-                    sh 'git fetch --tags --force'
-
                     env.GIT_COMMIT_MSG = sh(
                         script: 'git log -1 --pretty=%B',
                         returnStdout: true
