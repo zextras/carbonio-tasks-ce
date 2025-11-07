@@ -310,31 +310,33 @@ pipeline {
                 }
             }
             steps {
-                container('dind') {
-                    withDockerRegistry([
-                        credentialsId: 'private-registry',
-                        url: 'https://registry.dev.zextras.com'
-                    ]) {
-                        script {
-                            String branchTag = env.BRANCH_NAME.replaceAll('/', '-').toLowerCase()
-                            Set<String> imageTags = [ branchTag ]
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    container('dind') {
+                        withDockerRegistry([
+                            credentialsId: 'private-registry',
+                            url: 'https://registry.dev.zextras.com'
+                        ]) {
+                            script {
+                                String branchTag = env.BRANCH_NAME.replaceAll('/', '-').toLowerCase()
+                                Set<String> imageTags = [ branchTag ]
 
-                            if (env.BRANCH_NAME == 'devel') {
-                                imageTags.add('latest')
-                            } else if (buildingTag() && env.TAG_NAME?.trim()) {
-                                imageTags.add(env.TAG_NAME?.startsWith('v') ? env.TAG_NAME.substring(1) : env.TAG_NAME)
+                                if (env.BRANCH_NAME == 'devel') {
+                                    imageTags.add('latest')
+                                } else if (buildingTag() && env.TAG_NAME?.trim()) {
+                                    imageTags.add(env.TAG_NAME?.startsWith('v') ? env.TAG_NAME.substring(1) : env.TAG_NAME)
+                                }
+
+                                dockerHelper.buildImage([
+                                    imageName: 'registry.dev.zextras.com/dev/carbonio-tasks-ce',
+                                    imageTags: imageTags,
+                                    dockerfile: 'docker/minimal/carbonio-tasks/Dockerfile',
+                                    ocLabels: [
+                                        title: 'Carbonio tasks CE',
+                                        description: 'Carbonio tasks Community Edition',
+                                        version: branchTag
+                                    ]
+                                ])
                             }
-
-                            dockerHelper.buildImage([
-                                imageName: 'registry.dev.zextras.com/dev/carbonio-tasks-ce',
-                                imageTags: imageTags,
-                                dockerfile: 'docker/minimal/carbonio-tasks/Dockerfile',
-                                ocLabels: [
-                                    title: 'Carbonio tasks CE',
-                                    description: 'Carbonio tasks Community Edition',
-                                    version: branchTag
-                                ]
-                            ])
                         }
                     }
                 }
