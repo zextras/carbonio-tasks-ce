@@ -194,58 +194,60 @@ pipeline {
             }
             steps {
                 script {
-                    sh '''
-                        git config user.name "Jenkins CI"
-                        git config user.email "ci@zextras.com"
-                    '''
+                    sshagent(credentials: ['jenkins-integration-with-github-account']) {
+                        sh '''
+                            git config user.name "Jenkins CI"
+                            git config user.email "ci@zextras.com"
+                        '''
 
-                    env.PRE_RELEASE_BRANCH = "pre-release"
+                        env.PRE_RELEASE_BRANCH = "pre-release"
 
-                    sh """
-                        git checkout devel
-                        git pull origin devel
+                        sh """
+                            git checkout devel
+                            git pull origin devel
 
-                        git branch -D ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
-                        git push origin --delete ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+                            git branch -D ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+                            git push origin --delete ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
 
-                        git checkout -b ${env.PRE_RELEASE_BRANCH}
-                        git push origin ${env.PRE_RELEASE_BRANCH}
-                    """
+                            git checkout -b ${env.PRE_RELEASE_BRANCH}
+                            git push origin ${env.PRE_RELEASE_BRANCH}
+                        """
 
-                    withEnv([
-                        "GIT_BRANCH=${env.PRE_RELEASE_BRANCH}",
-                        "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}"
-                    ]) {
-                        sh 'npx semantic-release --no-ci'
+                        withEnv([
+                            "GIT_BRANCH=${env.PRE_RELEASE_BRANCH}",
+                            "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}"
+                        ]) {
+                            sh 'npx semantic-release --no-ci'
+                        }
+
+                        env.RELEASE_VERSION = sh(
+                            script: 'git describe --tags --abbrev=0',
+                            returnStdout: true
+                        ).trim()
+
+                        sh """
+                            git push origin --delete ${env.RELEASE_VERSION} 2>/dev/null || true
+                            git tag -d ${env.RELEASE_VERSION}
+                            git push origin ${env.PRE_RELEASE_BRANCH}
+                        """
+
+                        def prBody = """🤖 Automated release preparation for ${env.RELEASE_VERSION}"""
+
+                        sh """
+                            curl -X POST \
+                              -H "Authorization: token ${GITHUB_TOKEN_PSW}" \
+                              -H "Accept: application/vnd.github.v3+json" \
+                              https://api.github.com/repos/zextras/carbonio-tasks-ce/pulls \
+                              -d '{"title": "Release ${env.RELEASE_VERSION}", "head": "${env.PRE_RELEASE_BRANCH}", "base": "devel", "body": ${groovy.json.JsonOutput.toJson(prBody)}}' > pr-response.json
+                        """
+
+                        env.PR_NUMBER = sh(
+                            script: 'cat pr-response.json | grep -o \'"number": [0-9]*\' | grep -o \'[0-9]*\'',
+                            returnStdout: true
+                        ).trim()
+
+                        echo "Created PR #${env.PR_NUMBER} for release ${env.RELEASE_VERSION}"
                     }
-
-                    env.RELEASE_VERSION = sh(
-                        script: 'git describe --tags --abbrev=0',
-                        returnStdout: true
-                    ).trim()
-
-                    sh """
-                        git push origin --delete ${env.RELEASE_VERSION} 2>/dev/null || true
-                        git tag -d ${env.RELEASE_VERSION}
-                        git push origin ${env.PRE_RELEASE_BRANCH}
-                    """
-
-                    def prBody = """🤖 Automated release preparation for ${env.RELEASE_VERSION}"""
-
-                    sh """
-                        curl -X POST \
-                          -H "Authorization: token ${GITHUB_TOKEN_PSW}" \
-                          -H "Accept: application/vnd.github.v3+json" \
-                          https://api.github.com/repos/zextras/carbonio-tasks-ce/pulls \
-                          -d '{"title": "Release ${env.RELEASE_VERSION}", "head": "${env.PRE_RELEASE_BRANCH}", "base": "devel", "body": ${groovy.json.JsonOutput.toJson(prBody)}}' > pr-response.json
-                    """
-
-                    env.PR_NUMBER = sh(
-                        script: 'cat pr-response.json | grep -o \'"number": [0-9]*\' | grep -o \'[0-9]*\'',
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Created PR #${env.PR_NUMBER} for release ${env.RELEASE_VERSION}"
                 }
             }
         }
@@ -268,7 +270,9 @@ pipeline {
                             return false
                         }
 
-                        sh 'git fetch --tags --force'
+                        sshagent(credentials: ['jenkins-integration-with-github-account']) {
+                            sh 'git fetch --tags --force'
+                        }
 
                         def tagExists = sh(
                             script: "git tag -l v${version}",
@@ -281,21 +285,23 @@ pipeline {
             }
             steps {
                 script {
-                    sh '''
-                        git config user.name "Jenkins CI"
-                        git config user.email "ci@zextras.com"
+                    sshagent(credentials: ['jenkins-integration-with-github-account']) {
+                        sh '''
+                            git config user.name "Jenkins CI"
+                            git config user.email "ci@zextras.com"
 
-                        VERSION=$(echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\(release\\): \\K[0-9]+\\.[0-9]+\\.[0-9]+")
-                        TAG="v${VERSION}"
+                            VERSION=$(echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\(release\\): \\K[0-9]+\\.[0-9]+\\.[0-9]+")
+                            TAG="v${VERSION}"
 
-                        git tag -a "${TAG}" -m "chore(release): ${VERSION}"
-                        git push origin "${TAG}"
-                    '''
+                            git tag -a "${TAG}" -m "chore(release): ${VERSION}"
+                            git push origin "${TAG}"
+                        '''
 
-                    env.TAG_CREATED = 'true'
+                        env.TAG_CREATED = 'true'
 
-                    def tagName = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
-                    echo "Created and pushed tag ${tagName}"
+                        def tagName = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                        echo "Created and pushed tag ${tagName}"
+                    }
                 }
             }
         }
