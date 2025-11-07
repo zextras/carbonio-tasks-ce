@@ -182,7 +182,7 @@ pipeline {
         stage('Prepare Release') {
             when {
                 allOf {
-                    branch 'devel'
+                    /*branch 'devel' TODO remove comment after testing*/
                     expression { params.RELEASE_TO_RC == true }
                     not {
                         expression {
