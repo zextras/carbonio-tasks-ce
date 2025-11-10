@@ -25,7 +25,7 @@
     [
       "@semantic-release/changelog",
       {
-        "changelogFile": "NEW_CHANGELOG.md"
+        "changelogFile": "CHANGELOG.md"
       }
     ],
     [
@@ -37,7 +37,7 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["pom.xml", "NEW_CHANGELOG.md", "package/PKGBUILD"],
+        "assets": ["pom.xml", "CHANGELOG.md", "package/PKGBUILD"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ]
