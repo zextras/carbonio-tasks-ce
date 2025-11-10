@@ -325,7 +325,7 @@ pipeline {
                             ]) {
                                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                                     openGithubPr(
-                                        title: "Release ${env.RELEASE_VERSION}",
+                                        title: "chore(release): ${env.RELEASE_VERSION}",
                                         head: env.PRE_RELEASE_BRANCH,
                                         base: 'devel',
                                         body: "🤖 Automated release preparation for ${env.RELEASE_VERSION}"
