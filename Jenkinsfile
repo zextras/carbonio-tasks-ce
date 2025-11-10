@@ -42,22 +42,8 @@ def gitPush(Map opts = [:]) {
 }
 
 def openGithubPr(Map args = [:]) {
-    def repoUrl = sh(
-        script: "git remote -v | head -n1 | cut -d\$'\t' -f2 | cut -d' ' -f1",
-        returnStdout: true
-    ).trim()
-
-    def matchName = (repoUrl =~ /\/(.+)\.git/)
-    if (!matchName.find()) {
-        error "Cannot parse repository name from URL: ${repoUrl}"
-    }
-    def repoName = matchName.group(1)
-
-    def matchOwner = (repoUrl =~ /@github.com:(.+)\//)
-    if (!matchOwner.find()) {
-        error "Cannot parse repository owner from URL: ${repoUrl}"
-    }
-    def repoOwner = matchOwner.group(1)
+    def repoOwner = 'zextras'
+    def repoName = 'carbonio-tasks-ce'
 
     echo "Creating PR on ${repoOwner}/${repoName}"
 
@@ -285,12 +271,14 @@ pipeline {
                                 git push origin ${env.PRE_RELEASE_BRANCH}
                             """
 
-                            sh '''
-                                npx semantic-release --no-ci || {
-                                    echo "Semantic release failed or not configured"
-                                    echo "Continuing without version bump..."
-                                }
-                            '''
+                            withEnv(["GITHUB_TOKEN=${env.ZXBOT_TOKEN}"]) {
+                                sh '''
+                                    npx semantic-release --no-ci || {
+                                        echo "Semantic release failed or not configured"
+                                        echo "Continuing without version bump..."
+                                    }
+                                '''
+                            }
 
                             env.RELEASE_VERSION = sh(
                                 script: 'git describe --tags --abbrev=0 2>/dev/null',
