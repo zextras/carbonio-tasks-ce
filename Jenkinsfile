@@ -240,7 +240,7 @@ pipeline {
         stage('Prepare Release') {
             when {
                 allOf {
-                    branch 'devel'
+                    /*branch 'devel' TODO uncomment after testing*/
                     expression { params.RELEASE_TO_RC == true }
                     not {
                         expression {
@@ -286,7 +286,7 @@ pipeline {
                             '''
 
                             env.RELEASE_VERSION = sh(
-                                script: 'git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"',
+                                script: 'git describe --tags --abbrev=0 2>/dev/null',
                                 returnStdout: true
                             ).trim()
 
