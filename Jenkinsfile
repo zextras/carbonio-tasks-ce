@@ -271,13 +271,12 @@ pipeline {
                                 git push origin ${env.PRE_RELEASE_BRANCH}
                             """
 
-                            withEnv(["GITHUB_TOKEN=${env.ZXBOT_TOKEN}"]) {
-                                sh '''
-                                    npx semantic-release --no-ci || {
-                                        echo "Semantic release failed or not configured"
-                                        echo "Continuing without version bump..."
-                                    }
-                                '''
+                            withEnv([
+                                "GIT_BRANCH=${env.PRE_RELEASE_BRANCH}",
+                                "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}",
+                                "GITHUB_TOKEN=${env.ZXBOT_TOKEN}"
+                            ]) {
+                                sh 'npx semantic-release --no-ci'
                             }
 
                             env.RELEASE_VERSION = sh(
