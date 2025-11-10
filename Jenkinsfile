@@ -11,6 +11,69 @@ library(
     ])
 )
 
+def gitSetup() {
+    sh '''
+        git config user.name "Jenkins CI"
+        git config user.email "ci@zextras.com"
+    '''
+
+    def repoOriginUrl = sh(
+        script: "git remote -v | head -n1 | cut -d\$'\t' -f2 | cut -d' ' -f1",
+        returnStdout: true
+    ).trim()
+
+    if (repoOriginUrl.startsWith('git@github.com:')) {
+        def newOriginUrl = repoOriginUrl.replaceFirst(
+            'git@github.com:',
+            "https://\${ZXBOT_TOKEN}@github.com/"
+        )
+        sh "git remote set-url origin ${newOriginUrl}"
+        echo "Remote changed to HTTPS with token authentication"
+    }
+}
+
+def gitPush(Map opts = [:]) {
+    def gitOptions = []
+    if (opts.followTags == true) {
+        gitOptions << '--follow-tags'
+    }
+
+    sh "git push ${gitOptions.join(' ')} origin HEAD:${opts.branch}"
+}
+
+def openGithubPr(Map args = [:]) {
+    def repoUrl = sh(
+        script: "git remote -v | head -n1 | cut -d\$'\t' -f2 | cut -d' ' -f1",
+        returnStdout: true
+    ).trim()
+
+    def match = (repoUrl =~ /[:/]([^/]+)\/([^/]+?)(\.git)?$/)
+    if (!match.find()) {
+        error "Cannot parse repository URL: ${repoUrl}"
+    }
+
+    def repoOwner = match.group(1)
+    def repoName = match.group(2)
+
+    echo "Creating PR on ${repoOwner}/${repoName}"
+
+    sh """
+        curl -f -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer \${ZXBOT_TOKEN}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${repoOwner}/${repoName}/pulls \
+          -d '{
+            "title": "${args.title}",
+            "head": "${args.head}",
+            "base": "${args.base}",
+            "body": "${args.body ?: ''}",
+            "maintainer_can_modify": true
+          }'
+    """
+}
+
 pipeline {
     agent {
         node {
@@ -22,7 +85,6 @@ pipeline {
         JAVA_OPTS = '-Dfile.encoding=UTF8'
         LC_ALL = 'C.UTF-8'
         jenkins_build = 'true'
-        GITHUB_TOKEN = credentials('jenkins-integration-with-github-account')
     }
 
     options {
@@ -114,7 +176,6 @@ pipeline {
 
         stage('SonarQube analysis') {
             when {
-
                anyOf {
                    branch 'devel'
                    expression { env.BRANCH_NAME.contains("PR") }
@@ -136,7 +197,6 @@ pipeline {
         stage('Build deb/rpm') {
             steps {
                 script {
-                    // Determine pkgrel based on branch
                     if (env.GIT_BRANCH == 'devel') {
                         env.PKGREL = '1'
                         echo "Building RELEASE packages with pkgrel=1"
@@ -145,7 +205,6 @@ pipeline {
                         echo "Building SNAPSHOT packages with pkgrel=${env.PKGREL}"
                     }
 
-                    // Modify PKGBUILD file
                     sh """
                         sed -i 's/pkgrel="SNAPSHOT"/pkgrel="${env.PKGREL}"/' package/PKGBUILD
                         cat package/PKGBUILD | grep pkgrel
@@ -159,14 +218,12 @@ pipeline {
                 ])
 
                 script {
-                    // Restore PKGBUILD to avoid committing changes
                     sh 'git checkout -- package/PKGBUILD'
                 }
             }
         }
 
-        stage('Upload artifacts')
-        {
+        stage('Upload artifacts') {
             steps {
                 uploadStage(
                     packages: yapHelper.getPackageNames(),
@@ -176,13 +233,10 @@ pipeline {
             }
         }
 
-        /*
-        * This creates a pre-release branch using semantic release to bump version and generate changelog
-        */
         stage('Prepare Release') {
             when {
                 allOf {
-                    /*branch 'devel' TODO remove comment after testing*/
+                    branch 'devel'
                     expression { params.RELEASE_TO_RC == true }
                     not {
                         expression {
@@ -194,59 +248,82 @@ pipeline {
             }
             steps {
                 script {
-                    sshagent(credentials: ['jenkins-integration-with-github-account']) {
-                        sh '''
-                            git config user.name "Jenkins CI"
-                            git config user.email "ci@zextras.com"
-                        '''
-
-                        env.PRE_RELEASE_BRANCH = "pre-release"
-
-                        sh """
-                            git checkout devel
-                            git pull origin devel
-
-                            git branch -D ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
-                            git push origin --delete ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
-
-                            git checkout -b ${env.PRE_RELEASE_BRANCH}
-                            git push origin ${env.PRE_RELEASE_BRANCH}
-                        """
-
-                        withEnv([
-                            "GIT_BRANCH=${env.PRE_RELEASE_BRANCH}",
-                            "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}"
+                    container('nodejs-20') {
+                        withCredentials([
+                            usernamePassword(
+                                credentialsId: 'jenkins-integration-with-github-account',
+                                passwordVariable: 'ZXBOT_TOKEN',
+                                usernameVariable: 'ZXBOT_NAME'
+                            )
                         ]) {
-                            sh 'npx semantic-release --no-ci'
+                            sh 'apt-get update && apt-get install -y openssh-client'
+
+                            gitSetup()
+
+                            env.PRE_RELEASE_BRANCH = "pre-release"
+
+                            sh """
+                                git fetch --unshallow || true
+                                git checkout devel
+                                git pull origin devel
+
+                                git branch -D ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+                                git push origin --delete ${env.PRE_RELEASE_BRANCH} 2>/dev/null || true
+
+                                git checkout -b ${env.PRE_RELEASE_BRANCH}
+                                git push origin ${env.PRE_RELEASE_BRANCH}
+                            """
+
+                            sh '''
+                                npx semantic-release --no-ci || {
+                                    echo "Semantic release failed or not configured"
+                                    echo "Continuing without version bump..."
+                                }
+                            '''
+
+                            env.RELEASE_VERSION = sh(
+                                script: 'git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"',
+                                returnStdout: true
+                            ).trim()
+
+                            sh """
+                                git push origin --delete ${env.RELEASE_VERSION} 2>/dev/null || true
+                                git tag -d ${env.RELEASE_VERSION} 2>/dev/null || true
+                            """
+
+                            gitPush(
+                                branch: env.PRE_RELEASE_BRANCH,
+                                followTags: false
+                            )
+
+                            echo "Pre-release branch created: ${env.PRE_RELEASE_BRANCH}"
+                            echo "Target version: ${env.RELEASE_VERSION}"
                         }
-
-                        env.RELEASE_VERSION = sh(
-                            script: 'git describe --tags --abbrev=0',
-                            returnStdout: true
-                        ).trim()
-
-                        sh """
-                            git push origin --delete ${env.RELEASE_VERSION} 2>/dev/null || true
-                            git tag -d ${env.RELEASE_VERSION}
-                            git push origin ${env.PRE_RELEASE_BRANCH}
-                        """
-
-                        def prBody = """🤖 Automated release preparation for ${env.RELEASE_VERSION}"""
-
-                        sh """
-                            curl -X POST \
-                              -H "Authorization: token ${GITHUB_TOKEN_PSW}" \
-                              -H "Accept: application/vnd.github.v3+json" \
-                              https://api.github.com/repos/zextras/carbonio-tasks-ce/pulls \
-                              -d '{"title": "Release ${env.RELEASE_VERSION}", "head": "${env.PRE_RELEASE_BRANCH}", "base": "devel", "body": ${groovy.json.JsonOutput.toJson(prBody)}}' > pr-response.json
-                        """
-
-                        env.PR_NUMBER = sh(
-                            script: 'cat pr-response.json | grep -o \'"number": [0-9]*\' | grep -o \'[0-9]*\'',
-                            returnStdout: true
-                        ).trim()
-
-                        echo "Created PR #${env.PR_NUMBER} for release ${env.RELEASE_VERSION}"
+                    }
+                }
+            }
+            post {
+                success {
+                    script {
+                        container('nodejs-20') {
+                            withCredentials([
+                                usernamePassword(
+                                    credentialsId: 'jenkins-integration-with-github-account',
+                                    passwordVariable: 'ZXBOT_TOKEN',
+                                    usernameVariable: 'ZXBOT_NAME'
+                                )
+                            ]) {
+                                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                                    openGithubPr(
+                                        title: "Release ${env.RELEASE_VERSION}",
+                                        head: env.PRE_RELEASE_BRANCH,
+                                        base: 'devel',
+                                        body: "🤖 Automated release preparation for ${env.RELEASE_VERSION}"
+                                    )
+                                    echo "Pull Request created successfully"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -270,9 +347,7 @@ pipeline {
                             return false
                         }
 
-                        sshagent(credentials: ['jenkins-integration-with-github-account']) {
-                            sh 'git fetch --tags --force'
-                        }
+                        sh 'git fetch --tags --force'
 
                         def tagExists = sh(
                             script: "git tag -l v${version}",
@@ -285,22 +360,31 @@ pipeline {
             }
             steps {
                 script {
-                    sshagent(credentials: ['jenkins-integration-with-github-account']) {
-                        sh '''
-                            git config user.name "Jenkins CI"
-                            git config user.email "ci@zextras.com"
+                    container('jdk-17') {
+                        withCredentials([
+                            usernamePassword(
+                                credentialsId: 'jenkins-integration-with-github-account',
+                                passwordVariable: 'ZXBOT_TOKEN',
+                                usernameVariable: 'ZXBOT_NAME'
+                            )
+                        ]) {
+                            gitSetup()
 
-                            VERSION=$(echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\(release\\): \\K[0-9]+\\.[0-9]+\\.[0-9]+")
-                            TAG="v${VERSION}"
+                            def version = sh(
+                                script: 'echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\\\(release\\\\): \\\\K[0-9]+\\\\.[0-9]+\\\\.[0-9]+"',
+                                returnStdout: true
+                            ).trim()
 
-                            git tag -a "${TAG}" -m "chore(release): ${VERSION}"
-                            git push origin "${TAG}"
-                        '''
+                            def tag = "v${version}"
 
-                        env.TAG_CREATED = 'true'
+                            sh """
+                                git tag -a "${tag}" -m "chore(release): ${version}"
+                                git push origin "${tag}"
+                            """
 
-                        def tagName = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
-                        echo "Created and pushed tag ${tagName}"
+                            env.TAG_CREATED = 'true'
+                            echo "Created and pushed tag ${tag}"
+                        }
                     }
                 }
             }
