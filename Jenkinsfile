@@ -283,7 +283,8 @@ pipeline {
                                         @semantic-release/release-notes-generator \
                                         @semantic-release/changelog \
                                         @semantic-release/exec \
-                                        @semantic-release/git
+                                        @semantic-release/git \
+                                        conventional-changelog-conventionalcommits
 
                                     npx semantic-release --no-ci --extends ./.releaserc.json
                                 '''
