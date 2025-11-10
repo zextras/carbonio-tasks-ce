@@ -88,7 +88,7 @@ pipeline {
             description: 'Whether to upload the packages in playground repositories',
             name: 'PLAYGROUND'
         booleanParam(
-            name: 'RELEASE_TO_RC',
+            name: 'PREPARE_RELEASE',
             defaultValue: false,
             description: 'Check this to prepare a new release (creates pre-release branch and PR)'
         )
@@ -224,8 +224,8 @@ pipeline {
             }
             when {
                 allOf {
-                    /*branch 'devel' TODO uncomment after testing*/
-                    expression { params.RELEASE_TO_RC == true }
+                    branch 'devel'
+                    expression { params.PREPARE_RELEASE == true }
                     not {
                         expression {
                             return env.GIT_COMMIT_MSG.contains('[skip ci]') ||
