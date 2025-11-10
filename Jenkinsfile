@@ -238,6 +238,11 @@ pipeline {
         }
 
         stage('Prepare Release') {
+            agent {
+                node {
+                    label 'nodejs-v1'
+                }
+            }
             when {
                 allOf {
                     /*branch 'devel' TODO uncomment after testing*/
