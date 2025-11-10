@@ -115,14 +115,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: scm.branches,
-                    userRemoteConfigs: scm.userRemoteConfigs,
-                    extensions: [
-                        [$class: 'CloneOption', noTags: false, shallow: false]
-                    ]
-                ])
+                checkout scm
                 script {
                     gitMetadata()
                     env.GIT_COMMIT_MSG = sh(
@@ -258,6 +251,15 @@ pipeline {
             steps {
                 script {
                     container('nodejs-20') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: scm.branches,
+                            userRemoteConfigs: scm.userRemoteConfigs,
+                            extensions: [
+                                [$class: 'CloneOption', noTags: false, shallow: false]
+                            ]
+                        ])
+
                         withCredentials([
                             usernamePassword(
                                 credentialsId: 'jenkins-integration-with-github-account',
@@ -346,54 +348,49 @@ pipeline {
                         return env.GIT_COMMIT_MSG.contains('chore(release):') &&
                                env.GIT_COMMIT_MSG.contains('[skip ci]')
                     }
-                    expression {
-                        def version = sh(
-                            script: 'echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\\\(release\\\\): \\\\K[0-9]+\\\\.[0-9]+\\\\.[0-9]+" || echo ""',
-                            returnStdout: true
-                        ).trim()
-
-                        if (!version) {
-                            return false
-                        }
-
-                        sh 'git fetch --tags --force'
-
-                        def tagExists = sh(
-                            script: "git tag -l v${version}",
-                            returnStdout: true
-                        ).trim()
-
-                        return tagExists == ''
-                    }
                 }
             }
             steps {
                 script {
-                    container('jdk-17') {
-                        withCredentials([
-                            usernamePassword(
-                                credentialsId: 'jenkins-integration-with-github-account',
-                                passwordVariable: 'ZXBOT_TOKEN',
-                                usernameVariable: 'ZXBOT_NAME'
-                            )
-                        ]) {
-                            gitSetup()
+                    def version = sh(
+                        script: 'echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\\\(release\\\\): \\\\K[0-9]+\\\\.[0-9]+\\\\.[0-9]+" || echo ""',
+                        returnStdout: true
+                    ).trim()
 
-                            def version = sh(
-                                script: 'echo "${GIT_COMMIT_MSG}" | grep -oP "chore\\\\(release\\\\): \\\\K[0-9]+\\\\.[0-9]+\\\\.[0-9]+"',
-                                returnStdout: true
-                            ).trim()
+                    if (!version) {
+                        echo "No version found in commit message, skipping"
+                        return
+                    }
 
-                            def tag = "v${version}"
+                    def tag = "v${version}"
 
-                            sh """
-                                git tag -a "${tag}" -m "chore(release): ${version}"
-                                git push origin "${tag}"
-                            """
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'jenkins-integration-with-github-account',
+                            passwordVariable: 'ZXBOT_TOKEN',
+                            usernameVariable: 'ZXBOT_NAME'
+                        )
+                    ]) {
+                        gitSetup()
 
-                            env.TAG_CREATED = 'true'
-                            echo "Created and pushed tag ${tag}"
+                        sh 'git fetch --tags --force'
+
+                        def tagExists = sh(
+                            script: "git tag -l ${tag}",
+                            returnStdout: true
+                        ).trim()
+
+                        if (tagExists) {
+                            echo "Tag ${tag} already exists, skipping"
+                            return
                         }
+
+                        sh """
+                            git tag -a "${tag}" -m "chore(release): ${version}"
+                            git push origin "${tag}"
+                        """
+
+                        echo "Created and pushed tag ${tag}"
                     }
                 }
             }
