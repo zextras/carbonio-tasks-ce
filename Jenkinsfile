@@ -276,15 +276,18 @@ pipeline {
                                 "BRANCH_NAME=${env.PRE_RELEASE_BRANCH}",
                                 "GITHUB_TOKEN=${env.ZXBOT_TOKEN}"
                             ]) {
-                                sh 'npm install --no-save \
-                                      semantic-release \
-                                      @semantic-release/commit-analyzer \
-                                      @semantic-release/release-notes-generator \
-                                      @semantic-release/changelog \
-                                      @semantic-release/exec \
-                                      @semantic-release/git
-                                '
-                                sh 'npx semantic-release --no-ci --extends ./.releaserc.json'
+                                sh '''
+                                    npm install --no-save \
+                                        semantic-release \
+                                        @semantic-release/commit-analyzer \
+                                        @semantic-release/release-notes-generator \
+                                        @semantic-release/changelog \
+                                        @semantic-release/exec \
+                                        @semantic-release/git
+
+                                    npx semantic-release --no-ci --extends ./.releaserc.json
+                                '''
+
                             }
 
                             env.RELEASE_VERSION = sh(
