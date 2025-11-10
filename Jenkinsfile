@@ -13,8 +13,8 @@ library(
 
 def gitSetup() {
     sh '''
-        git config user.name "Jenkins CI"
-        git config user.email "ci@zextras.com"
+        git config user.email "bot@zextras.com"
+        git config user.name "Tarsier Bot"
     '''
 
     def repoOriginUrl = sh(
