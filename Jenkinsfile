@@ -47,13 +47,17 @@ def openGithubPr(Map args = [:]) {
         returnStdout: true
     ).trim()
 
-    def match = (repoUrl =~ /[:/]([^/]+)\/([^/]+?)(\.git)?$/)
-    if (!match.find()) {
-        error "Cannot parse repository URL: ${repoUrl}"
+    def matchName = (repoUrl =~ /\/(.+)\.git/)
+    if (!matchName.find()) {
+        error "Cannot parse repository name from URL: ${repoUrl}"
     }
+    def repoName = matchName.group(1)
 
-    def repoOwner = match.group(1)
-    def repoName = match.group(2)
+    def matchOwner = (repoUrl =~ /@github.com:(.+)\//)
+    if (!matchOwner.find()) {
+        error "Cannot parse repository owner from URL: ${repoUrl}"
+    }
+    def repoOwner = matchOwner.group(1)
 
     echo "Creating PR on ${repoOwner}/${repoName}"
 
