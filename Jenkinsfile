@@ -48,6 +48,16 @@ pipeline {
             defaultValue: false,
             description: 'Check this to prepare a new release (creates pre-release branch and PR)'
         )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip unit tests and integration tests'
+        )
+        booleanParam(
+            name: 'SKIP_CHECKS',
+            defaultValue: false,
+            description: 'Skip coverage and SonarQube analysis'
+        )
     }
 
     tools {
@@ -81,6 +91,9 @@ pipeline {
         }
 
         stage('Unit tests') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
             steps {
                 container('jdk-17') {
                     sh 'mvn -B verify -P run-unit-tests'
@@ -89,6 +102,9 @@ pipeline {
         }
 
         stage('Integration tests') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
             steps {
                 container('jdk-17') {
                     sh 'mvn -B verify -P run-integration-tests'
@@ -97,6 +113,9 @@ pipeline {
         }
 
         stage('Coverage') {
+            when {
+                expression { params.SKIP_CHECKS == false }
+            }
             steps {
                 container('jdk-17') {
                     sh 'mvn -B verify -P generate-jacoco-full-report'
@@ -110,9 +129,12 @@ pipeline {
 
         stage('SonarQube analysis') {
             when {
-               anyOf {
-                   branch 'devel'
-                   expression { env.BRANCH_NAME.contains("PR") }
+               allOf {
+                   expression { params.SKIP_CHECKS == false }
+                   anyOf {
+                       branch 'devel'
+                       expression { env.BRANCH_NAME.contains("PR") }
+                   }
                }
             }
             steps {
