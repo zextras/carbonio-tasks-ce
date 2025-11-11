@@ -119,6 +119,21 @@ public class TasksConfig {
         .orElse(Hikari.MIN_IDLE_CONNECTIONS);
   }
 
+  public int getHikariIdleTimeout() {
+    return getConfInt(Key.HIKARI_IDLE_TIMEOUT)
+      .orElse(Hikari.IDLE_TIMEOUT);
+  }
+
+  public int getHikariLeakDetectionThreshold() {
+    return getConfInt(Key.HIKARI_LEAK_DETECTION_THRESHOLD)
+      .orElse(Hikari.LEAK_DETECTION_THRESHOLD);
+  }
+
+  public int getHikariMaxLifetime() {
+    return getConfInt(Key.HIKARI_MAX_LIFETIME)
+      .orElse(Hikari.MAX_LIFETIME);
+  }
+
   private static Optional<Integer> getConfInt(String key) {
     return getConfig(key)
       .map(Integer::parseInt);
