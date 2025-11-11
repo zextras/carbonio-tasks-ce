@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 library(
-    identifier: 'jenkins-dt3-lib@v1.0.0',
+    identifier: 'jenkins-dt3-lib@v1.1.0',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         remote: 'git@github.com:zextras/jenkins-dt3-lib.git',
@@ -216,43 +216,16 @@ pipeline {
         stage('Build and Publish Docker Image') {
             when {
                 not {
-                    anyOf {
-                        buildingTag()
-                        expression { env.BRANCH_NAME.startsWith('PR-') }
-                    }
+                    expression { env.BRANCH_NAME.startsWith('PR-') }
                 }
             }
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    container('dind') {
-                        withDockerRegistry([
-                            credentialsId: 'private-registry',
-                            url: 'https://registry.dev.zextras.com'
-                        ]) {
-                            script {
-                                String branchTag = env.BRANCH_NAME.replaceAll('/', '-').toLowerCase()
-                                Set<String> imageTags = [ branchTag ]
-
-                                if (env.BRANCH_NAME == 'devel') {
-                                    imageTags.add('latest')
-                                } else if (buildingTag() && env.TAG_NAME?.trim()) {
-                                    imageTags.add(env.TAG_NAME?.startsWith('v') ? env.TAG_NAME.substring(1) : env.TAG_NAME)
-                                }
-
-                                dockerHelper.buildImage([
-                                    imageName: 'registry.dev.zextras.com/dev/carbonio-tasks-ce',
-                                    imageTags: imageTags,
-                                    dockerfile: 'docker/minimal/carbonio-tasks/Dockerfile',
-                                    ocLabels: [
-                                        title: 'Carbonio tasks CE',
-                                        description: 'Carbonio tasks Community Edition',
-                                        version: branchTag
-                                    ]
-                                ])
-                            }
-                        }
-                    }
-                }
+                buildAndPublishDockerImage(
+                    projectName: 'carbonio-tasks-ce',
+                    dockerfile: 'docker/minimal/carbonio-tasks/Dockerfile',
+                    imageTitle: 'Carbonio tasks CE',
+                    imageDescription: 'Carbonio tasks Community Edition'
+                )
             }
         }
     }
