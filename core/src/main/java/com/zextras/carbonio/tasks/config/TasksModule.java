@@ -32,7 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class TasksModule extends AbstractModule {
 
@@ -91,14 +95,26 @@ public class TasksModule extends AbstractModule {
 
     Properties dataSourceProperties = new Properties();
     dataSourceProperties.setProperty("sslmode", "disable");
+    dataSourceProperties.setProperty("ApplicationName", "tasks");
 
     HikariDataSource dataSource = new HikariDataSource();
     dataSource.setJdbcUrl(jdbcPostgresUrl);
+    dataSource.setPoolName("tasks-db-pool");
     dataSource.setUsername(config.getDatabaseUsername());
     dataSource.setPassword(config.getDatabasePassword());
     dataSource.setMaximumPoolSize(maximumPoolSize);
     dataSource.setMinimumIdle(minimumIdleConnections);
     dataSource.setDataSourceProperties(dataSourceProperties);
+    /*
+config.setIdleTimeout(HIKARI_IDLE_TIMEOUT.orElse(10000));
+config.setLeakDetectionThreshold(HIKARI_LEAK_DETECTION_THRESHOLD.orElse(5000));
+config.setMaxLifetime(HIKARI_MAX_LIFETIME.orElse(600000));
+
+Properties dataSourceProperties = new Properties();
+dataSourceProperties.setProperty("sslmode", "disable");
+dataSourceProperties.setProperty("ApplicationName", "ws-collaboration");
+dataSource.setDataSourceProperties(properties);
+     */
     return dataSource;
   }
 
