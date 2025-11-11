@@ -89,9 +89,15 @@ public class TasksModule extends AbstractModule {
 
     int maximumPoolSize = config.getHikariMaxPoolSize();
     int minimumIdleConnections = config.getHikariMinIdleConnections();
+    int idleTimeout = config.getHikariIdleTimeout();
+    int leakDetectionThreshold = config.getHikariLeakDetectionThreshold();
+    int maxLifetime = config.getHikariMaxLifetime();
 
     logger.info("Hikari: maximum pool size: {}", maximumPoolSize);
     logger.info("Hikari: minimum idle connections: {}", minimumIdleConnections);
+    logger.info("Hikari: idle timeout: {}", idleTimeout);
+    logger.info("Hikari: leak detection threshold: {}", leakDetectionThreshold);
+    logger.info("Hikari: max lifetime: {}", maxLifetime);
 
     Properties dataSourceProperties = new Properties();
     dataSourceProperties.setProperty("sslmode", "disable");
@@ -104,12 +110,11 @@ public class TasksModule extends AbstractModule {
     dataSource.setPassword(config.getDatabasePassword());
     dataSource.setMaximumPoolSize(maximumPoolSize);
     dataSource.setMinimumIdle(minimumIdleConnections);
+    dataSource.setIdleTimeout(idleTimeout);
+    dataSource.setLeakDetectionThreshold(leakDetectionThreshold);
+    dataSource.setMaxLifetime(maxLifetime);
     dataSource.setDataSourceProperties(dataSourceProperties);
-    /*
-config.setIdleTimeout(HIKARI_IDLE_TIMEOUT.orElse(10000));
-config.setLeakDetectionThreshold(HIKARI_LEAK_DETECTION_THRESHOLD.orElse(5000));
-config.setMaxLifetime(HIKARI_MAX_LIFETIME.orElse(600000));
-     */
+
     return dataSource;
   }
 
