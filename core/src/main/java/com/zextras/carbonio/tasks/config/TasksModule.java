@@ -109,11 +109,6 @@ public class TasksModule extends AbstractModule {
 config.setIdleTimeout(HIKARI_IDLE_TIMEOUT.orElse(10000));
 config.setLeakDetectionThreshold(HIKARI_LEAK_DETECTION_THRESHOLD.orElse(5000));
 config.setMaxLifetime(HIKARI_MAX_LIFETIME.orElse(600000));
-
-Properties dataSourceProperties = new Properties();
-dataSourceProperties.setProperty("sslmode", "disable");
-dataSourceProperties.setProperty("ApplicationName", "ws-collaboration");
-dataSource.setDataSourceProperties(properties);
      */
     return dataSource;
   }
