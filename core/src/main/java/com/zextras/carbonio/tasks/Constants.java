@@ -55,9 +55,9 @@ public final class Constants {
 
       public static final int MAX_POOL_SIZE = 10;
       public static final int MIN_IDLE_CONNECTIONS = 2;
-      public static final int IDLE_TIMEOUT = 2;
-      public static final int LEAK_DETECTION_THRESHOLD = 2;
-      public static final int MAX_LIFETIME = 2;
+      public static final int IDLE_TIMEOUT = 10_000;
+      public static final int LEAK_DETECTION_THRESHOLD = 5_000;
+      public static final int MAX_LIFETIME = 600_000;
 
       private Hikari() {}
     }
