@@ -108,33 +108,33 @@ public class TasksConfig {
   }
 
   public int getHikariMaxPoolSize() {
-    return getConfInt(Key.HIKARI_MAX_POOL_SIZE)
+    return getConfigInt(Key.HIKARI_MAX_POOL_SIZE)
         .orElse(Hikari.MAX_POOL_SIZE);
   }
 
   public int getHikariMinIdleConnections() {
     int maxPoolSize = getHikariMaxPoolSize();
-    return getConfInt(Key.HIKARI_MIN_IDLE_CONNECTIONS)
+    return getConfigInt(Key.HIKARI_MIN_IDLE_CONNECTIONS)
         .map(minIdleConnections -> Math.min(minIdleConnections, maxPoolSize))
         .orElse(Hikari.MIN_IDLE_CONNECTIONS);
   }
 
   public int getHikariIdleTimeout() {
-    return getConfInt(Key.HIKARI_IDLE_TIMEOUT)
+    return getConfigInt(Key.HIKARI_IDLE_TIMEOUT)
       .orElse(Hikari.IDLE_TIMEOUT);
   }
 
   public int getHikariLeakDetectionThreshold() {
-    return getConfInt(Key.HIKARI_LEAK_DETECTION_THRESHOLD)
+    return getConfigInt(Key.HIKARI_LEAK_DETECTION_THRESHOLD)
       .orElse(Hikari.LEAK_DETECTION_THRESHOLD);
   }
 
   public int getHikariMaxLifetime() {
-    return getConfInt(Key.HIKARI_MAX_LIFETIME)
+    return getConfigInt(Key.HIKARI_MAX_LIFETIME)
       .orElse(Hikari.MAX_LIFETIME);
   }
 
-  private static Optional<Integer> getConfInt(String key) {
+  private static Optional<Integer> getConfigInt(String key) {
     return getConfig(key)
       .map(Integer::parseInt);
   }
