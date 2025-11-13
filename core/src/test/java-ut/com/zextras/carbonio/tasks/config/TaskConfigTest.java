@@ -62,8 +62,9 @@ class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEqualTo("fake-db-password");
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties).hasSize(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(2);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
+    Assertions.assertThat(dataSourceProperties.getProperty("ApplicationName")).isEqualTo("tasks");
 
     serviceDiscoverMock.verify(
         HttpRequest.request()
@@ -99,8 +100,9 @@ class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEmpty();
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties).hasSize(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(2);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
+    Assertions.assertThat(dataSourceProperties.getProperty("ApplicationName")).isEqualTo("tasks");
   }
 
   @Test
@@ -181,8 +183,9 @@ class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEqualTo("fake-db-password");
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties).hasSize(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(2);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
+    Assertions.assertThat(dataSourceProperties.getProperty("ApplicationName")).isEqualTo("tasks");
 
     serviceDiscoverMock.verify(
         HttpRequest.request()
@@ -227,8 +230,9 @@ class TaskConfigTest {
     Assertions.assertThat(dataSource.getPassword()).isEmpty();
 
     Properties dataSourceProperties = dataSource.getDataSourceProperties();
-    Assertions.assertThat(dataSourceProperties).hasSize(1);
+    Assertions.assertThat(dataSourceProperties).hasSize(2);
     Assertions.assertThat(dataSourceProperties.getProperty("sslmode")).isEqualTo("disable");
+    Assertions.assertThat(dataSourceProperties.getProperty("ApplicationName")).isEqualTo("tasks");
   }
 
   private void createServiceDiscoverMock() {

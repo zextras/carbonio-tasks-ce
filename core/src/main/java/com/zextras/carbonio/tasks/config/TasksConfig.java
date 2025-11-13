@@ -69,20 +69,17 @@ public class TasksConfig {
   }
 
   public String getDatabaseName() {
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
-        .getConfig(Key.DB_NAME)
+    return getConfig(Key.DB_NAME)
         .orElse(Database.DEFAULT_NAME);
   }
 
   public String getDatabaseUsername() {
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
-        .getConfig(Key.DB_USERNAME)
+    return getConfig(Key.DB_USERNAME)
         .orElse(Database.DEFAULT_USERNAME);
   }
 
   public String getDatabasePassword() {
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
-        .getConfig(Key.DB_PASSWORD)
+    return getConfig(Key.DB_PASSWORD)
         .orElse("");
   }
 
@@ -111,18 +108,39 @@ public class TasksConfig {
   }
 
   public int getHikariMaxPoolSize() {
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
-        .getConfig(Key.HIKARI_MAX_POOL_SIZE)
-        .map(Integer::parseInt)
+    return getConfigInt(Key.HIKARI_MAX_POOL_SIZE)
         .orElse(Hikari.MAX_POOL_SIZE);
   }
 
   public int getHikariMinIdleConnections() {
     int maxPoolSize = getHikariMaxPoolSize();
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
-        .getConfig(Key.HIKARI_MIN_IDLE_CONNECTIONS)
-        .map(minIdleConnections ->
-            Math.min(Integer.parseInt(minIdleConnections), maxPoolSize))
+    return getConfigInt(Key.HIKARI_MIN_IDLE_CONNECTIONS)
+        .map(minIdleConnections -> Math.min(minIdleConnections, maxPoolSize))
         .orElse(Hikari.MIN_IDLE_CONNECTIONS);
+  }
+
+  public int getHikariIdleTimeout() {
+    return getConfigInt(Key.HIKARI_IDLE_TIMEOUT)
+      .orElse(Hikari.IDLE_TIMEOUT);
+  }
+
+  public int getHikariLeakDetectionThreshold() {
+    return getConfigInt(Key.HIKARI_LEAK_DETECTION_THRESHOLD)
+      .orElse(Hikari.LEAK_DETECTION_THRESHOLD);
+  }
+
+  public int getHikariMaxLifetime() {
+    return getConfigInt(Key.HIKARI_MAX_LIFETIME)
+      .orElse(Hikari.MAX_LIFETIME);
+  }
+
+  private static Optional<Integer> getConfigInt(String key) {
+    return getConfig(key)
+      .map(Integer::parseInt);
+  }
+
+  private static Optional<String> getConfig(String key) {
+    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
+      .getConfig(key);
   }
 }
