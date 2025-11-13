@@ -12,7 +12,7 @@ library(
 )
 
 library(
-    identifier: 'jenkins-lib-common@1.1.1',
+    identifier: 'jenkins-lib-common@1.1.2',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         credentialsId: 'jenkins-integration-with-github-account',
@@ -156,6 +156,9 @@ pipeline {
         }
 
         stage('Upload artifacts') {
+            when {
+                expression { return uploadStage.shouldUpload() }
+            }
             tools {
                 jfrog 'jfrog-cli'
             }
