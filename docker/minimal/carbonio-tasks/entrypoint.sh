@@ -1,10 +1,10 @@
 #!/bin/sh
 
-echo "" > /etc/carbonio/files/config.properties
+echo "" > /etc/carbonio/tasks/config.properties
 
 addEnvToProperties() {
   if [ -n "$2" ];
-  then echo "$1=$2" >> /etc/carbonio/files/config.properties;
+  then echo "$1=$2" >> /etc/carbonio/tasks/config.properties;
   else echo "$1 is not set. Skipping it.";
   fi
 }
@@ -20,6 +20,7 @@ addEnvToProperties "carbonio.user-management.port" "${CARBONIO_USER_MANAGEMENT_P
 
 addEnvToProperties "carbonio.service-discover.host" "${CARBONIO_SERVICE_DISCOVER_HOST}"
 addEnvToProperties "carbonio.service-discover.port" "${CARBONIO_SERVICE_DISCOVER_PORT}"
+
 
 JAR=$(ls /app/carbonio-tasks-*-jar-with-dependencies.jar | head -n 1)
 
