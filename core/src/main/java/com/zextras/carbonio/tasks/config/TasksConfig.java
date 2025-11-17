@@ -7,6 +7,7 @@ package com.zextras.carbonio.tasks.config;
 import com.zextras.carbonio.tasks.Constants;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
 import com.zextras.carbonio.tasks.Constants.Config.Hikari;
+import com.zextras.carbonio.tasks.Constants.Config.ServiceDiscover;
 import com.zextras.carbonio.tasks.Constants.Tasks;
 import com.zextras.carbonio.tasks.Constants.ServiceDiscover.Config.Key;
 import com.zextras.carbonio.tasks.clients.ServiceDiscoverHttpClient;
@@ -26,29 +27,29 @@ public class TasksConfig {
 
   private final Properties properties;
 
-  public TasksConfig() {
-    properties = new Properties();
+  private TasksConfig(Properties properties) {
+    this.properties = properties;
   }
 
-  // Load config from files or system properties.
-  public void loadConfig() throws IOException {
+  public static TasksConfig getConfig() {
+    final Properties properties = new Properties();
     loadFromEtc() // the official way
-      .ifPresent(config -> {
-        try {
-          properties.load(config);
-        } catch (IOException e) {
-          logger.warn("Error loading configuration file: {}", e.getMessage());
-        }
-      });
-
-    properties.putAll(System.getProperties()); // the dev way, overriding existing properties
+        .ifPresent(config -> {
+          try {
+            properties.load(config);
+          } catch (IOException e) {
+            logger.warn("Error loading configuration file: {}", e.getMessage());
+          }
+        });
+    properties.putAll(System.getProperties());
+    return new TasksConfig(properties);
   }
 
-  private Optional<InputStream> loadFromEtc() {
+  private static Optional<InputStream> loadFromEtc() {
     return loadFile("/etc/carbonio/tasks/config.properties");
   }
 
-  private Optional<InputStream> loadFile(String path) {
+  private static Optional<InputStream> loadFile(String path) {
     try {
       return Optional.of(new FileInputStream(path));
     } catch (FileNotFoundException e) {
@@ -134,13 +135,20 @@ public class TasksConfig {
       .orElse(Hikari.MAX_LIFETIME);
   }
 
-  private static Optional<Integer> getConfigInt(String key) {
+  private Optional<Integer> getConfigInt(String key) {
     return getConfig(key)
       .map(Integer::parseInt);
   }
 
-  private static Optional<String> getConfig(String key) {
-    return ServiceDiscoverHttpClient.defaultURL(Tasks.SERVICE_NAME)
+  public String getServiceDiscoverEndpoint() {
+    return "http://" + properties.getProperty(
+        ServiceDiscover.HOST_PROPERTY,
+        ServiceDiscover.DEFAULT_HOST) + ":" + properties.getProperty(ServiceDiscover.PORT_PROPERTY,
+				String.valueOf(ServiceDiscover.DEFAULT_PORT));
+  }
+
+  private Optional<String> getConfig(String key) {
+    return ServiceDiscoverHttpClient.atURL(this.getServiceDiscoverEndpoint(), Tasks.SERVICE_NAME)
       .getConfig(key);
   }
 }

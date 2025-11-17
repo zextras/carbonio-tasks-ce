@@ -4,6 +4,8 @@
 
 package com.zextras.carbonio.tasks;
 
+import com.zextras.carbonio.tasks.Constants.ServiceDiscover;
+
 public final class Constants {
   private Constants() {}
 
@@ -71,6 +73,15 @@ public final class Constants {
       public static final Integer DEFAULT_PORT = 20001;
 
       private UserManagement() {}
+    }
+
+    public static final class ServiceDiscover {
+      private ServiceDiscover() {
+      }
+      public static final String HOST_PROPERTY = "carbonio.service-discover.host";
+      public static final String PORT_PROPERTY = "carbonio.service-discover.port";
+      public static final String DEFAULT_HOST = "localhost";
+      public static final Integer DEFAULT_PORT = 8500;
     }
   }
 

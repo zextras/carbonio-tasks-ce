@@ -74,9 +74,7 @@ public class TasksModule extends AbstractModule {
   @Provides
   @Singleton
   public TasksConfig provideConfig() throws Exception {
-    final TasksConfig config = new TasksConfig();
-    config.loadConfig();
-    return config;
+    return TasksConfig.getConfig();
   }
 
   @Provides

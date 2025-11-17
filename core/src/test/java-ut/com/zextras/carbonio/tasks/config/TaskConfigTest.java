@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zextras.carbonio.tasks.Constants;
+import com.zextras.carbonio.tasks.Constants.Config.ServiceDiscover;
 import com.zextras.carbonio.tasks.dal.dao.Task;
 import io.ebean.config.DatabaseConfig;
 import java.util.Properties;
@@ -121,11 +122,41 @@ class TaskConfigTest {
   }
 
   @Test
+  void givenServiceDiscoverHostAndPortSystemPropertyTheTasksConfigShouldReturnThem() {
+    // Given
+    System.setProperty(ServiceDiscover.HOST_PROPERTY, "other-host");
+    System.setProperty(ServiceDiscover.PORT_PROPERTY, "10000");
+
+    // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    TasksConfig tasksConfig = injector.getInstance(TasksConfig.class);
+
+    // Then
+    Assertions.assertThat(tasksConfig.getServiceDiscoverEndpoint())
+        .isEqualTo("http://other-host:10000");
+  }
+
+  @Test
+  void givenServiceDiscoverHostAndPortSystemPropertyEmptyTheTasksConfigShouldReturnDefaultValues() {
+    // Given
+    System.clearProperty(ServiceDiscover.HOST_PROPERTY);
+    System.clearProperty(ServiceDiscover.PORT_PROPERTY);
+
+    // When
+    Injector injector = Guice.createInjector(new TasksModule());
+    TasksConfig tasksConfig = injector.getInstance(TasksConfig.class);
+
+    // Then
+    Assertions.assertThat(tasksConfig.getServiceDiscoverEndpoint())
+        .isEqualTo("http://localhost:8500");
+  }
+
+  @Test
   void havingAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
     // Given
     createServiceDiscoverMock();
     // When
-    String databaseName = new TasksConfig().getDatabaseName();
+    String databaseName = TasksConfig.getConfig().getDatabaseName();
 
     // Then
     Assertions.assertThat(databaseName).isEqualTo("fake-db-name");
@@ -152,7 +183,7 @@ class TaskConfigTest {
   @Test
   void withoutAnAvailableServiceDiscoverTheTasksConfigShouldReturnADatabaseName() {
     // Given & When
-    String databaseName = new TasksConfig().getDatabaseName();
+    String databaseName = TasksConfig.getConfig().getDatabaseName();
 
     // Then
     Assertions.assertThat(databaseName).isEqualTo("carbonio-tasks-db");
