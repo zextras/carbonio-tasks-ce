@@ -44,6 +44,8 @@ class TaskConfigTest {
 
   @BeforeEach
   void setUp() {
+    System.clearProperty(ServiceDiscover.HOST_PROPERTY);
+    System.clearProperty(ServiceDiscover.PORT_PROPERTY);
     serviceDiscoverMock.reset();
   }
 
@@ -138,9 +140,6 @@ class TaskConfigTest {
 
   @Test
   void givenServiceDiscoverHostAndPortSystemPropertyEmptyTheTasksConfigShouldReturnDefaultValues() {
-    // Given
-    System.clearProperty(ServiceDiscover.HOST_PROPERTY);
-    System.clearProperty(ServiceDiscover.PORT_PROPERTY);
 
     // When
     Injector injector = Guice.createInjector(new TasksModule());
