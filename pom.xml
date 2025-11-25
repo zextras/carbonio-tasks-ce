@@ -126,7 +126,6 @@ SPDX-License-Identifier: AGPL-3.0-only
         <version>${jakarta-servlet-api.version}</version>
       </dependency>
 
-
       <!-- GraphQL servlet -->
       <dependency>
         <groupId>com.graphql-java-kickstart</groupId>
