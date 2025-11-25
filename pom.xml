@@ -48,7 +48,9 @@ SPDX-License-Identifier: AGPL-3.0-only
     <mock-server.version>5.15.0</mock-server.version>
     <mockito.version>5.20.0</mockito.version>
     <postgresql.version>42.7.4</postgresql.version>
-    <testcontainers.version>1.20.1</testcontainers.version>
+    <testcontainers.version>2.0.2</testcontainers.version>
+    <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
+    <testcontainers.junit.jupiter.version>1.21.3</testcontainers.junit.jupiter.version>
     <resteasy.version>6.2.7.Final</resteasy.version>
     <resteasy-guice.version>6.2.7-alpha</resteasy-guice.version>
     <flyway-database-postgresql.version>11.8.1</flyway-database-postgresql.version>
@@ -244,14 +246,14 @@ SPDX-License-Identifier: AGPL-3.0-only
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>junit-jupiter</artifactId>
-        <version>${testcontainers.version}</version>
+        <version>${testcontainers.junit.jupiter.version}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>postgresql</artifactId>
-        <version>${testcontainers.version}</version>
+        <version>${testcontainers.postgresql.version}</version>
         <scope>test</scope>
       </dependency>
 
