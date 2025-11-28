@@ -64,7 +64,7 @@ public class Simulator implements AutoCloseable {
   private Simulator startDatabaseContainer() {
 
     if (postgreSQLContainer == null) {
-      postgreSQLContainer = new PostgreSQLContainer<>("postgres:12.14");
+      postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
     }
 
     postgreSQLContainer.start();
@@ -154,7 +154,8 @@ public class Simulator implements AutoCloseable {
   public Simulator startUserManagement() {
 
     startMockServer();
-    userManagementMock = new MockServerClient(UserManagement.DEFAULT_HOST, UserManagement.DEFAULT_PORT);
+    userManagementMock = new MockServerClient("localhost", UserManagement.DEFAULT_PORT);
+    System.setProperty(UserManagement.HOST_PROPERTY, "localhost");
     return this;
   }
 
