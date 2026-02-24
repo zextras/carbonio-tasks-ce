@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/zextras/carbonio-tasks-ce/compare/v1.0.0...v1.0.1) (2026-02-23)
+
+### Bug Fixes
+
+* **deps:** update dependency org.postgresql:postgresql to v42.7.7 [security] ([#84](https://github.com/zextras/carbonio-tasks-ce/issues/84)) ([4c1dbf6](https://github.com/zextras/carbonio-tasks-ce/commit/4c1dbf6c206eb91eb957a5eb3ebae6101a20bd74))
+
 ## [1.0.0](https://github.com/zextras/carbonio-tasks-ce/compare/v0.5.1...v1.0.0) (2025-11-14)
 
 ### ⚠ BREAKING CHANGES
