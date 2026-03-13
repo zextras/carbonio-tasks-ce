@@ -12,7 +12,7 @@ library(
 )
 
 library(
-    identifier: 'jenkins-lib-common@1.1.2',
+    identifier: 'jenkins-lib-common@feat/add-maven',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         credentialsId: 'jenkins-integration-with-github-account',
@@ -69,75 +69,16 @@ pipeline {
             }
         }
 
-        stage('Build jar') {
+        stage('Maven') {
             steps {
                 script {
-                    def profile = '-P dev'
-                    if (env.TAG_NAME) {
-                        profile = '-P prod'
-                    }
-                    container('jdk-21') {
-                        sh """
-                            mvn -B clean package ${profile}
-                            cp boot/target/carbonio-tasks-*-jar-with-dependencies.jar package/carbonio-tasks.jar
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Unit tests') {
-            when {
-                expression { params.SKIP_TESTS == false }
-            }
-            steps {
-                container('jdk-21') {
-                    sh 'mvn -B verify -P run-unit-tests'
-                }
-            }
-        }
-
-        stage('Integration tests') {
-            when {
-                expression { params.SKIP_TESTS == false }
-            }
-            steps {
-                container('jdk-21') {
-                    sh 'mvn -B verify -P run-integration-tests'
-                }
-            }
-        }
-
-        stage('Coverage') {
-            when {
-                expression { params.SKIP_CHECKS == false }
-            }
-            steps {
-                container('jdk-21') {
-                    sh 'mvn -B verify -P generate-jacoco-full-report'
-                    recordCoverage(
-                        tools: [[parser: 'JACOCO']],
-                        sourceCodeRetention: 'MODIFIED'
+                    mavenStage(
+                        splitTests: true,
+                        skipTests: params.SKIP_TESTS,
+                        skipCoverage: params.SKIP_CHECKS,
+                        skipSonar: params.SKIP_CHECKS,
+                        postBuildScript: 'cp boot/target/carbonio-tasks-*-jar-with-dependencies.jar package/carbonio-tasks.jar'
                     )
-                }
-            }
-        }
-
-        stage('SonarQube analysis') {
-            when {
-               allOf {
-                   expression { params.SKIP_CHECKS == false }
-                   anyOf {
-                       branch 'devel'
-                       expression { env.BRANCH_NAME.contains("PR") }
-                   }
-               }
-            }
-            steps {
-                container('jdk-21') {
-                    withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
-                        sh 'mvn -B sonar:sonar'
-                    }
                 }
             }
         }
