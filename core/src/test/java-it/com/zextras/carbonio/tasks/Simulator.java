@@ -60,6 +60,7 @@ public class Simulator implements AutoCloseable {
   private MockServerClient serviceDiscoverMock;
   private Server umGrpcServer;
   private MockUserManagementService umMockService;
+  private ManagedChannel umChannel;
   private org.eclipse.jetty.server.Server jettyServer;
   private LocalConnector httpLocalConnector;
   private boolean isJettyServerEnabled;
@@ -73,16 +74,17 @@ public class Simulator implements AutoCloseable {
   private Simulator createInjector() {
     // Always override the ManagedChannel to use InProcessChannel for test isolation.
     // When isUserManagementEnabled=true, the InProcessServer is running so the channel
-    // connects successfully. When false, no server exists for this name and the channel
-    // enters TRANSIENT_FAILURE (which the health check reports as unhealthy).
+    // connects successfully. When false, the channel is shut down after injector creation
+    // so the health check reports SHUTDOWN (unhealthy).
+    umChannel = InProcessChannelBuilder.forName(UM_INPROCESS_SERVER_NAME)
+        .directExecutor()
+        .build();
     injector = Guice.createInjector(
         Modules.override(new TasksModule()).with(new AbstractModule() {
           @Provides
           @Singleton
           public ManagedChannel provideUserManagementChannel() {
-            return InProcessChannelBuilder.forName(UM_INPROCESS_SERVER_NAME)
-                .directExecutor()
-                .build();
+            return umChannel;
           }
 
           @Provides
@@ -263,6 +265,9 @@ public class Simulator implements AutoCloseable {
       umGrpcServer.shutdownNow();
       umGrpcServer = null;
     }
+    if (umChannel != null) {
+      umChannel.shutdownNow();
+    }
 
     return this;
   }
@@ -370,6 +375,11 @@ public class Simulator implements AutoCloseable {
 
     public Simulator build() {
       simulator.createInjector();
+      // If UM was not started, shut down the channel so the health check sees SHUTDOWN
+      // (not IDLE, which would be reported as healthy).
+      if (!simulator.isUserManagementEnabled && simulator.umChannel != null) {
+        simulator.umChannel.shutdownNow();
+      }
       boolean postgreIsRunning = simulator.postgreSQLContainer != null && simulator.postgreSQLContainer.isRunning();
       boolean serviceDiscoverIsRunning = simulator.serviceDiscoverMock != null && simulator.serviceDiscoverMock.hasStarted();
       if (postgreIsRunning && serviceDiscoverIsRunning) {
