@@ -9,23 +9,25 @@ import com.zextras.carbonio.tasks.dal.DatabaseManager;
 import com.zextras.carbonio.tasks.rest.types.health.DependencyType;
 import com.zextras.carbonio.tasks.rest.types.health.HealthStatus;
 import com.zextras.carbonio.tasks.rest.types.health.ServiceHealth;
-import com.zextras.carbonio.usermanagement.UserManagementClient;
+import io.grpc.ConnectivityState;
+import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class HealthService {
 
   private final DatabaseManager databaseManager;
-  private final UserManagementClient userManagementClient;
+  private final ManagedChannel userManagementChannel;
 
   @Inject
-  public HealthService(DatabaseManager databaseManager, UserManagementClient userManagementClient) {
+  public HealthService(DatabaseManager databaseManager, ManagedChannel userManagementChannel) {
     this.databaseManager = databaseManager;
-    this.userManagementClient = userManagementClient;
+    this.userManagementChannel = userManagementChannel;
   }
 
   public boolean areServiceDependenciesReady() {
-    return databaseManager.isDatabaseLive() && userManagementClient.healthCheck();
+    return databaseManager.isDatabaseLive() && isUserManagementAlive();
   }
 
   public HealthStatus getServiceHealthStatus() {
@@ -53,12 +55,17 @@ public class HealthService {
   }
 
   public ServiceHealth getUserManagementHealth() {
-    boolean userManagementIsLive = userManagementClient.healthCheck();
+    boolean userManagementIsLive = isUserManagementAlive();
 
     return new ServiceHealth()
         .setName("carbonio-user-management")
         .setType(DependencyType.REQUIRED)
         .setLive(userManagementIsLive)
         .setReady(userManagementIsLive);
+  }
+
+  private boolean isUserManagementAlive() {
+    ConnectivityState state = userManagementChannel.getState(true);
+    return state == ConnectivityState.READY || state == ConnectivityState.IDLE;
   }
 }

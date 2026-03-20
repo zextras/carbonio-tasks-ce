@@ -20,9 +20,6 @@ import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.http.HttpTester.Response;
 import org.eclipse.jetty.server.LocalConnector;
 import org.junit.jupiter.api.Test;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.model.HttpResponse;
 
 class HealthApiIT {
 
@@ -39,11 +36,6 @@ class HealthApiIT {
     try (Simulator simulator = simulatorBuilder.build().start()) {
 
       LocalConnector localConnector = simulator.getHttpLocalConnector();
-      MockServerClient userManagementServiceMock = simulator.getUserManagementMock();
-
-      userManagementServiceMock
-          .when(HttpRequest.request().withMethod(HttpMethod.GET.toString()).withPath("/health/"))
-          .respond(HttpResponse.response().withStatusCode(HttpStatus.OK_200));
 
       HttpTester.Request request = HttpTester.newRequest();
       request.setMethod(HttpMethod.GET.toString());
@@ -81,7 +73,7 @@ class HealthApiIT {
       givenUserManagementUnreachableTheHealthShouldReturn502CodeWithTheHealthStatusOfEachDependency()
           throws Exception {
     // Given
-    // Notice tha absence of the UserManagement initialization
+    // Notice the absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator().init().withMinimalServices();
 
@@ -157,11 +149,6 @@ class HealthApiIT {
     try (Simulator simulator = simulatorBuilder.build().start()) {
 
       LocalConnector localConnector = simulator.getHttpLocalConnector();
-      MockServerClient userManagementServiceMock = simulator.getUserManagementMock();
-
-      userManagementServiceMock
-          .when(HttpRequest.request().withMethod(HttpMethod.GET.toString()).withPath("/health/"))
-          .respond(HttpResponse.response().withStatusCode(HttpStatus.OK_200));
 
       HttpTester.Request request = HttpTester.newRequest();
       request.setMethod(HttpMethod.GET.toString());
@@ -181,7 +168,7 @@ class HealthApiIT {
   @Test
   void givenUserManagementUnreachableTheHealthReadyShouldReturn502StatusCode() throws Exception {
     // Given
-    // Notice tha absence of the UserManagement initialization
+    // Notice the absence of the UserManagement initialization
     SimulatorBuilder simulatorBuilder =
         SimulatorBuilder.aSimulator().init().withMinimalServices();
 

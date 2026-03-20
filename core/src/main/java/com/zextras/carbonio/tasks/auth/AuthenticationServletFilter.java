@@ -7,12 +7,13 @@ package com.zextras.carbonio.tasks.auth;
 import com.google.inject.Inject;
 import com.zextras.carbonio.tasks.Constants.Config;
 import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
-import com.zextras.carbonio.usermanagement.UserManagementClient;
-import com.zextras.carbonio.usermanagement.entities.UserId;
-import com.zextras.carbonio.usermanagement.entities.UserMyself;
-import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
-import com.zextras.carbonio.usermanagement.enumerations.UserType;
-import io.vavr.control.Try;
+import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfProto;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
+import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -25,7 +26,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +33,11 @@ public class AuthenticationServletFilter implements Filter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationServletFilter.class);
 
-  private final UserManagementClient userManagementClient;
+  private final UserManagementServiceBlockingStub userManagementStub;
 
   @Inject
-  public AuthenticationServletFilter(UserManagementClient userManagementClient) {
-    this.userManagementClient = userManagementClient;
+  public AuthenticationServletFilter(UserManagementServiceBlockingStub userManagementStub) {
+    this.userManagementStub = userManagementStub;
   }
 
   @Override
@@ -63,40 +63,47 @@ public class AuthenticationServletFilter implements Filter {
 
       if (optZmCookie.isEmpty()) {
         logger.error("The request is unauthorized: the cookie is missing");
-        httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+        httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return;
       }
 
-      // Unfortunately doFilter throws an exception, using the .map would lead to an unreadable code
-      String cookieHeader = Config.ACCEPTED_COOKIE_TYPE + "=" + optZmCookie.get().getValue();
-      Try<UserMyself> tryUserMyself = userManagementClient.getUserMyself(cookieHeader);
+      String token = optZmCookie.get().getValue();
 
-      if (tryUserMyself.isSuccess()){
-        if(tryUserMyself.get().getType().equals(UserType.GUEST)) {
+      try {
+        GetUserMyselfRequest grpcRequest =
+            GetUserMyselfRequest.newBuilder().setToken(token).build();
+        UserMyselfResponse grpcResponse = userManagementStub.getUserMyself(grpcRequest);
+        UserMyselfProto userMyself = grpcResponse.getUser();
+
+        if (userMyself.getInfo().getType() == UserTypeProto.GUEST) {
           logger.error("The request is unauthorized: the user is not an internal one");
-          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
         }
 
-        if(!tryUserMyself.get().getStatus().equals(UserStatus.ACTIVE)) {
+        if (!userMyself.getInfo().getStatus().equalsIgnoreCase("active")) {
           logger.error("The request is unauthorized: the user is not active");
-          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
         }
 
-        String carbonioFeatureTasksEnabled = tryUserMyself.get().getCarbonioAttributes().getOrDefault("carbonioFeatureTasksEnabled", "FALSE");
-        if(carbonioFeatureTasksEnabled.equals("FALSE")) {
+        if (!userMyself.getFeaturesList().contains("carbonioFeatureTasksEnabled")) {
           logger.error("The request is unauthorized: the user is not an internal one");
-          httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+          httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           return;
         }
 
-        httpRequest.setAttribute(Context.REQUESTER_ID, tryUserMyself.get().getId().getUserId());
+        httpRequest.setAttribute(Context.REQUESTER_ID, userMyself.getInfo().getUserId());
         filterChain.doFilter(httpRequest, httpResponse);
 
-      } else {
-        logger.error("The request is unauthorized: the cookie is invalid");
-        httpResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
+      } catch (StatusRuntimeException e) {
+        if (e.getStatus().getCode() == Status.Code.UNAUTHENTICATED) {
+          logger.error("The request is unauthorized: the cookie is invalid");
+          httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+          logger.error("User management service call failed: {}", e.getMessage());
+          httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
       }
     } else {
       logger.error("Unable to authenticate non HTTP requests");

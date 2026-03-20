@@ -21,7 +21,10 @@ import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
 import com.zextras.carbonio.tasks.rest.RestApplication;
 import com.zextras.carbonio.tasks.rest.controllers.HealthController;
 import com.zextras.carbonio.tasks.rest.controllers.HealthControllerImpl;
-import com.zextras.carbonio.usermanagement.UserManagementClient;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
@@ -167,13 +170,17 @@ public class TasksModule extends AbstractModule {
 
   @Provides
   @Singleton
-  public UserManagementClient provideUserManagementClient(TasksConfig config) {
-    final String carbonioUserManagementUrl = String.format(
-        "%s://%s:%s",
-        Constants.Config.UserManagement.DEFAULT_PROTOCOL,
-        config.getUserManagementHost(),
-        config.getUserManagementPort());
+  public ManagedChannel provideUserManagementChannel(TasksConfig config) {
+    String host = config.getUserManagementHost();
+    int port = Integer.parseInt(config.getUserManagementPort());
+    return ManagedChannelBuilder.forAddress(host, port)
+        .usePlaintext()
+        .build();
+  }
 
-    return UserManagementClient.atURL(carbonioUserManagementUrl);
+  @Provides
+  @Singleton
+  public UserManagementServiceBlockingStub provideUserManagementStub(ManagedChannel channel) {
+    return UserManagementServiceGrpc.newBlockingStub(channel);
   }
 }
