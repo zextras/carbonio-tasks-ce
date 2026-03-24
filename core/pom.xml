@@ -154,10 +154,22 @@ SPDX-License-Identifier: AGPL-3.0-only
     </dependency>
 
 
-    <!-- Authentication -->
+    <!-- Authentication (gRPC) -->
     <dependency>
       <groupId>com.zextras.carbonio.user-management</groupId>
-      <artifactId>carbonio-user-management-sdk</artifactId>
+      <artifactId>carbonio-user-management-grpc-sdk</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-inprocess</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>

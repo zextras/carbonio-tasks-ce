@@ -4,13 +4,14 @@
 
 package com.zextras.carbonio.tasks.auth;
 
-import com.zextras.carbonio.usermanagement.UserManagementClient;
-import com.zextras.carbonio.usermanagement.entities.UserId;
-import com.zextras.carbonio.usermanagement.entities.UserMyself;
-import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
-import com.zextras.carbonio.usermanagement.enumerations.UserType;
-import com.zextras.carbonio.usermanagement.exceptions.UnAuthorized;
-import io.vavr.control.Try;
+import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
+import com.zextras.carbonio.user_management.sdk.grpc.UserInfoProto;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfProto;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
+import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletContext;
@@ -21,19 +22,17 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 class AuthenticationServletFilterTest {
 
-  private UserManagementClient userManagementClientMock;
+  private UserManagementServiceBlockingStub userManagementStubMock;
 
   @BeforeEach
   void setUp() {
-    userManagementClientMock = Mockito.mock(UserManagementClient.class);
+    userManagementStubMock = Mockito.mock(UserManagementServiceBlockingStub.class);
   }
 
   @Test
@@ -42,12 +41,12 @@ class AuthenticationServletFilterTest {
     Mockito.when(filterConfigMock.getServletContext())
         .thenReturn(Mockito.mock(ServletContext.class));
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.init(filterConfigMock);
 
     Mockito.verify(filterConfigMock, Mockito.times(1)).getServletContext();
-    Mockito.verifyNoInteractions(userManagementClientMock);
+    Mockito.verifyNoInteractions(userManagementStubMock);
   }
 
   @Test
@@ -62,26 +61,35 @@ class AuthenticationServletFilterTest {
     HttpServletResponse httpResponseMock = Mockito.mock(HttpServletResponse.class);
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
-    UserId userId = new UserId();
-    userId.setUserId("00000000-0000-0000-0000-000000000000");
+    UserInfoProto userInfo = UserInfoProto.newBuilder()
+        .setUserId("00000000-0000-0000-0000-000000000000")
+        .setType(UserTypeProto.INTERNAL)
+        .setStatus("active")
+        .build();
 
-    UserMyself userMyself = new UserMyself();
-    userMyself.setId(userId);
-    userMyself.setType(UserType.INTERNAL);
-    userMyself.setStatus(UserStatus.ACTIVE);
-    userMyself.setCarbonioAttributes(Map.of("carbonioFeatureTasksEnabled", "TRUE"));
+    UserMyselfProto userMyself = UserMyselfProto.newBuilder()
+        .setInfo(userInfo)
+        .addFeatures("carbonioFeatureTasksEnabled")
+        .build();
 
-    Mockito.when(userManagementClientMock.getUserMyself("ZM_AUTH_TOKEN=zm-token"))
-        .thenReturn(Try.success(userMyself));
+    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder()
+        .setUser(userMyself)
+        .build();
+
+    GetUserMyselfRequest expectedRequest =
+        GetUserMyselfRequest.newBuilder().setToken("zm-token").build();
+
+    Mockito.when(userManagementStubMock.getUserMyself(expectedRequest))
+        .thenReturn(grpcResponse);
 
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
 
     Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
 
-    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("ZM_AUTH_TOKEN=zm-token");
+    Mockito.verify(userManagementStubMock, Mockito.times(1)).getUserMyself(expectedRequest);
 
     Mockito.verify(httpRequestMock, Mockito.times(1))
         .setAttribute("requesterId", "00000000-0000-0000-0000-000000000000");
@@ -96,11 +104,11 @@ class AuthenticationServletFilterTest {
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
 
-    Mockito.verifyNoInteractions(userManagementClientMock);
+    Mockito.verifyNoInteractions(userManagementStubMock);
     Mockito.verifyNoInteractions(httpRequestMock);
     Mockito.verifyNoInteractions(httpResponseMock);
     Mockito.verifyNoInteractions(filterChainMock);
@@ -116,7 +124,7 @@ class AuthenticationServletFilterTest {
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
 
@@ -124,7 +132,7 @@ class AuthenticationServletFilterTest {
     Mockito.verify(httpResponseMock, Mockito.times(1))
         .setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-    Mockito.verifyNoInteractions(userManagementClientMock);
+    Mockito.verifyNoInteractions(userManagementStubMock);
     Mockito.verify(httpRequestMock, Mockito.never())
         .setAttribute(Mockito.anyString(), Mockito.anyString());
     Mockito.verifyNoInteractions(filterChainMock);
@@ -139,17 +147,20 @@ class AuthenticationServletFilterTest {
     HttpServletResponse httpResponseMock = Mockito.mock(HttpServletResponse.class);
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
-    Mockito.when(userManagementClientMock.getUserMyself("ZM_AUTH_TOKEN=invalid-token"))
-        .thenReturn(Try.failure(new UnAuthorized()));
+    GetUserMyselfRequest expectedRequest =
+        GetUserMyselfRequest.newBuilder().setToken("invalid-token").build();
+
+    Mockito.when(userManagementStubMock.getUserMyself(expectedRequest))
+        .thenThrow(new StatusRuntimeException(Status.UNAUTHENTICATED));
 
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
 
     Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
 
-    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("ZM_AUTH_TOKEN=invalid-token");
+    Mockito.verify(userManagementStubMock, Mockito.times(1)).getUserMyself(expectedRequest);
 
     Mockito.verify(httpResponseMock, Mockito.times(1))
         .setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -168,24 +179,34 @@ class AuthenticationServletFilterTest {
     HttpServletResponse httpResponseMock = Mockito.mock(HttpServletResponse.class);
     FilterChain filterChainMock = Mockito.mock(FilterChain.class);
 
-    UserId userId = new UserId();
-    userId.setUserId("guest-user-id");
+    UserInfoProto userInfo = UserInfoProto.newBuilder()
+        .setUserId("guest-user-id")
+        .setType(UserTypeProto.GUEST)
+        .setStatus("active")
+        .build();
 
-    UserMyself guestUser = new UserMyself();
-    guestUser.setId(userId);
-    guestUser.setType(UserType.GUEST);
+    UserMyselfProto guestUser = UserMyselfProto.newBuilder()
+        .setInfo(userInfo)
+        .build();
 
-    Mockito.when(userManagementClientMock.getUserMyself("ZM_AUTH_TOKEN=guest-token"))
-        .thenReturn(Try.success(guestUser));
+    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder()
+        .setUser(guestUser)
+        .build();
+
+    GetUserMyselfRequest expectedRequest =
+        GetUserMyselfRequest.newBuilder().setToken("guest-token").build();
+
+    Mockito.when(userManagementStubMock.getUserMyself(expectedRequest))
+        .thenReturn(grpcResponse);
 
     AuthenticationServletFilter authenticationServletFilter =
-        new AuthenticationServletFilter(userManagementClientMock);
+        new AuthenticationServletFilter(userManagementStubMock);
 
     authenticationServletFilter.doFilter(httpRequestMock, httpResponseMock, filterChainMock);
 
     Mockito.verify(httpRequestMock, Mockito.times(1)).getCookies();
 
-    Mockito.verify(userManagementClientMock, Mockito.times(1)).getUserMyself("ZM_AUTH_TOKEN=guest-token");
+    Mockito.verify(userManagementStubMock, Mockito.times(1)).getUserMyself(expectedRequest);
 
     Mockito.verify(httpResponseMock, Mockito.times(1))
         .setStatus(HttpServletResponse.SC_UNAUTHORIZED);

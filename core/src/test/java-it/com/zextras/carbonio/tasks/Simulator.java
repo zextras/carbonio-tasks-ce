@@ -4,60 +4,96 @@
 
 package com.zextras.carbonio.tasks;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.servlet.GuiceFilter;
+import com.google.inject.util.Modules;
 import com.zextras.carbonio.tasks.Constants.Config.Database;
-import com.zextras.carbonio.tasks.Constants.Config.UserManagement;
 import com.zextras.carbonio.tasks.config.TasksModule;
 import com.zextras.carbonio.tasks.dal.DatabaseManager;
-import com.zextras.carbonio.usermanagement.entities.UserId;
-import com.zextras.carbonio.usermanagement.entities.UserMyself;
-import com.zextras.carbonio.usermanagement.enumerations.UserStatus;
-import com.zextras.carbonio.usermanagement.enumerations.UserType;
+import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
+import com.zextras.carbonio.user_management.sdk.grpc.UserInfoProto;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc;
+import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfProto;
+import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
+import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.Status;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.StreamObserver;
 import jakarta.servlet.DispatcherType;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.LocalConnector;
-import org.eclipse.jetty.server.Server;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
-import org.mockserver.model.Cookie;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
-import org.mockserver.model.JsonBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.trilead.ssh2.crypto.Base64;
 
-import java.sql.SQLException;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Map;
-
 @Testcontainers
 public class Simulator implements AutoCloseable {
 
   public static final String DATABASE_PASSWORD = "test-password";
   private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
+  private static final String UM_INPROCESS_SERVER_NAME = "um-test";
+
   private Injector injector;
   private PostgreSQLContainer<?> postgreSQLContainer;
   private ClientAndServer clientAndServer;
   private MockServerClient serviceDiscoverMock;
-  private MockServerClient userManagementMock;
-  private Server jettyServer;
+  private Server umGrpcServer;
+  private MockUserManagementService umMockService;
+  private ManagedChannel umChannel;
+  private org.eclipse.jetty.server.Server jettyServer;
   private LocalConnector httpLocalConnector;
   private boolean isJettyServerEnabled;
+  private boolean isUserManagementEnabled;
 
   public Simulator() {
     isJettyServerEnabled = false;
+    isUserManagementEnabled = false;
   }
 
   private Simulator createInjector() {
-    injector = Guice.createInjector(new TasksModule());
+    // Always override the ManagedChannel to use InProcessChannel for test isolation.
+    // When isUserManagementEnabled=true, the InProcessServer is running so the channel
+    // connects successfully. When false, the channel is shut down after injector creation
+    // so the health check reports SHUTDOWN (unhealthy).
+    umChannel = InProcessChannelBuilder.forName(UM_INPROCESS_SERVER_NAME)
+        .directExecutor()
+        .build();
+    injector = Guice.createInjector(
+        Modules.override(new TasksModule()).with(new AbstractModule() {
+          @Provides
+          @Singleton
+          public ManagedChannel provideUserManagementChannel() {
+            return umChannel;
+          }
+
+          @Provides
+          @Singleton
+          public UserManagementServiceBlockingStub provideUserManagementStub(
+              ManagedChannel channel) {
+            return UserManagementServiceGrpc.newBlockingStub(channel);
+          }
+        }));
     return this;
   }
 
@@ -152,32 +188,37 @@ public class Simulator implements AutoCloseable {
   }
 
   public Simulator startUserManagement() {
-
-    startMockServer();
-    userManagementMock = new MockServerClient("localhost", UserManagement.DEFAULT_PORT);
-    System.setProperty(UserManagement.HOST_PROPERTY, "localhost");
+    umMockService = new MockUserManagementService();
+    try {
+      umGrpcServer = InProcessServerBuilder.forName(UM_INPROCESS_SERVER_NAME)
+          .directExecutor()
+          .addService(umMockService)
+          .build()
+          .start();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to start User Management gRPC in-process server", e);
+    }
+    isUserManagementEnabled = true;
     return this;
   }
 
-  private void getUser(String cookie, String userId) {
-    final UserMyself userInfo =
-        new UserMyself(
-            new UserId(userId),
-            "fake-email@example.com",
-            "Fake User",
-            "example.com",
-            UserStatus.ACTIVE,
-            Locale.ENGLISH,
-            UserType.INTERNAL,
-            Map.of("carbonioFeatureTasksEnabled", "TRUE"));
+  private void registerUser(String token, String userId) {
+    UserInfoProto userInfo = UserInfoProto.newBuilder()
+        .setUserId(userId)
+        .setEmail("fake-email@example.com")
+        .setFullName("Fake User")
+        .setDomain("example.com")
+        .setStatus("active")
+        .setType(UserTypeProto.INTERNAL)
+        .build();
 
-    userManagementMock
-        .when(
-            HttpRequest.request()
-                .withMethod(HttpMethod.GET.toString())
-                .withPath("/users/myself/")
-                .withCookie(Cookie.cookie("ZM_AUTH_TOKEN", cookie)))
-        .respond(HttpResponse.response().withStatusCode(200).withBody(JsonBody.json(userInfo)));
+    UserMyselfProto userMyself = UserMyselfProto.newBuilder()
+        .setInfo(userInfo)
+        .setLocale("en")
+        .addFeatures("carbonioFeatureTasksEnabled")
+        .build();
+
+    umMockService.registerToken(token, userMyself);
   }
 
   public Simulator enableJettyServer() {
@@ -220,8 +261,12 @@ public class Simulator implements AutoCloseable {
   }
 
   private Simulator stopUserManagement() {
-    if (userManagementMock != null && userManagementMock.hasStarted()) {
-      userManagementMock.stop();
+    if (umGrpcServer != null) {
+      umGrpcServer.shutdownNow();
+      umGrpcServer = null;
+    }
+    if (umChannel != null) {
+      umChannel.shutdownNow();
     }
 
     return this;
@@ -243,23 +288,19 @@ public class Simulator implements AutoCloseable {
     return serviceDiscoverMock;
   }
 
-  public MockServerClient getUserManagementMock() {
-    return userManagementMock;
-  }
-
   public LocalConnector getHttpLocalConnector() {
     return httpLocalConnector;
   }
 
   private void startMockServer() {
     if (clientAndServer == null) {
-      clientAndServer = ClientAndServer.startClientAndServer(8500, UserManagement.DEFAULT_PORT);
+      clientAndServer = ClientAndServer.startClientAndServer(8500);
     }
   }
 
   private void startJettyServer() {
     try {
-      jettyServer = new Server();
+      jettyServer = new org.eclipse.jetty.server.Server();
       httpLocalConnector = new LocalConnector(jettyServer);
       jettyServer.addConnector(httpLocalConnector);
 
@@ -316,10 +357,7 @@ public class Simulator implements AutoCloseable {
 
     public SimulatorBuilder withUserManagement(Map<String, String> users) {
       simulator.startUserManagement();
-      users.forEach(
-          (cookie, userId) -> {
-            simulator.getUser(cookie, userId);
-          });
+      users.forEach(simulator::registerUser);
       return this;
     }
 
@@ -337,6 +375,11 @@ public class Simulator implements AutoCloseable {
 
     public Simulator build() {
       simulator.createInjector();
+      // If UM was not started, shut down the channel so the health check sees SHUTDOWN
+      // (not IDLE, which would be reported as healthy).
+      if (!simulator.isUserManagementEnabled && simulator.umChannel != null) {
+        simulator.umChannel.shutdownNow();
+      }
       boolean postgreIsRunning = simulator.postgreSQLContainer != null && simulator.postgreSQLContainer.isRunning();
       boolean serviceDiscoverIsRunning = simulator.serviceDiscoverMock != null && simulator.serviceDiscoverMock.hasStarted();
       if (postgreIsRunning && serviceDiscoverIsRunning) {
@@ -349,6 +392,33 @@ public class Simulator implements AutoCloseable {
         logger.warn("Database not initialized since database container is not running (add withDatabase to your simulator builder to initialize database)");
       }
       return simulator;
+    }
+  }
+
+  /**
+   * In-process gRPC implementation of UserManagementService for integration tests.
+   */
+  public static class MockUserManagementService
+      extends UserManagementServiceGrpc.UserManagementServiceImplBase {
+
+    private final Map<String, UserMyselfProto> tokenToUserMyself = new HashMap<>();
+
+    public void registerToken(String token, UserMyselfProto userMyself) {
+      tokenToUserMyself.put(token, userMyself);
+    }
+
+    @Override
+    public void getUserMyself(
+        GetUserMyselfRequest request, StreamObserver<UserMyselfResponse> responseObserver) {
+      String token = request.getToken();
+      UserMyselfProto userMyself = tokenToUserMyself.get(token);
+      if (userMyself == null) {
+        responseObserver.onError(
+            Status.UNAUTHENTICATED.withDescription("Invalid token").asRuntimeException());
+        return;
+      }
+      responseObserver.onNext(UserMyselfResponse.newBuilder().setUser(userMyself).build());
+      responseObserver.onCompleted();
     }
   }
 }
