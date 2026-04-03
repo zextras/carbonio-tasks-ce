@@ -2,8 +2,25 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-@Library('jenkins-lib-common') _
+library(
+    identifier: 'jenkins-lib-common@dt3-migration',
+    retriever: modernSCM([
+        $class: 'GitSCMSource',
+        credentialsId: 'jenkins-integration-with-github-account',
+        remote: 'git@github.com:zextras/jenkins-lib-common.git',
+    ])
+)
 
-dt3_pipeline([
-  appModule: 'app'
-])
+dt3_pipeline(
+    repoName: 'carbonio-tasks-ce',
+    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
+    packaging: [pkgbuildPath: 'package/PKGBUILD'],
+    docker: [
+        [dockerfile: 'Dockerfile',
+         imageName: 'carbonio-tasks-ce',
+         title: 'Carbonio Tasks CE',
+         description: 'Carbonio Tasks CE Service'],
+    ],
+    sonarqube: true,
+    reuse: [projectType: 'CE'],
+)

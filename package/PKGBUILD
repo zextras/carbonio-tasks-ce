@@ -15,7 +15,6 @@ url="https://www.zextras.com/"
 depends=(
   "service-discover"
   "pending-setups"
-  "carbonio-openjdk"
 )
 source=(
   "421-carbonio-tasks.sh"
@@ -24,7 +23,7 @@ source=(
   "carbonio-tasks.service"
   "carbonio-tasks-setup"
   "carbonio-tasks-sidecar.service"
-  "carbonio-tasks.jar"
+  "carbonio-tasks-ce-runner"
   "intentions.json"
   "policies.json"
   "service-protocol.json"
@@ -55,8 +54,8 @@ package() {
   install -Dm 755 carbonio-tasks-setup \
     "${pkgdir}/usr/bin/carbonio-tasks-setup"
 
-  install -Dm 755 carbonio-tasks.jar \
-    "${pkgdir}/usr/share/carbonio/carbonio-tasks.jar"
+  install -Dm 755 carbonio-tasks-ce-runner \
+    "${pkgdir}/usr/share/carbonio/carbonio-tasks-ce-runner"
 
   install -Dm 644 carbonio-tasks.service \
     "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
