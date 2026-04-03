@@ -45,12 +45,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     <maven.compiler.target>21</maven.compiler.target>
     <java-compiler.version>21</java-compiler.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.coverage.jacoco.xmlReportPaths>
-      app/target/jacoco-full-report/jacoco.xml
-    </sonar.coverage.jacoco.xmlReportPaths>
-    <sonar.sources>app/src/main/java</sonar.sources>
-    <sonar.tests>app/src/test/java</sonar.tests>
-    <sonar.java.binaries>app/target/classes</sonar.java.binaries>
     <sonar.dependencyCheck.htmlReportPath>
       ./dependency-check-report.html
     </sonar.dependencyCheck.htmlReportPath>

@@ -13,7 +13,7 @@ library(
 
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
-    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
+    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
     packaging: [pkgbuildPath: 'package/PKGBUILD'],
     docker: [
         [dockerfile: 'Dockerfile',
