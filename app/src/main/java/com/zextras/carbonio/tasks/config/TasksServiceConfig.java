@@ -7,9 +7,12 @@ package com.zextras.carbonio.tasks.config;
 import com.zextras.carbonio.quarkus.extensions.bootstrap.ConfigKey;
 
 /**
- * Declares all networking and application config keys consumed by carbonio-tasks. These constants
- * are used with {@code NetworkingConfigService} and {@code ApplicationConfigService} at runtime and
- * are discovered by the build-time documentation generator via Jandex.
+ * Declares all networking config keys consumed by carbonio-tasks. These constants
+ * are used with {@code NetworkingConfigService} at runtime and are discovered by
+ * the build-time documentation generator via Jandex.
+ *
+ * <p>Application (Consul KV) config keys are defined in
+ * {@code CarbonioDatabaseServiceConfig.ApplicationConfig} from the database extension.
  */
 public final class TasksServiceConfig {
 
@@ -34,42 +37,5 @@ public final class TasksServiceConfig {
     /** PostgreSQL port (must match the database extension's expected key). */
     @ConfigKey
     public static final String POSTGRES_PORT = "carbonio.postgresql.port";
-  }
-
-  public static final class ApplicationConfig {
-
-    private ApplicationConfig() {}
-
-    /** Database name fetched from Consul KV. */
-    @ConfigKey
-    public static final String DB_NAME = "db-name";
-
-    /** Database username fetched from Consul KV. */
-    @ConfigKey
-    public static final String DB_USERNAME = "db-username";
-
-    /** Database password fetched from Consul KV. */
-    @ConfigKey
-    public static final String DB_PASSWORD = "db-password";
-
-    /** Hikari maximum pool size fetched from Consul KV. */
-    @ConfigKey
-    public static final String HIKARI_MAX_POOL_SIZE = "hikari-max-pool-size";
-
-    /** Hikari minimum idle connections fetched from Consul KV. */
-    @ConfigKey
-    public static final String HIKARI_MIN_IDLE_CONNECTIONS = "hikari-min-idle-connections";
-
-    /** Hikari idle timeout (ms) fetched from Consul KV. */
-    @ConfigKey
-    public static final String HIKARI_IDLE_TIMEOUT = "hikari-idle-timeout";
-
-    /** Hikari leak detection threshold (ms) fetched from Consul KV. */
-    @ConfigKey
-    public static final String HIKARI_LEAK_DETECTION_THRESHOLD = "hikari-leak-detection-threshold";
-
-    /** Hikari max lifetime (ms) fetched from Consul KV. */
-    @ConfigKey
-    public static final String HIKARI_MAX_LIFETIME = "hikari-max-lifetime";
   }
 }
