@@ -13,9 +13,9 @@ section="admin"
 priority="optional"
 url="https://www.zextras.com/"
 depends=(
-  "service-discover"
-  "pending-setups"
   "carbonio-openjdk"
+  "pending-setups"
+  "service-discover"
 )
 source=(
   "421-carbonio-tasks.sh"
@@ -24,67 +24,82 @@ source=(
   "carbonio-tasks.service"
   "carbonio-tasks-setup"
   "carbonio-tasks-sidecar.service"
+  "carbonio-tasks-sidecar-legacy.service"
   "carbonio-tasks.jar"
   "intentions.json"
   "policies.json"
   "service-protocol.json"
 )
 sha256sums=(
-  "c0b090cf42d0b0c59815261f9b14141ca234916e6edef30f9777d0decb9dce44"
-  "c01491ca3ddc786fd0d39fcbe37e09c989d646ee61c4fd1ba16a65b088ac5a68"
-  "913f5c12025c40875e015dfe5e65843c047aea315f19098d30f92d5fb2475c97"
-  "aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893"
-  "0112bf239e9f14f79fc62032abad6b0178cd0c58d3ca83b045ebed78ef0b8f24"
-  "7f56e880636978d3170052622a33447d873121ba407ca215fe620a1e6ec960d7"
-  "SKIP"
-  "6915995b96568ffc4f207b74b126908231e0a4df12a97d83f07307258640cc2d"
-  "9f837e3573888b27c2ee3723414982bfa55388564de5e3d801cb55e8e6836b32"
-  "a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e"
+  'c0b090cf42d0b0c59815261f9b14141ca234916e6edef30f9777d0decb9dce44'
+  'c01491ca3ddc786fd0d39fcbe37e09c989d646ee61c4fd1ba16a65b088ac5a68'
+  '913f5c12025c40875e015dfe5e65843c047aea315f19098d30f92d5fb2475c97'
+  'aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893'
+  '0112bf239e9f14f79fc62032abad6b0178cd0c58d3ca83b045ebed78ef0b8f24'
+  '7e50db9261e554a55faa856475823f754c181595b7d915e9b935fc9d2ded60c7'
+  '8b058646272c0d381af08ffad8af49c11f232b5d381a947ecde32e43a8785b7a'
+  'SKIP'
+  '6915995b96568ffc4f207b74b126908231e0a4df12a97d83f07307258640cc2d'
+  '9f837e3573888b27c2ee3723414982bfa55388564de5e3d801cb55e8e6836b32'
+  'a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e'
 )
 backup=(
   "etc/zextras/service-discover/carbonio-tasks.hcl"
   "etc/carbonio/tasks/config.properties"
 )
 
-package() {
-  cd "${srcdir}"
-
-  install -Dm 755 carbonio-tasks \
+_package_common() {
+  install -Dm755 "${srcdir}/carbonio-tasks" \
     "${pkgdir}/usr/bin/carbonio-tasks"
 
-  install -Dm 755 carbonio-tasks-setup \
+  install -Dm755 "${srcdir}/carbonio-tasks-setup" \
     "${pkgdir}/usr/bin/carbonio-tasks-setup"
 
-  install -Dm 755 carbonio-tasks.jar \
+  install -Dm755 "${srcdir}/carbonio-tasks.jar" \
     "${pkgdir}/usr/share/carbonio/carbonio-tasks.jar"
 
-  install -Dm 644 carbonio-tasks.service \
+  install -Dm644 "${srcdir}/carbonio-tasks.service" \
     "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
 
-  install -Dm 644 carbonio-tasks-sidecar.service \
-    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
-
-  install -Dm 644 carbonio-tasks.hcl \
+  install -Dm644 "${srcdir}/carbonio-tasks.hcl" \
     "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
 
-  install -Dm 644 421-carbonio-tasks.sh \
+  install -Dm644 "${srcdir}/421-carbonio-tasks.sh" \
     "${pkgdir}/etc/zextras/pending-setups.d/421-carbonio-tasks.sh"
 
-  install -Dm 644 intentions.json \
+  install -Dm644 "${srcdir}/intentions.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/intentions.json"
 
-  install -Dm 644 policies.json \
+  install -Dm644 "${srcdir}/policies.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/policies.json"
 
-  install -Dm 644 service-protocol.json \
+  install -Dm644 "${srcdir}/service-protocol.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/service-protocol.json"
 }
 
+_package_systemd() {
+  _package_common
+
+  install -Dm644 "${srcdir}/carbonio-tasks-sidecar.service" \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+}
+
+_package_legacy() {
+  _package_common
+
+  install -Dm644 "${srcdir}/carbonio-tasks-sidecar-legacy.service" \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+}
+
+package() { _package_systemd; }
+package__rocky_8() { _package_legacy; }
+package__ubuntu_jammy() { _package_legacy; }
+
 postinst() {
-  getent group 'carbonio-tasks' >/dev/null ||
-    groupadd -r 'carbonio-tasks'
-  getent passwd 'carbonio-tasks' >/dev/null ||
-    useradd -r -M -g 'carbonio-tasks' -s /sbin/nologin 'carbonio-tasks'
+  getent group 'carbonio-tasks' >/dev/null \
+    || groupadd -r 'carbonio-tasks'
+  getent passwd 'carbonio-tasks' >/dev/null \
+    || useradd -r -M -g 'carbonio-tasks' -s /sbin/nologin 'carbonio-tasks'
 
   mkdir -p "/var/log/carbonio/tasks/"
   chown carbonio-tasks:carbonio-tasks "/var/log/carbonio/tasks"
