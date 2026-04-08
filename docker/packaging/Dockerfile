@@ -7,7 +7,7 @@ WORKDIR /staging
 COPY ../../. .
 
 RUN mkdir -p package && \
-    cp ./boot/target/carbonio-tasks-ce-*-jar-with-dependencies.jar package/carbonio-tasks.jar 2>/dev/null
+    cp ./app/target/carbonio-tasks-ce-app-*-runner package/carbonio-tasks-ce-runner
 
 # Stage Ubuntu 20.04 (Focal)
 FROM docker.io/m0rf30/yap-ubuntu-focal:1.44 AS ubuntu-focal-builder
