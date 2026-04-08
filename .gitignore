@@ -29,4 +29,4 @@ LICENSES
 
 # Quarkus build artifacts
 .flattened-pom.xml
-META-INF/
+/META-INF/
