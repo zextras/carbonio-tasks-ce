@@ -80,12 +80,6 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>quarkus-flyway</artifactId>
     </dependency>
 
-    <!-- GraphQL: SmallRye -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-graphql</artifactId>
-    </dependency>
-
     <!-- REST: Quarkus REST (RESTEasy Reactive) with Jackson -->
     <dependency>
       <groupId>io.quarkus</groupId>
