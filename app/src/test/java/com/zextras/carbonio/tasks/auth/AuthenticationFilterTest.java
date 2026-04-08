@@ -5,7 +5,6 @@
 package com.zextras.carbonio.tasks.auth;
 
 import com.zextras.carbonio.tasks.clients.UserManagementClient;
-import com.zextras.carbonio.tasks.graphql.RequestContext;
 import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
 import com.zextras.carbonio.user_management.sdk.grpc.UserInfoProto;
 import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
@@ -14,12 +13,10 @@ import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
 import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.Map;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,20 +31,17 @@ class AuthenticationFilterTest {
 
   private UserManagementClient umClientMock;
   private UserManagementServiceBlockingStub stubMock;
-  private RequestContext requestContext;
   private AuthenticationFilter filter;
 
   @BeforeEach
   void setUp() throws Exception {
     umClientMock = Mockito.mock(UserManagementClient.class);
     stubMock = Mockito.mock(UserManagementServiceBlockingStub.class);
-    requestContext = new RequestContext();
 
     Mockito.when(umClientMock.getBlockingStub()).thenReturn(stubMock);
 
     filter = new AuthenticationFilter();
     inject(filter, "userManagementClient", umClientMock);
-    inject(filter, "requestContext", requestContext);
   }
 
   private static void inject(Object target, String fieldName, Object value) throws Exception {
@@ -56,28 +50,23 @@ class AuthenticationFilterTest {
     field.set(target, value);
   }
 
-  private ContainerRequestContext buildRequestContext(String path, Map<String, Cookie> cookies) {
-    ContainerRequestContext ctx = Mockito.mock(ContainerRequestContext.class);
-    UriInfo uriInfo = Mockito.mock(UriInfo.class);
-    Mockito.when(uriInfo.getPath()).thenReturn(path);
-    Mockito.when(ctx.getUriInfo()).thenReturn(uriInfo);
-    Mockito.when(ctx.getCookies()).thenReturn(cookies);
+  private RoutingContext buildRoutingContext(Cookie cookie) {
+    RoutingContext ctx = Mockito.mock(RoutingContext.class);
+    HttpServerRequest request = Mockito.mock(HttpServerRequest.class);
+    HttpServerResponse response = Mockito.mock(HttpServerResponse.class);
+
+    Mockito.when(ctx.request()).thenReturn(request);
+    Mockito.when(ctx.response()).thenReturn(response);
+    Mockito.when(response.setStatusCode(Mockito.anyInt())).thenReturn(response);
+
+    Mockito.when(request.getCookie("ZM_AUTH_TOKEN")).thenReturn(cookie);
     return ctx;
   }
 
   @Test
-  void givenAHealthRequestTheFilterShouldSkipAuthentication() {
-    ContainerRequestContext ctx = buildRequestContext("rest/health/live", Map.of());
-
-    filter.filter(ctx);
-
-    Mockito.verify(ctx, Mockito.never()).abortWith(Mockito.any());
-    Mockito.verifyNoInteractions(umClientMock);
-  }
-
-  @Test
   void givenAValidCookieForAnActiveInternalUserWithTasksFeatureTheFilterShouldSetRequesterId() {
-    Cookie zmCookie = new Cookie("ZM_AUTH_TOKEN", "valid-token");
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("valid-token");
 
     UserInfoProto userInfo =
         UserInfoProto.newBuilder()
@@ -99,31 +88,34 @@ class AuthenticationFilterTest {
 
     Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
 
-    ContainerRequestContext ctx =
-        buildRequestContext("graphql", Map.of("ZM_AUTH_TOKEN", zmCookie));
+    RoutingContext ctx = buildRoutingContext(zmCookie);
 
     filter.filter(ctx);
 
-    Assertions.assertThat(requestContext.getRequesterId())
-        .isEqualTo("00000000-0000-0000-0000-000000000000");
-    Mockito.verify(ctx, Mockito.never()).abortWith(Mockito.any());
+    ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Object> valueCaptor = ArgumentCaptor.forClass(Object.class);
+    Mockito.verify(ctx).put(keyCaptor.capture(), valueCaptor.capture());
+    Assertions.assertThat(valueCaptor.getValue()).isEqualTo("00000000-0000-0000-0000-000000000000");
+    Mockito.verify(ctx).next();
+    Mockito.verify(ctx.response(), Mockito.never()).setStatusCode(401);
   }
 
   @Test
-  void givenMissingCookieTheFilterShouldAbortWith401() {
-    ContainerRequestContext ctx = buildRequestContext("graphql", Map.of());
+  void givenMissingCookieTheFilterShouldRespondWith401() {
+    RoutingContext ctx = buildRoutingContext(null);
 
     filter.filter(ctx);
 
-    ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
-    Mockito.verify(ctx).abortWith(captor.capture());
-    Assertions.assertThat(captor.getValue().getStatus()).isEqualTo(401);
+    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
     Mockito.verifyNoInteractions(umClientMock);
   }
 
   @Test
-  void givenAnInvalidTokenTheFilterShouldAbortWith401() {
-    Cookie zmCookie = new Cookie("ZM_AUTH_TOKEN", "invalid-token");
+  void givenAnInvalidTokenTheFilterShouldRespondWith401() {
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("invalid-token");
 
     GetUserMyselfRequest expectedRequest =
         GetUserMyselfRequest.newBuilder().setToken("invalid-token").build();
@@ -131,19 +123,19 @@ class AuthenticationFilterTest {
     Mockito.when(stubMock.getUserMyself(expectedRequest))
         .thenThrow(new StatusRuntimeException(Status.UNAUTHENTICATED));
 
-    ContainerRequestContext ctx =
-        buildRequestContext("graphql", Map.of("ZM_AUTH_TOKEN", zmCookie));
+    RoutingContext ctx = buildRoutingContext(zmCookie);
 
     filter.filter(ctx);
 
-    ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
-    Mockito.verify(ctx).abortWith(captor.capture());
-    Assertions.assertThat(captor.getValue().getStatus()).isEqualTo(401);
+    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
   }
 
   @Test
-  void givenAGuestUserTheFilterShouldAbortWith401() {
-    Cookie zmCookie = new Cookie("ZM_AUTH_TOKEN", "guest-token");
+  void givenAGuestUserTheFilterShouldRespondWith401() {
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("guest-token");
 
     UserInfoProto userInfo =
         UserInfoProto.newBuilder()
@@ -160,19 +152,19 @@ class AuthenticationFilterTest {
 
     Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
 
-    ContainerRequestContext ctx =
-        buildRequestContext("graphql", Map.of("ZM_AUTH_TOKEN", zmCookie));
+    RoutingContext ctx = buildRoutingContext(zmCookie);
 
     filter.filter(ctx);
 
-    ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
-    Mockito.verify(ctx).abortWith(captor.capture());
-    Assertions.assertThat(captor.getValue().getStatus()).isEqualTo(401);
+    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
   }
 
   @Test
-  void givenAnInactiveUserTheFilterShouldAbortWith401() {
-    Cookie zmCookie = new Cookie("ZM_AUTH_TOKEN", "inactive-token");
+  void givenAnInactiveUserTheFilterShouldRespondWith401() {
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("inactive-token");
 
     UserInfoProto userInfo =
         UserInfoProto.newBuilder()
@@ -189,13 +181,41 @@ class AuthenticationFilterTest {
 
     Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
 
-    ContainerRequestContext ctx =
-        buildRequestContext("graphql", Map.of("ZM_AUTH_TOKEN", zmCookie));
+    RoutingContext ctx = buildRoutingContext(zmCookie);
 
     filter.filter(ctx);
 
-    ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
-    Mockito.verify(ctx).abortWith(captor.capture());
-    Assertions.assertThat(captor.getValue().getStatus()).isEqualTo(401);
+    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
+  }
+
+  @Test
+  void givenAUserWithoutTasksFeatureTheFilterShouldRespondWith401() {
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("no-tasks-token");
+
+    UserInfoProto userInfo =
+        UserInfoProto.newBuilder()
+            .setUserId("user-id")
+            .setType(UserTypeProto.INTERNAL)
+            .setStatus("active")
+            .build();
+
+    UserMyselfProto userMyself = UserMyselfProto.newBuilder().setInfo(userInfo).build();
+    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder().setUser(userMyself).build();
+
+    GetUserMyselfRequest expectedRequest =
+        GetUserMyselfRequest.newBuilder().setToken("no-tasks-token").build();
+
+    Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
+
+    RoutingContext ctx = buildRoutingContext(zmCookie);
+
+    filter.filter(ctx);
+
+    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
   }
 }

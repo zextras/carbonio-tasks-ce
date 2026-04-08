@@ -4,25 +4,31 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
+import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 /**
- * Request-scoped CDI bean used to propagate authentication state from the JAX-RS
- * {@link com.zextras.carbonio.tasks.auth.AuthenticationFilter} to the SmallRye GraphQL API layer.
+ * Request-scoped CDI bean used to expose authentication state to the SmallRye GraphQL API layer.
  *
- * <p>The filter sets {@link #requesterId} after a successful gRPC validation; the GraphQL API
- * reads it to scope queries and mutations to the authenticated user.
+ * <p>The {@link com.zextras.carbonio.tasks.auth.AuthenticationFilter} stores the authenticated
+ * user's ID in the Vert.x {@link RoutingContext} under {@link Context#REQUESTER_ID} before the
+ * GraphQL data-fetcher runs. This bean reads from the routing context so that data-fetchers can
+ * call {@link #getRequesterId()} without knowing the underlying transport.
  */
 @RequestScoped
 public class RequestContext {
 
-  private String requesterId;
+  @Inject
+  RoutingContext routingContext;
 
   public String getRequesterId() {
-    return requesterId;
+    return routingContext.get(Context.REQUESTER_ID);
   }
 
+  /** For unit tests only — allows direct injection without a running Vert.x context. */
   public void setRequesterId(String requesterId) {
-    this.requesterId = requesterId;
+    routingContext.put(Context.REQUESTER_ID, requesterId);
   }
 }

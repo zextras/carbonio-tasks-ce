@@ -5,8 +5,8 @@
 package com.zextras.carbonio.tasks.auth;
 
 import com.zextras.carbonio.tasks.Constants.Config;
+import com.zextras.carbonio.tasks.Constants.GraphQL.Context;
 import com.zextras.carbonio.tasks.clients.UserManagementClient;
-import com.zextras.carbonio.tasks.graphql.RequestContext;
 import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
 import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
 import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfProto;
@@ -14,56 +14,59 @@ import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
 import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.Provider;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JAX-RS {@link ContainerRequestFilter} that:
+ * Vert.x route handler that:
  *
  * <ol>
- *   <li>Runs on every request.
+ *   <li>Runs on every HTTP request.
  *   <li>Skips requests that are NOT targeting {@code /graphql} (e.g., health endpoints).
  *   <li>Extracts the {@code ZM_AUTH_TOKEN} cookie and validates it against carbonio-user-management
  *       via gRPC blocking stub.
- *   <li>On success, populates the request-scoped {@link RequestContext} with the {@code requesterId}
- *       so the GraphQL data-fetchers can scope queries to the caller.
+ *   <li>On success, stores the {@code requesterId} in the Vert.x {@link RoutingContext} so the
+ *       request-scoped {@link com.zextras.carbonio.tasks.graphql.RequestContext} can expose it to
+ *       GraphQL data-fetchers.
  * </ol>
+ *
+ * <p>Registered via CDI observer on {@link Router} with priority 100, which runs before the
+ * SmallRye GraphQL handler at order 1000.
  */
-@Provider
 @ApplicationScoped
-public class AuthenticationFilter implements ContainerRequestFilter {
+public class AuthenticationFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
   @Inject
   UserManagementClient userManagementClient;
 
-  @Inject
-  RequestContext requestContext;
+  /**
+   * Registers the auth handler on the Vert.x router. Called once at startup when Quarkus publishes
+   * the {@link Router} CDI event.
+   */
+  public void registerRoutes(@Observes Router router) {
+    // blockingHandler ensures the gRPC blocking stub call is NOT made from the event loop
+    router.route("/graphql").order(-100).blockingHandler(this::filter);
+    router.route("/graphql/").order(-100).blockingHandler(this::filter);
+  }
 
-  @Override
-  public void filter(ContainerRequestContext ctx) {
-    String path = ctx.getUriInfo().getPath();
-
-    // Health endpoints are intentionally unauthenticated
-    if (!path.startsWith("graphql")) {
-      return;
-    }
-
-    Map<String, Cookie> cookies = ctx.getCookies();
-    Cookie zmCookie = cookies.get(Config.ACCEPTED_COOKIE_TYPE);
+  /**
+   * Core auth logic. Called for every request matching {@code /graphql} or {@code /graphql/}.
+   * Sets {@link Context#REQUESTER_ID} in the routing context on success, or ends the response with
+   * HTTP 401 on failure.
+   */
+  void filter(RoutingContext ctx) {
+    io.vertx.core.http.Cookie zmCookie = ctx.request().getCookie(Config.ACCEPTED_COOKIE_TYPE);
 
     if (zmCookie == null) {
       logger.error("The request is unauthorized: the ZM_AUTH_TOKEN cookie is missing");
-      ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+      ctx.response().setStatusCode(401).end();
       return;
     }
 
@@ -77,23 +80,24 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
       if (userMyself.getInfo().getType() == UserTypeProto.GUEST) {
         logger.error("The request is unauthorized: the user is a guest");
-        ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        ctx.response().setStatusCode(401).end();
         return;
       }
 
       if (!userMyself.getInfo().getStatus().equalsIgnoreCase("active")) {
         logger.error("The request is unauthorized: the user is not active");
-        ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        ctx.response().setStatusCode(401).end();
         return;
       }
 
       if (!userMyself.getFeaturesList().contains("carbonioFeatureTasksEnabled")) {
         logger.error("The request is unauthorized: the user does not have Tasks feature enabled");
-        ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        ctx.response().setStatusCode(401).end();
         return;
       }
 
-      requestContext.setRequesterId(userMyself.getInfo().getUserId());
+      ctx.put(Context.REQUESTER_ID, userMyself.getInfo().getUserId());
+      ctx.next();
 
     } catch (StatusRuntimeException e) {
       if (e.getStatus().getCode() == Status.Code.UNAUTHENTICATED) {
@@ -101,7 +105,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
       } else {
         logger.error("User management service call failed: {}", e.getMessage());
       }
-      ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+      ctx.response().setStatusCode(401).end();
     }
   }
 }
