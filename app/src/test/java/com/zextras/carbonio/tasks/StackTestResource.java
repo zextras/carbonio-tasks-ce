@@ -42,6 +42,9 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   private static final String TEST_USER_EMAIL = "test-user@carbonio.localhost";
   private static final String TEST_PASSWORD = "test-password";
 
+  private static volatile boolean started = false;
+  private static Map<String, String> cachedConfig;
+
   /** Real {@code ZM_AUTH_TOKEN} for the provisioned test user. Set during {@code start()}. */
   public static volatile String AUTH_TOKEN;
 
@@ -54,17 +57,20 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
    */
   public static volatile String POSTGRES_JDBC_URL;
 
-  private Network network;
-  private GenericContainer<?> openldap;
-  private GenericContainer<?> mariadb;
-  private GenericContainer<?> postfix;
-  private GenericContainer<?> mailbox;
-  private GenericContainer<?> userManagement;
-  private ConsulContainer consul;
-  private PostgreSQLContainer<?> postgres;
+  private static Network network;
+  private static GenericContainer<?> openldap;
+  private static GenericContainer<?> mariadb;
+  private static GenericContainer<?> postfix;
+  private static GenericContainer<?> mailbox;
+  private static GenericContainer<?> userManagement;
+  private static ConsulContainer consul;
+  private static PostgreSQLContainer<?> postgres;
 
   @Override
   public Map<String, String> start() {
+    if (started) {
+      return cachedConfig;
+    }
     network = Network.newNetwork();
 
     openldap =
@@ -165,7 +171,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             "jdbc:postgresql://%s:%d/%s?sslmode=disable",
             postgres.getHost(), postgres.getFirstMappedPort(), DB_NAME);
 
-    return Map.ofEntries(
+    cachedConfig = Map.ofEntries(
         // Service identity
         Map.entry("networking-config.carbonio.service.host", "localhost"),
         // Consul (tasks-ce service discovery)
@@ -186,33 +192,14 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         Map.entry(
             "networking-config.carbonio.user-management.port",
             String.valueOf(userManagement.getMappedPort(10000))));
+    started = true;
+    return cachedConfig;
   }
 
   @Override
   public void stop() {
-    stopQuietly(userManagement);
-    stopQuietly(mailbox);
-    stopQuietly(postfix);
-    stopQuietly(mariadb);
-    stopQuietly(openldap);
-    if (consul != null) {
-      try { consul.stop(); } catch (Exception ignored) {}
-    }
-    if (postgres != null) {
-      try { postgres.stop(); } catch (Exception ignored) {}
-    }
-    if (network != null) {
-      network.close();
-    }
-  }
-
-  private void stopQuietly(GenericContainer<?> container) {
-    if (container != null) {
-      try {
-        container.stop();
-      } catch (Exception ignored) {
-      }
-    }
+    // Containers are static singletons: they persist for the full test-run JVM lifetime.
+    // Testcontainers' JVM shutdown hook will stop them when the JVM exits.
   }
 
   private void provisionTestAccount() {
