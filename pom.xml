@@ -57,7 +57,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <flyway-database-postgresql.version>11.8.1</flyway-database-postgresql.version>
 
     <!-- Plugins -->
-    <build-helper-maven.version>3.6.0</build-helper-maven.version>
+    <build-helper-maven.version>3.6.1</build-helper-maven.version>
     <maven-shade.version>3.6.1</maven-shade.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
     <maven-failsafe.version>3.5.4</maven-failsafe.version>
