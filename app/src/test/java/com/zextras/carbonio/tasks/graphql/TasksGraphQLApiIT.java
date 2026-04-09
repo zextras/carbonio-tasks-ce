@@ -4,8 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
-import com.zextras.carbonio.tasks.ConsulTestResource;
-import com.zextras.carbonio.tasks.MockUserManagementTestResource;
+import com.zextras.carbonio.tasks.StackTestResource;
 import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
 import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -19,8 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@WithTestResource(ConsulTestResource.class)
-@WithTestResource(MockUserManagementTestResource.class)
+@WithTestResource(StackTestResource.class)
 class TasksGraphQLApiIT {
 
   @Inject
@@ -301,7 +299,7 @@ class TasksGraphQLApiIT {
   private ValidatableResponse postAuth(String jsonBody) {
     return RestAssured.given()
         .contentType(ContentType.JSON)
-        .cookie("ZM_AUTH_TOKEN", MockUserManagementTestResource.FAKE_TOKEN)
+        .cookie("ZM_AUTH_TOKEN", StackTestResource.AUTH_TOKEN)
         .body(jsonBody)
         .when()
         .post("/graphql")
@@ -315,7 +313,7 @@ class TasksGraphQLApiIT {
             + "\\\"}) { id } }\"}";
     return RestAssured.given()
         .contentType(ContentType.JSON)
-        .cookie("ZM_AUTH_TOKEN", MockUserManagementTestResource.FAKE_TOKEN)
+        .cookie("ZM_AUTH_TOKEN", StackTestResource.AUTH_TOKEN)
         .body(query)
         .when()
         .post("/graphql")
@@ -334,7 +332,7 @@ class TasksGraphQLApiIT {
             + "}) { id } }\"}";
     return RestAssured.given()
         .contentType(ContentType.JSON)
-        .cookie("ZM_AUTH_TOKEN", MockUserManagementTestResource.FAKE_TOKEN)
+        .cookie("ZM_AUTH_TOKEN", StackTestResource.AUTH_TOKEN)
         .body(query)
         .when()
         .post("/graphql")
@@ -353,7 +351,7 @@ class TasksGraphQLApiIT {
             + "}) { id } }\"}";
     return RestAssured.given()
         .contentType(ContentType.JSON)
-        .cookie("ZM_AUTH_TOKEN", MockUserManagementTestResource.FAKE_TOKEN)
+        .cookie("ZM_AUTH_TOKEN", StackTestResource.AUTH_TOKEN)
         .body(query)
         .when()
         .post("/graphql")
