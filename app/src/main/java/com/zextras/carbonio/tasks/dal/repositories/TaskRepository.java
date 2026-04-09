@@ -59,8 +59,9 @@ public class TaskRepository implements PanacheRepositoryBase<Task, UUID> {
 
   @Transactional
   public void updateTask(Task taskToUpdate) {
-    // Panache manages dirty-checking within a transaction; calling persist merges the entity.
-    persist(taskToUpdate);
+    // Use merge() for detached entities (loaded outside a transaction boundary).
+    // persist() is only for new (transient) entities; it throws on detached ones.
+    getEntityManager().merge(taskToUpdate);
   }
 
   public Optional<Task> getTask(UUID taskId, String userId) {
