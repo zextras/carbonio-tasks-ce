@@ -5,29 +5,34 @@
 package com.zextras.carbonio.tasks.graphql;
 
 import com.zextras.carbonio.tasks.StackTestResource;
-import com.zextras.carbonio.tasks.dal.repositories.TaskRepository;
 import io.quarkus.test.common.WithTestResource;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import java.sql.DriverManager;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
+/**
+ * Integration tests for all authenticated GraphQL operations.
+ *
+ * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process — this avoids
+ * Quarkus test-mode gRPC routing and enables connecting to the real user-management container.
+ * DB cleanup uses direct JDBC since {@code @Inject} is not available in integration test mode.
+ */
+@QuarkusIntegrationTest
 @WithTestResource(StackTestResource.class)
 class TasksGraphQLApiIT {
 
-  @Inject
-  TaskRepository taskRepository;
-
   @BeforeEach
-  @Transactional
-  void cleanUp() {
-    taskRepository.deleteAll();
+  void cleanUp() throws Exception {
+    try (var conn = DriverManager.getConnection(
+             StackTestResource.POSTGRES_JDBC_URL, "test", "test");
+         var stmt = conn.createStatement()) {
+      stmt.execute("DELETE FROM task");
+    }
   }
 
   // ─────────────── createTask ───────────────

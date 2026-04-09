@@ -6,7 +6,7 @@ package com.zextras.carbonio.tasks.graphql;
 
 import com.zextras.carbonio.tasks.StackTestResource;
 import io.quarkus.test.common.WithTestResource;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Verifies that the AuthenticationFilter is correctly wired into the GraphQL endpoint and enforces
  * authentication using the REAL carbonio-user-management gRPC service.
+ *
+ * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process — this avoids
+ * Quarkus test-mode gRPC routing (which forces {@code @GrpcClient} to the in-process server).
  */
-@QuarkusTest
+@QuarkusIntegrationTest
 @WithTestResource(StackTestResource.class)
 class TaskAuthIT {
 

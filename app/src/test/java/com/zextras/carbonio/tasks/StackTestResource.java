@@ -48,6 +48,12 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   /** {@code zimbraId} of the provisioned test user. Set during {@code start()}. */
   public static volatile String TEST_USER_ID;
 
+  /**
+   * JDBC URL for the tasks PostgreSQL container. Used by {@code @QuarkusIntegrationTest} classes
+   * for direct DB cleanup between tests (no {@code @Inject} available in integration test mode).
+   */
+  public static volatile String POSTGRES_JDBC_URL;
+
   private Network network;
   private GenericContainer<?> openldap;
   private GenericContainer<?> mariadb;
@@ -115,16 +121,13 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
                 "registry.dev.zextras.com/dev/carbonio-user-management:devel")
             .withNetwork(network)
             .withNetworkAliases("carbonio-user-management")
-            .withExposedPorts(10000)
+            .withExposedPorts(10000)  // gRPC and HTTP share port 10000 (use-separate-server=false)
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_HOST", "0.0.0.0")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_PORT", "10000")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_HOST", "consul")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8500")
             .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_HOST", "carbonio-mailbox")
             .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_PORT", "8080")
-            .withEnv(
-                "NETWORKING_CONFIG_CARBONIO_MAILBOX_INTERNAL_API_HOST", "carbonio-mailbox")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_INTERNAL_API_PORT", "10000")
             .dependsOn(mailbox, consul)
             .waitingFor(
                 Wait.forHttp("/q/health/live")
@@ -157,7 +160,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     helper.putValue(
         svc + "/" + CarbonioDatabaseServiceConfig.ApplicationConfig.DB_PASSWORD, DB_PASSWORD);
 
-    String jdbcUrl =
+    POSTGRES_JDBC_URL =
         String.format(
             "jdbc:postgresql://%s:%d/%s?sslmode=disable",
             postgres.getHost(), postgres.getFirstMappedPort(), DB_NAME);
@@ -175,7 +178,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         Map.entry(
             "networking-config.carbonio.postgresql.port",
             String.valueOf(postgres.getFirstMappedPort())),
-        Map.entry("quarkus.datasource.jdbc.url", jdbcUrl),
+        Map.entry("quarkus.datasource.jdbc.url", POSTGRES_JDBC_URL),
         Map.entry("quarkus.datasource.username", DB_USER),
         Map.entry("quarkus.datasource.password", DB_PASSWORD),
         // User Management gRPC client
