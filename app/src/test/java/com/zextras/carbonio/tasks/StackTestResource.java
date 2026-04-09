@@ -7,14 +7,15 @@ package com.zextras.carbonio.tasks;
 import com.zextras.carbonio.quarkus.extensions.bootstrap.ConsulTestHelper;
 import com.zextras.carbonio.quarkus.extensions.bootstrap.db.CarbonioDatabaseServiceConfig;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.jar.JarFile;
 import org.testcontainers.consul.ConsulContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -23,33 +24,42 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.lifecycle.Startables;
 
 /**
- * Full integration test stack for carbonio-tasks-ce.
+ * Integration test stack for carbonio-tasks-ce.
  *
- * <p>Starts: openldap, mariadb, postfix, mailbox, user-management (all on shared Docker network)
- * plus consul (on the same network, accessible from host via mapped port) and an independent
- * PostgreSQL container.
+ * <p><b>Testing philosophy (narrow integration tests):</b>
+ * <ul>
+ *   <li>Direct dependencies of tasks-ce are run as real Docker containers:
+ *       {@code carbonio-user-management} (gRPC auth validation).</li>
+ *   <li>Indirect dependencies (dependencies of our direct deps) are replaced with
+ *       lightweight mocks so that our IT suite is isolated from their failures.
+ *       Specifically, {@code carbonio-mailbox} — which user-management calls for
+ *       token validation — is stubbed by a WireMock SOAP server. mailbox's own
+ *       integration with LDAP, MariaDB, and Postfix is covered by user-management's
+ *       integration test suite, not ours.</li>
+ * </ul>
  *
- * <p>After startup: provisions test user via {@code zmprov}, authenticates via SOAP to get a real
- * {@code ZM_AUTH_TOKEN}, and pre-populates Consul KV with tasks DB credentials.
- *
- * <p>Tests read {@link #AUTH_TOKEN} and {@link #TEST_USER_ID} from static fields.
+ * <p>Containers are static singletons: they start once per JVM and are reused
+ * across all {@code @QuarkusIntegrationTest} classes. {@code stop()} is a no-op;
+ * Testcontainers' JVM shutdown hook handles cleanup.
  */
 public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static final String DB_NAME = "carbonio-tasks-db";
   private static final String DB_USER = "test";
   private static final String DB_PASSWORD = "test";
-  private static final String TEST_USER_EMAIL = "test-user@carbonio.localhost";
-  private static final String TEST_PASSWORD = "test-password";
 
   private static volatile boolean started = false;
   private static Map<String, String> cachedConfig;
 
-  /** Real {@code ZM_AUTH_TOKEN} for the provisioned test user. Set during {@code start()}. */
-  public static volatile String AUTH_TOKEN;
+  /**
+   * Fixed {@code ZM_AUTH_TOKEN} used by tests and matched by the WireMock stub.
+   * Any other token value will receive no stub match → WireMock returns 404 →
+   * user-management treats the token as invalid → tasks-ce returns 401.
+   */
+  public static final String AUTH_TOKEN = "test-auth-token-tasks-ce";
 
-  /** {@code zimbraId} of the provisioned test user. Set during {@code start()}. */
-  public static volatile String TEST_USER_ID;
+  /** Fixed {@code zimbraId} returned by the WireMock SOAP stub for the test user. */
+  public static final String TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
 
   /**
    * JDBC URL for the tasks PostgreSQL container. Used by {@code @QuarkusIntegrationTest} classes
@@ -57,88 +67,34 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
    */
   public static volatile String POSTGRES_JDBC_URL;
 
-  private static Network network;
-  private static GenericContainer<?> openldap;
-  private static GenericContainer<?> mariadb;
-  private static GenericContainer<?> postfix;
-  private static GenericContainer<?> mailbox;
+  private static GenericContainer<?> wireMock;
   private static GenericContainer<?> userManagement;
   private static ConsulContainer consul;
   private static PostgreSQLContainer<?> postgres;
+  private static Network network;
 
   @Override
   public Map<String, String> start() {
     if (started) {
       return cachedConfig;
     }
+
     network = Network.newNetwork();
 
-    openldap =
-        new GenericContainer<>("registry.dev.zextras.com/dev/carbonio-openldap:latest")
+    wireMock =
+        new GenericContainer<>("wiremock/wiremock:3.9.2")
             .withNetwork(network)
-            .withNetworkAliases("carbonio-openldap")
-            .withExposedPorts(1389)
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));
-
-    mariadb =
-        new GenericContainer<>("registry.dev.zextras.com/dev/carbonio-mariadb:latest")
-            .withNetwork(network)
-            .withNetworkAliases("carbonio-mariadb")
-            .withEnv("MARIADB_ROOT_PASSWORD", "password")
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(2)));
-
-    postfix =
-        new GenericContainer<>("registry.dev.zextras.com/dev/carbonio-mta:latest")
-            .withNetwork(network)
-            .withNetworkAliases("carbonio-postfix")
-            .withEnv("LDAP_HOST", "carbonio-openldap")
-            .withEnv("LDAP_PORT", "1389")
-            .withEnv("LDAP_ROOT_PASSWORD", "qh6hWZvc")
-            .withEnv("LDAP_ADMIN_PASSWORD", "password")
-            .withExposedPorts(25)
-            .dependsOn(openldap)
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));
-
-    mailbox =
-        new GenericContainer<>("registry.dev.zextras.com/dev/carbonio-mailbox:latest")
-            .withNetwork(network)
-            .withNetworkAliases("carbonio-mailbox")
-            .withCreateContainerCmdModifier(cmd -> cmd.withHostName("docker.carbonio.localhost"))
-            .withEnv("LDAP_URL", "ldap://carbonio-openldap:1389")
-            .withEnv("LDAP_ROOT_PASSWORD", "qh6hWZvc")
-            .withEnv("LDAP_ADMIN_PASSWORD", "password")
-            .withEnv("MARIADB_ROOT_PASSWORD", "password")
-            .withEnv("MARIADB_URL", "carbonio-mariadb")
-            .withEnv("MARIADB_PORT", "3306")
+            .withNetworkAliases("carbonio-mailbox-mock")
             .withExposedPorts(8080)
-            .dependsOn(openldap, postfix, mariadb)
             .waitingFor(
-                Wait.forHttp("/service/health/ready")
+                Wait.forHttp("/__admin/health")
                     .forPort(8080)
-                    .withStartupTimeout(Duration.ofMinutes(10)));
+                    .withStartupTimeout(Duration.ofMinutes(2)));
 
     consul =
         new ConsulContainer("hashicorp/consul:1.22.3")
             .withNetwork(network)
             .withNetworkAliases("consul");
-
-    userManagement =
-        new GenericContainer<>(
-                "registry.dev.zextras.com/dev/carbonio-user-management:devel")
-            .withNetwork(network)
-            .withNetworkAliases("carbonio-user-management")
-            .withExposedPorts(10000)  // gRPC and HTTP share port 10000 (use-separate-server=false)
-            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_HOST", "0.0.0.0")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_PORT", "10000")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_HOST", "consul")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8500")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_HOST", "carbonio-mailbox")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_PORT", "8080")
-            .dependsOn(mailbox, consul)
-            .waitingFor(
-                Wait.forHttp("/q/health/live")
-                    .forPort(10000)
-                    .withStartupTimeout(Duration.ofMinutes(5)));
 
     postgres =
         new PostgreSQLContainer<>("postgres:16")
@@ -146,13 +102,43 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             .withUsername(DB_USER)
             .withPassword(DB_PASSWORD);
 
-    // deepStart resolves the dependsOn graph; postgres starts in parallel with the
-    // mailbox dependency chain.
-    Startables.deepStart(userManagement, postgres).join();
+    // WireMock, consul, and postgres have no inter-dependencies — start in parallel.
+    Startables.deepStart(wireMock, consul, postgres).join();
 
-    provisionTestAccount();
-    AUTH_TOKEN = soapAuthenticate("http://localhost:" + mailbox.getMappedPort(8080));
-    TEST_USER_ID = resolveTestUserId();
+    // Configure WireMock BEFORE starting user-management:
+    //   1. Upload the WSDL and XSD schema files that user-management's JAX-WS client
+    //      needs to parse when it boots (MailboxClient.Builder fetches the WSDL from
+    //      http://{mailboxHost}/service/wsdl/ZimbraService.wsdl at startup).
+    //   2. Register the SOAP stub for GetInfoRequest token validation.
+    try {
+      String wireMockAdminUrl =
+          "http://" + wireMock.getHost() + ":" + wireMock.getMappedPort(8080);
+      uploadWsdlAndSchemas(wireMockAdminUrl);
+      setupMailboxWireMockStub(wireMockAdminUrl);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to configure WireMock mailbox stub", e);
+    }
+
+    userManagement =
+        new GenericContainer<>(
+                "registry.dev.zextras.com/dev/carbonio-user-management:devel")
+            .withNetwork(network)
+            .withNetworkAliases("carbonio-user-management")
+            .withExposedPorts(10000) // gRPC and HTTP share port 10000 (use-separate-server=false)
+            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_HOST", "0.0.0.0")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_PORT", "10000")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_HOST", "consul")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8500")
+            // Point user-management at WireMock instead of a real mailbox
+            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_HOST", "carbonio-mailbox-mock")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_PORT", "8080")
+            .dependsOn(consul)
+            .waitingFor(
+                Wait.forHttp("/q/health/live")
+                    .forPort(10000)
+                    .withStartupTimeout(Duration.ofMinutes(5)));
+
+    userManagement.start();
 
     // Pre-populate tasks-ce DB credentials in Consul KV so the database extension finds them.
     String consulHost = consul.getHost();
@@ -171,27 +157,27 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             "jdbc:postgresql://%s:%d/%s?sslmode=disable",
             postgres.getHost(), postgres.getFirstMappedPort(), DB_NAME);
 
-    cachedConfig = Map.ofEntries(
-        // Service identity
-        Map.entry("networking-config.carbonio.service.host", "localhost"),
-        // Consul (tasks-ce service discovery)
-        Map.entry("networking-config.carbonio.service-discover.host", consulHost),
-        Map.entry(
-            "networking-config.carbonio.service-discover.port", String.valueOf(consulPort)),
-        // PostgreSQL (tasks database)
-        Map.entry(
-            "networking-config.carbonio.postgresql.host", postgres.getHost()),
-        Map.entry(
-            "networking-config.carbonio.postgresql.port",
-            String.valueOf(postgres.getFirstMappedPort())),
-        Map.entry("quarkus.datasource.jdbc.url", POSTGRES_JDBC_URL),
-        Map.entry("quarkus.datasource.username", DB_USER),
-        Map.entry("quarkus.datasource.password", DB_PASSWORD),
-        // User Management gRPC client
-        Map.entry("networking-config.carbonio.user-management.host", "localhost"),
-        Map.entry(
-            "networking-config.carbonio.user-management.port",
-            String.valueOf(userManagement.getMappedPort(10000))));
+    cachedConfig =
+        Map.ofEntries(
+            // Service identity
+            Map.entry("networking-config.carbonio.service.host", "localhost"),
+            // Consul (tasks-ce service discovery)
+            Map.entry("networking-config.carbonio.service-discover.host", consulHost),
+            Map.entry(
+                "networking-config.carbonio.service-discover.port", String.valueOf(consulPort)),
+            // PostgreSQL (tasks database)
+            Map.entry("networking-config.carbonio.postgresql.host", postgres.getHost()),
+            Map.entry(
+                "networking-config.carbonio.postgresql.port",
+                String.valueOf(postgres.getFirstMappedPort())),
+            Map.entry("quarkus.datasource.jdbc.url", POSTGRES_JDBC_URL),
+            Map.entry("quarkus.datasource.username", DB_USER),
+            Map.entry("quarkus.datasource.password", DB_PASSWORD),
+            // User Management gRPC client
+            Map.entry("networking-config.carbonio.user-management.host", "localhost"),
+            Map.entry(
+                "networking-config.carbonio.user-management.port",
+                String.valueOf(userManagement.getMappedPort(10000))));
     started = true;
     return cachedConfig;
   }
@@ -202,79 +188,220 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     // Testcontainers' JVM shutdown hook will stop them when the JVM exits.
   }
 
-  private void provisionTestAccount() {
-    try {
-      mailbox.execInContainer(
-          "sh",
-          "-c",
-          "for i in $(seq 1 30); do "
-              + "  echo 'gd carbonio.localhost' | zmprov 2>&1 | grep -qv ERROR && break; "
-              + "  sleep 2; "
-              + "done && "
-              + "zmprov <<'EOF'\n"
-              + "cd carbonio.localhost\n"
-              + "mcf zimbraSmtpHostname carbonio-postfix\n"
-              + "mcf zimbraDefaultDomainName carbonio.localhost\n"
-              + "ca "
-              + TEST_USER_EMAIL
-              + " "
-              + TEST_PASSWORD
-              + "\n"
-              + "EOF");
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to provision test account", e);
+  /**
+   * Uploads the WSDL and XSD schema files to WireMock's {@code __files} directory.
+   *
+   * <p>WireMock serves any file under {@code __files} at the corresponding URL path. Files
+   * uploaded via {@code PUT /__admin/files/{path}} are accessible at {@code GET /{path}}.
+   *
+   * <p>user-management's {@code MailboxClient.Builder} fetches the WSDL at startup from
+   * {@code http://{mailbox}/service/wsdl/ZimbraService.wsdl}. The WSDL's {@code import}
+   * elements reference the XSDs with relative paths (e.g. {@code zimbra.xsd}), so the JAX-WS
+   * runtime resolves them at {@code http://{mailbox}/service/wsdl/zimbra.xsd} etc.
+   *
+   * <p>Schema files are read from the {@code carbonio-mailbox-sdk} jar INSIDE the
+   * user-management Docker image. This is critical: the WSDL must match the version of
+   * {@code ZcsPortType} compiled into user-management's jar, or JAX-WS will throw a
+   * {@code WebServiceException} for any method exposed in the interface but missing in the WSDL.
+   * Using the WSDL from the Maven local repo risks a version drift if the Docker image was
+   * built from a snapshot or from a newer/different SDK build.
+   *
+   * <p>The extraction uses {@code docker create} (no container start) + {@code docker cp}
+   * to read the jar from the image layer without running the container.
+   */
+  private static void uploadWsdlAndSchemas(String wireMockAdminUrl) throws Exception {
+    HttpClient client = HttpClient.newHttpClient();
+
+    // Extract the carbonio-mailbox-sdk schemas from the UM Docker image.
+    // The UM uber-jar (at /app/carbonio-user-management.jar) has the SDK bundled.
+    File sdkJar = extractSdkJarFromImage();
+
+    String[] schemaFiles = {
+        "ZimbraService.wsdl",
+        "zimbra.xsd",
+        "zimbraAccount.xsd",
+        "zimbraMail.xsd",
+        "zimbraAdmin.xsd"
+    };
+
+    try (JarFile jarFile = new JarFile(sdkJar)) {
+      for (String fileName : schemaFiles) {
+        String entryPath = "schemas/" + fileName;
+        var entry = jarFile.getEntry(entryPath);
+        if (entry == null) {
+          throw new RuntimeException(
+              "Schema entry not found in SDK jar: " + entryPath + " (jar: " + sdkJar + ")");
+        }
+
+        byte[] content;
+        try (InputStream is = jarFile.getInputStream(entry)) {
+          content = is.readAllBytes();
+        }
+
+        // Upload to WireMock's __files at service/wsdl/{fileName}
+        // → served automatically at GET /service/wsdl/{fileName}
+        HttpRequest uploadRequest =
+            HttpRequest.newBuilder()
+                .uri(URI.create(wireMockAdminUrl + "/__admin/files/service/wsdl/" + fileName))
+                .header("Content-Type", "application/octet-stream")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(content))
+                .build();
+
+        HttpResponse<String> uploadResponse =
+            client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (uploadResponse.statusCode() != 200 && uploadResponse.statusCode() != 201) {
+          throw new RuntimeException(
+              "Failed to upload " + fileName + " to WireMock (HTTP "
+                  + uploadResponse.statusCode() + "): " + uploadResponse.body());
+        }
+      }
     }
   }
 
-  private String resolveTestUserId() {
+  private static final String UM_IMAGE =
+      "registry.dev.zextras.com/dev/carbonio-user-management:devel";
+  private static final String UM_JAR_PATH = "/app/carbonio-user-management.jar";
+
+  /**
+   * Creates a temporary (non-started) container from the user-management image, copies the
+   * uber-jar to the host filesystem, removes the temporary container, and returns the local
+   * path to the jar.
+   *
+   * <p>Using {@code docker create} instead of {@code docker run} means no JVM starts, so the
+   * operation is fast (a few seconds). The jar is written to a temp file that is deleted on JVM
+   * exit.
+   */
+  private static File extractSdkJarFromImage() throws Exception {
+    // Create a container (not started)
+    Process createProc = new ProcessBuilder(
+        "docker", "create", UM_IMAGE)
+        .redirectErrorStream(true)
+        .start();
+    String createOutput = new String(createProc.getInputStream().readAllBytes()).trim();
+    int createExit = createProc.waitFor();
+    if (createExit != 0) {
+      throw new RuntimeException(
+          "docker create failed (exit " + createExit + "): " + createOutput);
+    }
+    String containerId = createOutput.lines().filter(l -> l.matches("[0-9a-f]{64}")).findFirst()
+        .orElse(createOutput.trim()); // last line is the container ID
+
     try {
-      var result =
-          mailbox.execInContainer(
-              "sh",
-              "-c",
-              "zmprov ga " + TEST_USER_EMAIL + " zimbraId | grep zimbraId: | awk '{print $2}'");
-      return result.getStdout().trim();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to resolve test user ID", e);
+      // Copy the uber-jar out of the container
+      File tempJar = File.createTempFile("um-sdk-", ".jar");
+      tempJar.deleteOnExit();
+
+      Process cpProc = new ProcessBuilder(
+          "docker", "cp", containerId + ":" + UM_JAR_PATH, tempJar.getAbsolutePath())
+          .redirectErrorStream(true)
+          .start();
+      String cpOutput = new String(cpProc.getInputStream().readAllBytes()).trim();
+      int cpExit = cpProc.waitFor();
+      if (cpExit != 0) {
+        throw new RuntimeException(
+            "docker cp failed (exit " + cpExit + "): " + cpOutput);
+      }
+      return tempJar;
+    } finally {
+      // Always remove the temporary container
+      new ProcessBuilder("docker", "rm", containerId)
+          .redirectErrorStream(true)
+          .start()
+          .waitFor();
     }
   }
 
-  private String soapAuthenticate(String mailboxBaseUrl) {
-    String soapBody =
-        "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">"
+  /**
+   * Registers a WireMock stub that intercepts the SOAP {@code GetInfoRequest} call that
+   * user-management sends to mailbox for token validation.
+   *
+   * <p>When a request arrives at {@code POST /service/soap} with a Cookie header containing
+   * {@code ZM_AUTH_TOKEN=test-auth-token-tasks-ce}, WireMock returns a minimal but valid
+   * SOAP 1.2 {@code GetInfoResponse}. Any other token gets no stub → 404 → UM treats the
+   * token as invalid → tasks-ce returns 401.
+   *
+   * <p>The XML format matches the schema generated from {@code zimbraAccount.xsd} (from
+   * carbonio-mailbox-sdk). Attributes use {@code <attr name="...">value</attr>} (not
+   * {@code <a n="...">}). This format is confirmed by UM's own test resources at
+   * {@code app/src/test/resources/soap/responses/GetInfoResponse.xml}.
+   */
+  private static void setupMailboxWireMockStub(String wireMockAdminUrl) throws Exception {
+    // Minimal valid SOAP 1.2 GetInfoResponse — fields required by UserService.mapGetInfoToUserMyself:
+    //   response.getName()       → <name>
+    //   response.getPublicURL()  → <publicURL>
+    //   response.getLifetime()   → <lifetime>
+    //   attrs: zimbraId, displayName, zimbraAccountStatus, zimbraIsExternalVirtualAccount
+    // Fields version, id, profileImageId are required by the XSD but can be dummy values.
+    String soapResponseXml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">"
+            + "<soap:Header>"
+            + "<context xmlns=\"urn:zimbra\"><change token=\"1\"/></context>"
+            + "</soap:Header>"
             + "<soap:Body>"
-            + "<AuthRequest xmlns=\"urn:zimbraAccount\">"
-            + "<account by=\"name\">"
-            + TEST_USER_EMAIL
-            + "</account>"
-            + "<password>"
-            + TEST_PASSWORD
-            + "</password>"
-            + "</AuthRequest>"
+            + "<GetInfoResponse xmlns=\"urn:zimbraAccount\""
+            + " docSizeLimit=\"10485760\" attSizeLimit=\"10240000\">"
+            + "<version>23.9.0_ZEXTRAS_202309 carbonio 20230816-0759 FOSS</version>"
+            + "<id>" + TEST_USER_ID + "</id>"
+            + "<profileImageId>0</profileImageId>"
+            + "<name>test@carbonio.test</name>"
+            + "<lifetime>86400000</lifetime>"
+            + "<prefs>"
+            + "<pref name=\"zimbraPrefLocale\">en</pref>"
+            + "</prefs>"
+            + "<attrs>"
+            + "<attr name=\"zimbraId\">" + TEST_USER_ID + "</attr>"
+            + "<attr name=\"displayName\">Test User</attr>"
+            + "<attr name=\"zimbraAccountStatus\">active</attr>"
+            + "<attr name=\"zimbraIsExternalVirtualAccount\">FALSE</attr>"
+            // carbonioFeatureTasksEnabled=TRUE → tasks-ce AuthenticationFilter grants access
+            + "<attr name=\"carbonioFeatureTasksEnabled\">TRUE</attr>"
+            + "</attrs>"
+            + "<soapURL>http://carbonio.test/service/soap/</soapURL>"
+            + "<publicURL>http://carbonio.test</publicURL>"
+            + "</GetInfoResponse>"
             + "</soap:Body>"
             + "</soap:Envelope>";
-    try {
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(mailboxBaseUrl + "/service/soap/AuthRequest"))
-              .header("Content-Type", "application/soap+xml; charset=utf-8")
-              .POST(HttpRequest.BodyPublishers.ofString(soapBody))
-              .build();
-      HttpResponse<String> response =
-          HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-      Matcher matcher =
-          Pattern.compile("<authToken[^>]*>([^<]+)</authToken>").matcher(response.body());
-      if (!matcher.find()) {
-        throw new RuntimeException("No authToken in SOAP response: " + response.body());
-      }
-      return matcher.group(1);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException("SOAP auth interrupted", e);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new RuntimeException("SOAP auth failed", e);
+
+    // Escape the XML for embedding inside a JSON string value
+    String escapedXml = soapResponseXml
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t");
+
+    String stubJson =
+        "{"
+            + "\"request\": {"
+            + "  \"method\": \"POST\","
+            + "  \"url\": \"/service/soap/\","
+            + "  \"headers\": {"
+            + "    \"Cookie\": { \"contains\": \"ZM_AUTH_TOKEN=" + AUTH_TOKEN + "\" }"
+            + "  }"
+            + "},"
+            + "\"response\": {"
+            + "  \"status\": 200,"
+            + "  \"headers\": { \"Content-Type\": \"application/soap+xml; charset=utf-8\" },"
+            + "  \"body\": \"" + escapedXml + "\""
+            + "}"
+            + "}";
+
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(wireMockAdminUrl + "/__admin/mappings"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(stubJson))
+            .build();
+
+    HttpResponse<String> response =
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+    if (response.statusCode() != 201) {
+      throw new RuntimeException(
+          "Failed to configure WireMock stub (HTTP " + response.statusCode() + "): "
+              + response.body());
     }
   }
 }
