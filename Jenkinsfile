@@ -13,6 +13,7 @@ library(
 
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
+    projectType: 'CE',
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
     packaging: [pkgbuildPath: 'package/PKGBUILD'],
     docker: [
@@ -22,5 +23,5 @@ dt3_pipeline(
          description: 'Carbonio Tasks CE Service'],
     ],
     sonarqube: true,
-    reuse: [projectType: 'CE'],
+    reuse: [:],
 )

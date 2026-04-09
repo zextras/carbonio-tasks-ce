@@ -107,6 +107,14 @@ SPDX-License-Identifier: AGPL-3.0-only
     </repository>
   </repositories>
 
+  <distributionManagement>
+    <repository>
+      <id>artifactory</id>
+      <name>Zextras releases</name>
+      <url>https://zextras.jfrog.io/artifactory/public-maven-repo</url>
+    </repository>
+  </distributionManagement>
+
   <profiles>
     <profile>
       <id>dev</id>
