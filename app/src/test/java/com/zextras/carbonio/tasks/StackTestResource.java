@@ -127,7 +127,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_INTERNAL_API_PORT", "10000")
             .dependsOn(mailbox, consul)
             .waitingFor(
-                Wait.forHttp("/health/live")
+                Wait.forHttp("/q/health/live")
                     .forPort(10000)
                     .withStartupTimeout(Duration.ofMinutes(5)));
 
