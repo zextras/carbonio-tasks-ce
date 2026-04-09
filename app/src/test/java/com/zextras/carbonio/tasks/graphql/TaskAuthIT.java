@@ -4,7 +4,7 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
-import com.zextras.carbonio.tasks.ConsulTestResource;
+import com.zextras.carbonio.tasks.StackTestResource;
 import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -12,12 +12,11 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies that the AuthenticationFilter is correctly wired into the GraphQL endpoint.
- * Does NOT require MockUserManagementTestResource — the filter catches ALL StatusRuntimeException
- * (including UNAVAILABLE from connection refused) and returns 401.
+ * Verifies that the AuthenticationFilter is correctly wired into the GraphQL endpoint and enforces
+ * authentication using the REAL carbonio-user-management gRPC service.
  */
 @QuarkusTest
-@WithTestResource(ConsulTestResource.class)
+@WithTestResource(StackTestResource.class)
 class TaskAuthIT {
 
   private static final String ANY_QUERY =
@@ -38,7 +37,7 @@ class TaskAuthIT {
   void graphqlRequestWithInvalidCookieShouldReturn401() {
     RestAssured.given()
         .contentType(ContentType.JSON)
-        .cookie("ZM_AUTH_TOKEN", "not-a-real-token")
+        .cookie("ZM_AUTH_TOKEN", "not-a-real-token-" + System.nanoTime())
         .body(ANY_QUERY)
         .when()
         .post("/graphql")
