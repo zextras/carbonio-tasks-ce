@@ -15,7 +15,7 @@ dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     projectType: 'CE',
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
-    packaging: [pkgbuildPath: 'package/PKGBUILD'],
+    packaging: [pkgbuildPath: 'package/PKGBUILD', buildFlags: '-ds'],
     docker: [
         [dockerfile: 'Dockerfile',
          imageName: 'carbonio-tasks-ce',
