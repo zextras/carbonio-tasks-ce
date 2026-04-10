@@ -7,7 +7,6 @@ package com.zextras.carbonio.tasks;
 import com.zextras.carbonio.quarkus.extensions.bootstrap.ConsulTestHelper;
 import com.zextras.carbonio.quarkus.extensions.bootstrap.db.CarbonioDatabaseServiceConfig;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,7 +14,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
-import java.util.jar.JarFile;
 import org.testcontainers.consul.ConsulContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -106,9 +104,8 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     Startables.deepStart(wireMock, consul, postgres).join();
 
     // Configure WireMock BEFORE starting user-management:
-    //   1. Upload the WSDL and XSD schema files that user-management's JAX-WS client
-    //      needs to parse when it boots (MailboxClient.Builder fetches the WSDL from
-    //      http://{mailboxHost}/service/wsdl/ZimbraService.wsdl at startup).
+    //   1. Upload the WSDL and XSD schema files so user-management's JAX-WS client can
+    //      parse the WSDL at http://{mailboxHost}/service/wsdl/ZimbraService.wsdl on boot.
     //   2. Register the SOAP stub for GetInfoRequest token validation.
     try {
       String wireMockAdminUrl =
@@ -189,7 +186,8 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   }
 
   /**
-   * Uploads the WSDL and XSD schema files to WireMock's {@code __files} directory.
+   * Uploads the WSDL and XSD schema files to WireMock's {@code __files} directory so that
+   * user-management's JAX-WS client can fetch them at startup.
    *
    * <p>WireMock serves any file under {@code __files} at the corresponding URL path. Files
    * uploaded via {@code PUT /__admin/files/{path}} are accessible at {@code GET /{path}}.
@@ -199,22 +197,12 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
    * elements reference the XSDs with relative paths (e.g. {@code zimbra.xsd}), so the JAX-WS
    * runtime resolves them at {@code http://{mailbox}/service/wsdl/zimbra.xsd} etc.
    *
-   * <p>Schema files are read from the {@code carbonio-mailbox-sdk} jar INSIDE the
-   * user-management Docker image. This is critical: the WSDL must match the version of
-   * {@code ZcsPortType} compiled into user-management's jar, or JAX-WS will throw a
-   * {@code WebServiceException} for any method exposed in the interface but missing in the WSDL.
-   * Using the WSDL from the Maven local repo risks a version drift if the Docker image was
-   * built from a snapshot or from a newer/different SDK build.
-   *
-   * <p>The extraction uses {@code docker create} (no container start) + {@code docker cp}
-   * to read the jar from the image layer without running the container.
+   * <p>Schema files are bundled as test resources under {@code wsdl/} (extracted from
+   * {@code carbonio-mailbox-sdk} 1.14.0, which matches the version compiled into the
+   * {@code carbonio-user-management:devel} Docker image).
    */
   private static void uploadWsdlAndSchemas(String wireMockAdminUrl) throws Exception {
     HttpClient client = HttpClient.newHttpClient();
-
-    // Extract the carbonio-mailbox-sdk schemas from the UM Docker image.
-    // The UM uber-jar (at /app/carbonio-user-management.jar) has the SDK bundled.
-    File sdkJar = extractSdkJarFromImage();
 
     String[] schemaFiles = {
         "ZimbraService.wsdl",
@@ -224,91 +212,35 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         "zimbraAdmin.xsd"
     };
 
-    try (JarFile jarFile = new JarFile(sdkJar)) {
-      for (String fileName : schemaFiles) {
-        String entryPath = "schemas/" + fileName;
-        var entry = jarFile.getEntry(entryPath);
-        if (entry == null) {
+    for (String fileName : schemaFiles) {
+      String resourcePath = "wsdl/" + fileName;
+      byte[] content;
+      try (InputStream is =
+          Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
+        if (is == null) {
           throw new RuntimeException(
-              "Schema entry not found in SDK jar: " + entryPath + " (jar: " + sdkJar + ")");
+              "Schema resource not found on classpath: " + resourcePath);
         }
-
-        byte[] content;
-        try (InputStream is = jarFile.getInputStream(entry)) {
-          content = is.readAllBytes();
-        }
-
-        // Upload to WireMock's __files at service/wsdl/{fileName}
-        // → served automatically at GET /service/wsdl/{fileName}
-        HttpRequest uploadRequest =
-            HttpRequest.newBuilder()
-                .uri(URI.create(wireMockAdminUrl + "/__admin/files/service/wsdl/" + fileName))
-                .header("Content-Type", "application/octet-stream")
-                .PUT(HttpRequest.BodyPublishers.ofByteArray(content))
-                .build();
-
-        HttpResponse<String> uploadResponse =
-            client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
-
-        if (uploadResponse.statusCode() != 200 && uploadResponse.statusCode() != 201) {
-          throw new RuntimeException(
-              "Failed to upload " + fileName + " to WireMock (HTTP "
-                  + uploadResponse.statusCode() + "): " + uploadResponse.body());
-        }
+        content = is.readAllBytes();
       }
-    }
-  }
 
-  private static final String UM_IMAGE =
-      "registry.dev.zextras.com/dev/carbonio-user-management:devel";
-  private static final String UM_JAR_PATH = "/app/carbonio-user-management.jar";
+      // Upload to WireMock's __files at service/wsdl/{fileName}
+      // → served automatically at GET /service/wsdl/{fileName}
+      HttpRequest uploadRequest =
+          HttpRequest.newBuilder()
+              .uri(URI.create(wireMockAdminUrl + "/__admin/files/service/wsdl/" + fileName))
+              .header("Content-Type", "application/octet-stream")
+              .PUT(HttpRequest.BodyPublishers.ofByteArray(content))
+              .build();
 
-  /**
-   * Creates a temporary (non-started) container from the user-management image, copies the
-   * uber-jar to the host filesystem, removes the temporary container, and returns the local
-   * path to the jar.
-   *
-   * <p>Using {@code docker create} instead of {@code docker run} means no JVM starts, so the
-   * operation is fast (a few seconds). The jar is written to a temp file that is deleted on JVM
-   * exit.
-   */
-  private static File extractSdkJarFromImage() throws Exception {
-    // Create a container (not started)
-    Process createProc = new ProcessBuilder(
-        "docker", "create", UM_IMAGE)
-        .redirectErrorStream(true)
-        .start();
-    String createOutput = new String(createProc.getInputStream().readAllBytes()).trim();
-    int createExit = createProc.waitFor();
-    if (createExit != 0) {
-      throw new RuntimeException(
-          "docker create failed (exit " + createExit + "): " + createOutput);
-    }
-    String containerId = createOutput.lines().filter(l -> l.matches("[0-9a-f]{64}")).findFirst()
-        .orElse(createOutput.trim()); // last line is the container ID
+      HttpResponse<String> uploadResponse =
+          client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
 
-    try {
-      // Copy the uber-jar out of the container
-      File tempJar = File.createTempFile("um-sdk-", ".jar");
-      tempJar.deleteOnExit();
-
-      Process cpProc = new ProcessBuilder(
-          "docker", "cp", containerId + ":" + UM_JAR_PATH, tempJar.getAbsolutePath())
-          .redirectErrorStream(true)
-          .start();
-      String cpOutput = new String(cpProc.getInputStream().readAllBytes()).trim();
-      int cpExit = cpProc.waitFor();
-      if (cpExit != 0) {
+      if (uploadResponse.statusCode() != 200 && uploadResponse.statusCode() != 201) {
         throw new RuntimeException(
-            "docker cp failed (exit " + cpExit + "): " + cpOutput);
+            "Failed to upload " + fileName + " to WireMock (HTTP "
+                + uploadResponse.statusCode() + "): " + uploadResponse.body());
       }
-      return tempJar;
-    } finally {
-      // Always remove the temporary container
-      new ProcessBuilder("docker", "rm", containerId)
-          .redirectErrorStream(true)
-          .start()
-          .waitFor();
     }
   }
 
