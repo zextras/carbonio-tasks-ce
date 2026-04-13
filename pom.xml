@@ -69,9 +69,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           <version>1.6.0</version>
           <configuration>
             <updatePomFile>true</updatePomFile>
-            <!-- oss mode: removes <parent> from deployed POM so library consumers
-                 don't need the parent POM to resolve transitive deps -->
-            <flattenMode>oss</flattenMode>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
           </configuration>
           <executions>
             <execution>
