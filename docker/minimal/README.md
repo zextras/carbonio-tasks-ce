@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 # Run tasks locally with Docker
 
 This minimal setup includes all necessary dependencies without mocks (with Consul being the only exception).

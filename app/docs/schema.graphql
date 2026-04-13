@@ -1,25 +1,29 @@
+# SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
 type Query {
   "Returns a single task by its ID for the authenticated user."
   getTask(
   taskId: String): TaskResponse
+  "Returns service metadata: name, version and flavour."
+  getServiceInfo: ServiceInfo
   "Returns all non-trashed tasks for the authenticated user, optionally filtered."
   findTasks(
   status: Status
   priority: Priority): [TaskResponse]
-  "Returns service metadata: name, version and flavour."
-  getServiceInfo: ServiceInfo
 }
 
 type Mutation {
   "Creates a new task for the authenticated user."
   createTask(
   newTask: NewTaskInputInput): TaskResponse
-  "Moves a task to the TRASH status, making it invisible to normal queries."
-  trashTask(
-  taskId: String): String
   "Updates an existing task. Only fields present in the input are modified."
   updateTask(
   updateTask: UpdateTaskInputInput): TaskResponse
+  "Moves a task to the TRASH status, making it invisible to normal queries."
+  trashTask(
+  taskId: String): String
 }
 
 type ServiceInfo {

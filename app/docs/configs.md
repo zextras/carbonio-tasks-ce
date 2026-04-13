@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 # Default Configuration
 
 ## Networking Config
@@ -29,14 +35,6 @@ Overridable by Consul KV
 | `carbonio-tasks/database/db-pool-max-lifetime` | *(not set)* | Quarkus default: no limit |
 | `carbonio-tasks/database/db-pool-max-size` | *(not set)* | Quarkus default: 20 |
 | `carbonio-tasks/database/db-pool-min-size` | *(not set)* | Quarkus default: 0 |
-| `carbonio-tasks/db-name` | *(not set)* |  |
-| `carbonio-tasks/db-password` | *(not set)* |  |
-| `carbonio-tasks/db-username` | *(not set)* |  |
-| `carbonio-tasks/hikari-idle-timeout` | *(not set)* |  |
-| `carbonio-tasks/hikari-leak-detection-threshold` | *(not set)* |  |
-| `carbonio-tasks/hikari-max-lifetime` | *(not set)* |  |
-| `carbonio-tasks/hikari-max-pool-size` | *(not set)* |  |
-| `carbonio-tasks/hikari-min-idle-connections` | *(not set)* |  |
 | `carbonio-tasks/server/idle-timeout` | *(not set)* | Quarkus default: 30s |
 | `carbonio-tasks/server/max-connections` | *(not set)* | Quarkus default: no limit |
 | `carbonio-tasks/server/max-threads` | *(not set)* | Quarkus default: 200 |

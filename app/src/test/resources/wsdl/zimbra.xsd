@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="urn:zimbraMail" xmlns:tns="urn:zimbra" xmlns:zimbra="urn:zimbra" elementFormDefault="qualified" targetNamespace="urn:zimbra" version="1.0">
+
+<!--
+SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
     
   <xs:import namespace="urn:zimbraMail" schemaLocation="zimbraMail.xsd"/>
     

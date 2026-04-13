@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 ## [1.0.1](https://github.com/zextras/carbonio-tasks-ce/compare/v1.0.0...v1.0.1) (2026-02-23)
 
 ### Bug Fixes
