@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 type Query {
+  "Returns service metadata: name, version and flavour."
+  getServiceInfo: ServiceInfo
   "Returns a single task by its ID for the authenticated user."
   getTask(
   taskId: String): TaskResponse
-  "Returns service metadata: name, version and flavour."
-  getServiceInfo: ServiceInfo
   "Returns all non-trashed tasks for the authenticated user, optionally filtered."
   findTasks(
   status: Status
@@ -15,15 +15,15 @@ type Query {
 }
 
 type Mutation {
-  "Updates an existing task. Only fields present in the input are modified."
-  updateTask(
-  updateTask: UpdateTaskInputInput): TaskResponse
-  "Creates a new task for the authenticated user."
-  createTask(
-  newTask: NewTaskInputInput): TaskResponse
   "Moves a task to the TRASH status, making it invisible to normal queries."
   trashTask(
   taskId: String): String
+  "Creates a new task for the authenticated user."
+  createTask(
+  newTask: NewTaskInputInput): TaskResponse
+  "Updates an existing task. Only fields present in the input are modified."
+  updateTask(
+  updateTask: UpdateTaskInputInput): TaskResponse
 }
 
 type ServiceInfo {
