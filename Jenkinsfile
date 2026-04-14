@@ -24,6 +24,7 @@ dt3_pipeline(
     ],
     sonarqube: true,
     reuse: [:],
+    reuseExcludePaths: ['**/db/migration/**'],
     bumpDownstream: [
         repo:                   'zextras/carbonio-tasks',
         branch:                 'devel',
