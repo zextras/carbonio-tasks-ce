@@ -6,6 +6,7 @@ package com.zextras.carbonio.tasks;
 
 import com.google.inject.Inject;
 import com.google.inject.servlet.GuiceFilter;
+import com.zextras.carbonio.systemd.SystemdNotify;
 import com.zextras.carbonio.tasks.Constants.Tasks;
 import com.zextras.carbonio.tasks.config.TasksConfig;
 import com.zextras.carbonio.tasks.graphql.GraphQLServlet;
@@ -58,6 +59,7 @@ public class JettyServer {
 
       server.setHandler(servletContextHandler);
       server.start();
+      SystemdNotify.ready("tasks ready");
       server.join();
 
     } finally {
