@@ -24,4 +24,9 @@ dt3_pipeline(
     ],
     sonarqube: true,
     reuse: [:],
+    bumpDownstream: [
+        repo:     'zextras/carbonio-tasks',
+        branch:   'devel',
+        property: 'carbonio-tasks-ce.version',
+    ],
 )
