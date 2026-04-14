@@ -28,6 +28,10 @@ dt3_pipeline(
         repo:                   'zextras/carbonio-tasks',
         branch:                 'devel',
         property:               'carbonio-tasks-ce.version',
-        notificationRecipients: ['matteo.galvagni@zextras.com'],
+        notificationRecipients: [
+            'matteo.galvagni@zextras.com',
+            'noman.alishaukat@zextras.com',
+            'riccardo.degan@zextras.com',
+        ],
     ],
 )
