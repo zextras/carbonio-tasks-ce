@@ -4,17 +4,16 @@
 
 package com.zextras.carbonio.tasks;
 
-import com.zextras.carbonio.quarkus.extensions.bootstrap.ConsulTestHelper;
-import com.zextras.carbonio.quarkus.extensions.bootstrap.db.CarbonioDatabaseServiceConfig;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Map;
-import org.testcontainers.consul.ConsulContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -34,6 +33,8 @@ import org.testcontainers.lifecycle.Startables;
  *       token validation — is stubbed by a WireMock SOAP server. mailbox's own
  *       integration with LDAP, MariaDB, and Postfix is covered by user-management's
  *       integration test suite, not ours.</li>
+ *   <li>Consul is also stubbed by the same WireMock container (via a second network alias)
+ *       so no real Consul container is needed.</li>
  * </ul>
  *
  * <p>Containers are static singletons: they start once per JVM and are reused
@@ -67,7 +68,6 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static GenericContainer<?> wireMock;
   private static GenericContainer<?> userManagement;
-  private static ConsulContainer consul;
   private static PostgreSQLContainer<?> postgres;
   private static Network network;
 
@@ -82,17 +82,12 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     wireMock =
         new GenericContainer<>("wiremock/wiremock:3.9.2")
             .withNetwork(network)
-            .withNetworkAliases("carbonio-mailbox-mock")
+            .withNetworkAliases("carbonio-mailbox-mock", "consul")
             .withExposedPorts(8080)
             .waitingFor(
                 Wait.forHttp("/__admin/health")
                     .forPort(8080)
                     .withStartupTimeout(Duration.ofMinutes(2)));
-
-    consul =
-        new ConsulContainer("hashicorp/consul:1.22.3")
-            .withNetwork(network)
-            .withNetworkAliases("consul");
 
     postgres =
         new PostgreSQLContainer<>("postgres:16")
@@ -100,20 +95,23 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             .withUsername(DB_USER)
             .withPassword(DB_PASSWORD);
 
-    // WireMock, consul, and postgres have no inter-dependencies — start in parallel.
-    Startables.deepStart(wireMock, consul, postgres).join();
+    // WireMock and postgres have no inter-dependencies — start in parallel.
+    Startables.deepStart(wireMock, postgres).join();
 
     // Configure WireMock BEFORE starting user-management:
     //   1. Upload the WSDL and XSD schema files so user-management's JAX-WS client can
     //      parse the WSDL at http://{mailboxHost}/service/wsdl/ZimbraService.wsdl on boot.
     //   2. Register the SOAP stub for GetInfoRequest token validation.
+    //   3. Register Consul HTTP API stubs so both tasks-ce and user-management can
+    //      perform service discovery / KV lookups against WireMock on port 8080.
     try {
       String wireMockAdminUrl =
           "http://" + wireMock.getHost() + ":" + wireMock.getMappedPort(8080);
       uploadWsdlAndSchemas(wireMockAdminUrl);
       setupMailboxWireMockStub(wireMockAdminUrl);
+      setupConsulStubs(wireMockAdminUrl);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to configure WireMock mailbox stub", e);
+      throw new RuntimeException("Failed to configure WireMock stubs", e);
     }
 
     userManagement =
@@ -125,29 +123,17 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_HOST", "0.0.0.0")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_PORT", "10000")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_HOST", "consul")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8500")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8080")
             // Point user-management at WireMock instead of a real mailbox
             .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_HOST", "carbonio-mailbox-mock")
             .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_PORT", "8080")
-            .dependsOn(consul)
+            .dependsOn(wireMock)
             .waitingFor(
                 Wait.forHttp("/q/health/live")
                     .forPort(10000)
                     .withStartupTimeout(Duration.ofMinutes(5)));
 
     userManagement.start();
-
-    // Pre-populate tasks-ce DB credentials in Consul KV so the database extension finds them.
-    String consulHost = consul.getHost();
-    int consulPort = consul.getFirstMappedPort();
-    ConsulTestHelper helper = new ConsulTestHelper(consulHost, consulPort);
-    String svc = "carbonio-tasks";
-    helper.putValue(
-        svc + "/" + CarbonioDatabaseServiceConfig.ApplicationConfig.DB_NAME, DB_NAME);
-    helper.putValue(
-        svc + "/" + CarbonioDatabaseServiceConfig.ApplicationConfig.DB_USERNAME, DB_USER);
-    helper.putValue(
-        svc + "/" + CarbonioDatabaseServiceConfig.ApplicationConfig.DB_PASSWORD, DB_PASSWORD);
 
     POSTGRES_JDBC_URL =
         String.format(
@@ -158,10 +144,11 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         Map.ofEntries(
             // Service identity
             Map.entry("networking-config.carbonio.service.host", "localhost"),
-            // Consul (tasks-ce service discovery)
-            Map.entry("networking-config.carbonio.service-discover.host", consulHost),
+            // Consul (tasks-ce service discovery) → WireMock acting as consul
+            Map.entry("networking-config.carbonio.service-discover.host", wireMock.getHost()),
             Map.entry(
-                "networking-config.carbonio.service-discover.port", String.valueOf(consulPort)),
+                "networking-config.carbonio.service-discover.port",
+                String.valueOf(wireMock.getMappedPort(8080))),
             // PostgreSQL (tasks database)
             Map.entry("networking-config.carbonio.postgresql.host", postgres.getHost()),
             Map.entry(
@@ -334,6 +321,91 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
       throw new RuntimeException(
           "Failed to configure WireMock stub (HTTP " + response.statusCode() + "): "
               + response.body());
+    }
+  }
+
+  /**
+   * Registers WireMock stubs that impersonate the Consul HTTP API.
+   *
+   * <p>tasks-ce reads its DB credentials from Consul KV at startup.
+   * user-management reads optional cache-TTL config (returns 404 → defaults used).
+   * Both services register themselves as Consul services (→ 200 stubs).
+   */
+  private static void setupConsulStubs(String wireMockAdminUrl) throws Exception {
+    HttpClient client = HttpClient.newHttpClient();
+
+    // DB credentials for tasks-ce
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-name",     DB_NAME);
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-username", DB_USER);
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-password", DB_PASSWORD);
+
+    // Catch-all for unknown KV keys → 404 (priority 10 = lowest)
+    postStub(client, wireMockAdminUrl,
+        "{\"priority\":10,"
+        + "\"request\":{\"method\":\"GET\",\"urlPattern\":\"/v1/kv/.*\"},"
+        + "\"response\":{\"status\":404}}");
+
+    // Service registration / deregistration → 200
+    for (String pattern : new String[]{
+        "/v1/agent/service/register.*",
+        "/v1/agent/service/deregister/.*",
+        "/v1/agent/check/register.*",
+        "/v1/agent/check/deregister/.*"}) {
+      postStub(client, wireMockAdminUrl,
+          "{\"request\":{\"method\":\"PUT\",\"urlPattern\":\"" + pattern + "\"},"
+          + "\"response\":{\"status\":200}}");
+    }
+
+    // Service discovery → empty array
+    for (String pattern : new String[]{"/v1/health/service/.*", "/v1/catalog/service/.*"}) {
+      postStub(client, wireMockAdminUrl,
+          "{\"request\":{\"method\":\"GET\",\"urlPattern\":\"" + pattern + "\"},"
+          + "\"response\":{\"status\":200,"
+          + "\"headers\":{\"Content-Type\":\"application/json\"},\"body\":\"[]\"}}");
+    }
+
+    // Agent self / status
+    postStub(client, wireMockAdminUrl,
+        "{\"request\":{\"method\":\"GET\",\"url\":\"/v1/agent/self\"},"
+        + "\"response\":{\"status\":200,"
+        + "\"headers\":{\"Content-Type\":\"application/json\"},"
+        + "\"body\":\"{\\\\\"Config\\\\\":{\\\\\"Datacenter\\\\\":\\\\\"dc1\\\\\","
+        + "\\\\\"NodeName\\\\\":\\\\\"mock-consul\\\\\"}}\"}}");
+    postStub(client, wireMockAdminUrl,
+        "{\"request\":{\"method\":\"GET\",\"url\":\"/v1/status/leader\"},"
+        + "\"response\":{\"status\":200,"
+        + "\"headers\":{\"Content-Type\":\"application/json\"},"
+        + "\"body\":\"\\\\\"127.0.0.1:8300\\\\\"\"}}");
+  }
+
+  /** Registers a Consul KV GET stub that returns value in Consul's JSON-array format. */
+  private static void postConsulKvStub(
+      HttpClient client, String baseUrl, String key, String value) throws Exception {
+    String b64 = Base64.getEncoder()
+        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    String body = "[{\"LockIndex\":0,\"Key\":\"" + key + "\",\"Flags\":0,"
+        + "\"Value\":\"" + b64 + "\",\"CreateIndex\":1,\"ModifyIndex\":1}]";
+    // Escape body string for embedding inside JSON "body" field value
+    String escapedBody = body.replace("\\", "\\\\").replace("\"", "\\\"");
+    postStub(client, baseUrl,
+        "{\"priority\":1,"
+        + "\"request\":{\"method\":\"GET\",\"url\":\"/v1/kv/" + key + "\"},"
+        + "\"response\":{\"status\":200,"
+        + "\"headers\":{\"Content-Type\":\"application/json\"},"
+        + "\"body\":\"" + escapedBody + "\"}}");
+  }
+
+  /** Posts a single WireMock stub JSON to the admin mappings endpoint. */
+  private static void postStub(HttpClient client, String baseUrl, String stubJson) throws Exception {
+    HttpRequest req = HttpRequest.newBuilder()
+        .uri(URI.create(baseUrl + "/__admin/mappings"))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(stubJson))
+        .build();
+    HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+    if (resp.statusCode() != 201) {
+      throw new RuntimeException(
+          "Failed to register consul stub (HTTP " + resp.statusCode() + "): " + resp.body());
     }
   }
 }
