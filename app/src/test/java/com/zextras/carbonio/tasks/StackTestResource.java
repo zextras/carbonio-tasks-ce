@@ -334,11 +334,18 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   private static void setupConsulStubs(String wireMockAdminUrl) throws Exception {
     HttpClient client = HttpClient.newHttpClient();
 
-    // DB credentials for tasks-ce — extension 1.8.0-1 path format
-    // (bootstrap-database extension maps "database.credentials.db-name" → "database/credentials/db-name")
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-name",     DB_NAME);
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-username", DB_USER);
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-password", DB_PASSWORD);
+    // DB credentials for tasks-ce.
+    // CarbonioBootstrapFactory.loadConsulKV() issues a SINGLE recursive GET:
+    //   GET /v1/kv/carbonio-tasks/?recurse
+    // and expects a JSON array of all KV entries. Individual-key stubs never match that
+    // request, so we register one stub that covers the whole prefix and returns all three
+    // credential entries in the Consul recursive-response format.
+    postConsulKvRecursiveStub(client, wireMockAdminUrl, "carbonio-tasks/",
+        new String[][]{
+            {"carbonio-tasks/database/credentials/db-name",     DB_NAME},
+            {"carbonio-tasks/database/credentials/db-username", DB_USER},
+            {"carbonio-tasks/database/credentials/db-password", DB_PASSWORD},
+        });
 
     // Catch-all for unknown KV keys → 404 (priority 10 = lowest; urlPathPattern ignores query)
     postStub(client, wireMockAdminUrl,
@@ -378,19 +385,38 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         + "\"body\":\"\\\"127.0.0.1:8300\\\"\"}}");
   }
 
-  /** Registers a Consul KV GET stub that returns value in Consul's JSON-array format. */
-  private static void postConsulKvStub(
-      HttpClient client, String baseUrl, String key, String value) throws Exception {
-    String b64 = Base64.getEncoder()
-        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
-    String body = "[{\"LockIndex\":0,\"Key\":\"" + key + "\",\"Flags\":0,"
-        + "\"Value\":\"" + b64 + "\",\"CreateIndex\":1,\"ModifyIndex\":1}]";
-    // Escape body string for embedding inside JSON "body" field value
-    String escapedBody = body.replace("\\", "\\\\").replace("\"", "\\\"");
-    // urlPath ignores query string — Consul clients append ?recurse=true, ?index=..., etc.
+  /**
+   * Registers a single WireMock stub that matches the Consul recursive KV fetch:
+   *   GET /v1/kv/{prefix}?recurse   (urlPath ignores the query string)
+   *
+   * <p>CarbonioBootstrapFactory issues exactly one bulk GET — it never fetches individual keys.
+   * The response is a JSON array with one object per key-value pair, values base64-encoded,
+   * which is exactly what the real Consul API returns for {@code ?recurse}.</p>
+   *
+   * @param kvEntries  array of {key, plainTextValue} pairs to include in the response
+   */
+  private static void postConsulKvRecursiveStub(
+      HttpClient client, String baseUrl, String prefix, String[][] kvEntries) throws Exception {
+    StringBuilder arrayBody = new StringBuilder("[");
+    for (int i = 0; i < kvEntries.length; i++) {
+      String key   = kvEntries[i][0];
+      String value = kvEntries[i][1];
+      String b64   = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+      if (i > 0) arrayBody.append(",");
+      arrayBody.append("{\"LockIndex\":0,\"Key\":\"").append(key).append("\",\"Flags\":0,")
+               .append("\"Value\":\"").append(b64).append("\",\"CreateIndex\":1,\"ModifyIndex\":1}");
+    }
+    arrayBody.append("]");
+
+    // Escape the JSON array for embedding as a string value inside the WireMock stub JSON
+    String escapedBody = arrayBody.toString()
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"");
+
+    // urlPath matches /v1/kv/carbonio-tasks/ regardless of ?recurse or any other query param
     postStub(client, baseUrl,
         "{\"priority\":1,"
-        + "\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/kv/" + key + "\"},"
+        + "\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/kv/" + prefix + "\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
         + "\"body\":\"" + escapedBody + "\"}}");
