@@ -370,13 +370,12 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/agent/self\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
-        + "\"body\":\"{\\\\\"Config\\\\\":{\\\\\"Datacenter\\\\\":\\\\\"dc1\\\\\","
-        + "\\\\\"NodeName\\\\\":\\\\\"mock-consul\\\\\"}}\"}}");
+        + "\"jsonBody\":{\"Config\":{\"Datacenter\":\"dc1\",\"NodeName\":\"mock-consul\"}}}}");
     postStub(client, wireMockAdminUrl,
         "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/status/leader\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
-        + "\"body\":\"\\\\\"127.0.0.1:8300\\\\\"\"}}");
+        + "\"body\":\"\\\"127.0.0.1:8300\\\"\"}}");
   }
 
   /** Registers a Consul KV GET stub that returns value in Consul's JSON-array format. */
