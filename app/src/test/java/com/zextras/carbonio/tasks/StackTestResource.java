@@ -340,10 +340,10 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-username", DB_USER);
     postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-password", DB_PASSWORD);
 
-    // Catch-all for unknown KV keys → 404 (priority 10 = lowest)
+    // Catch-all for unknown KV keys → 404 (priority 10 = lowest; urlPathPattern ignores query)
     postStub(client, wireMockAdminUrl,
         "{\"priority\":10,"
-        + "\"request\":{\"method\":\"GET\",\"urlPattern\":\"/v1/kv/.*\"},"
+        + "\"request\":{\"method\":\"GET\",\"urlPathPattern\":\"/v1/kv/.*\"},"
         + "\"response\":{\"status\":404}}");
 
     // Service registration / deregistration → 200
@@ -353,27 +353,27 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         "/v1/agent/check/register.*",
         "/v1/agent/check/deregister/.*"}) {
       postStub(client, wireMockAdminUrl,
-          "{\"request\":{\"method\":\"PUT\",\"urlPattern\":\"" + pattern + "\"},"
+          "{\"request\":{\"method\":\"PUT\",\"urlPathPattern\":\"" + pattern + "\"},"
           + "\"response\":{\"status\":200}}");
     }
 
     // Service discovery → empty array
     for (String pattern : new String[]{"/v1/health/service/.*", "/v1/catalog/service/.*"}) {
       postStub(client, wireMockAdminUrl,
-          "{\"request\":{\"method\":\"GET\",\"urlPattern\":\"" + pattern + "\"},"
+          "{\"request\":{\"method\":\"GET\",\"urlPathPattern\":\"" + pattern + "\"},"
           + "\"response\":{\"status\":200,"
           + "\"headers\":{\"Content-Type\":\"application/json\"},\"body\":\"[]\"}}");
     }
 
-    // Agent self / status
+    // Agent self / status (urlPath = path-only exact match, ignores query string)
     postStub(client, wireMockAdminUrl,
-        "{\"request\":{\"method\":\"GET\",\"url\":\"/v1/agent/self\"},"
+        "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/agent/self\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
         + "\"body\":\"{\\\\\"Config\\\\\":{\\\\\"Datacenter\\\\\":\\\\\"dc1\\\\\","
         + "\\\\\"NodeName\\\\\":\\\\\"mock-consul\\\\\"}}\"}}");
     postStub(client, wireMockAdminUrl,
-        "{\"request\":{\"method\":\"GET\",\"url\":\"/v1/status/leader\"},"
+        "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/status/leader\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
         + "\"body\":\"\\\\\"127.0.0.1:8300\\\\\"\"}}");
@@ -388,9 +388,10 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
         + "\"Value\":\"" + b64 + "\",\"CreateIndex\":1,\"ModifyIndex\":1}]";
     // Escape body string for embedding inside JSON "body" field value
     String escapedBody = body.replace("\\", "\\\\").replace("\"", "\\\"");
+    // urlPath ignores query string — Consul clients append ?recurse=true, ?index=..., etc.
     postStub(client, baseUrl,
         "{\"priority\":1,"
-        + "\"request\":{\"method\":\"GET\",\"url\":\"/v1/kv/" + key + "\"},"
+        + "\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/kv/" + key + "\"},"
         + "\"response\":{\"status\":200,"
         + "\"headers\":{\"Content-Type\":\"application/json\"},"
         + "\"body\":\"" + escapedBody + "\"}}");
