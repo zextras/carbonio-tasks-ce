@@ -334,10 +334,11 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   private static void setupConsulStubs(String wireMockAdminUrl) throws Exception {
     HttpClient client = HttpClient.newHttpClient();
 
-    // DB credentials for tasks-ce
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-name",     DB_NAME);
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-username", DB_USER);
-    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/db-password", DB_PASSWORD);
+    // DB credentials for tasks-ce — extension 1.8.0-1 path format
+    // (bootstrap-database extension maps "database.credentials.db-name" → "database/credentials/db-name")
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-name",     DB_NAME);
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-username", DB_USER);
+    postConsulKvStub(client, wireMockAdminUrl, "carbonio-tasks/database/credentials/db-password", DB_PASSWORD);
 
     // Catch-all for unknown KV keys → 404 (priority 10 = lowest)
     postStub(client, wireMockAdminUrl,
