@@ -7,12 +7,14 @@ package com.zextras.carbonio.tasks.graphql.types;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import org.eclipse.microprofile.graphql.Id;
+import org.eclipse.microprofile.graphql.Name;
 
 /**
  * GraphQL output type for a {@link com.zextras.carbonio.tasks.dal.dao.Task}.
  *
  * <p>Dates are represented as epoch milliseconds (Long) — SmallRye maps these to BigInteger.
  */
+@Name("Task")
 public class TaskResponse {
 
   @Id
