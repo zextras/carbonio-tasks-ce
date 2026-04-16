@@ -16,7 +16,12 @@ dt3_pipeline(
     projectType: 'CE',
     mavenPublish: ['app'],
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
-    packaging: [pkgbuildPath: 'package/PKGBUILD', buildFlags: '-ds'],
+    packaging: [
+        pkgbuildPath: 'package/PKGBUILD',
+        buildFlags: '-ds',
+        ubuntuSinglePkg: false,
+        rockySinglePkg: false,
+    ],
     docker: [
         [dockerfile: 'Dockerfile',
          imageName: 'carbonio-tasks-ce',
