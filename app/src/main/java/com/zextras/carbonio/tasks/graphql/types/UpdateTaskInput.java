@@ -7,8 +7,10 @@ package com.zextras.carbonio.tasks.graphql.types;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import org.eclipse.microprofile.graphql.Id;
+import org.eclipse.microprofile.graphql.Name;
 
 /** GraphQL input type for the {@code updateTask} mutation. */
+@Name("UpdateTaskInput")
 public class UpdateTaskInput {
 
   @Id
