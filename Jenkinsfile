@@ -41,4 +41,9 @@ dt3_pipeline(
             'riccardo.degan@zextras.com',
         ],
     ],
+    failureNotificationRecipients: [
+        'matteo.galvagni@zextras.com',
+        'noman.alishaukat@zextras.com',
+        'riccardo.degan@zextras.com',
+    ],
 )
