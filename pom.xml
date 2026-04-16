@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
+SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
@@ -13,7 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <licenses>
     <license>
-      <comments>Copyright (C) 2023 Zextras, https://www.zextras.com</comments>
+      <comments>Copyright (C) 2026 Zextras, https://www.zextras.com</comments>
       <name>AGPL-3.0-only</name>
     </license>
   </licenses>
@@ -27,52 +27,24 @@ SPDX-License-Identifier: AGPL-3.0-only
   <url>https://www.github.com/Zextras/carbonio-tasks-ce</url>
 
   <modules>
-    <module>boot</module>
-    <module>core</module>
+    <module>app</module>
   </modules>
 
   <properties>
     <!-- Dependencies -->
-    <assertj.version>3.27.3</assertj.version>
-    <apache-httpclient.version>5.4.4</apache-httpclient.version>
     <carbonio-user-management-grpc-sdk.version>1.0.3-dev.1.324e7740</carbonio-user-management-grpc-sdk.version>
-    <io.grpc.version>1.73.0</io.grpc.version>
-    <ebean.version>15.5.1</ebean.version>
-    <graphql-java-servlet.version>16.0.0</graphql-java-servlet.version>
-    <guice.version>7.0.0</guice.version>
-    <hikaricp.version>5.1.0</hikaricp.version>
-    <jakarta-servlet-api.version>6.1.0</jakarta-servlet-api.version>
-    <jetty.version>12.0.12</jetty.version>
-    <jsonassert.version>1.5.3</jsonassert.version>
-    <junit5.version>5.11.0</junit5.version>
-    <logback-classic.version>1.5.7</logback-classic.version>
-    <mock-server.version>5.15.0</mock-server.version>
-    <mockito.version>5.20.0</mockito.version>
-    <postgresql.version>42.7.7</postgresql.version>
-    <testcontainers.version>2.0.2</testcontainers.version>
-    <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
-    <testcontainers.junit.jupiter.version>1.21.3</testcontainers.junit.jupiter.version>
-    <resteasy.version>6.2.7.Final</resteasy.version>
-    <resteasy-guice.version>6.2.7-alpha</resteasy-guice.version>
-    <flyway-database-postgresql.version>11.8.1</flyway-database-postgresql.version>
 
     <!-- Plugins -->
-    <build-helper-maven.version>3.6.0</build-helper-maven.version>
-    <maven-shade.version>3.6.1</maven-shade.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
     <maven-failsafe.version>3.5.4</maven-failsafe.version>
     <maven-jacoco.version>0.8.12</maven-jacoco.version>
     <maven-surefire.version>3.5.4</maven-surefire.version>
-    <tiles-maven.version>2.40</tiles-maven.version>
 
     <!-- Other properties -->
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <java-compiler.version>21</java-compiler.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.coverage.jacoco.xmlReportPaths>
-      ../core/target/jacoco-full-report/jacoco.xml
-    </sonar.coverage.jacoco.xmlReportPaths>
     <sonar.dependencyCheck.htmlReportPath>
       ./dependency-check-report.html
     </sonar.dependencyCheck.htmlReportPath>
@@ -81,209 +53,51 @@ SPDX-License-Identifier: AGPL-3.0-only
     <skip.integration.tests>true</skip.integration.tests>
     <skip.unit.tests>true</skip.unit.tests>
     <skip.jacoco.full.report.generation>true</skip.jacoco.full.report.generation>
+
     <!-- CI-friendly versioning -->
     <revision>1.0.1</revision>
+    <!-- changelist default is -SNAPSHOT; override with -Dchangelist= for releases -->
+    <changelist>-SNAPSHOT</changelist>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.6.0</version>
+          <configuration>
+            <updatePomFile>true</updatePomFile>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <!-- Use validate so ${revision}${changelist} is resolved before Quarkus phases -->
+              <phase>validate</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
 
-      <!-- Injector -->
-      <dependency>
-        <groupId>com.google.inject</groupId>
-        <artifactId>guice</artifactId>
-        <version>${guice.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.inject.extensions</groupId>
-        <artifactId>guice-servlet</artifactId>
-        <version>${guice.version}</version>
-      </dependency>
-
-      <!-- Logger -->
-      <dependency>
-        <artifactId>logback-classic</artifactId>
-        <groupId>ch.qos.logback</groupId>
-        <version>${logback-classic.version}</version>
-      </dependency>
-
-      <!-- Jetty dependencies -->
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jetty.ee10</groupId>
-        <artifactId>jetty-ee10-servlet</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <version>${jakarta-servlet-api.version}</version>
-      </dependency>
-
-      <!-- GraphQL servlet -->
-      <dependency>
-        <groupId>com.graphql-java-kickstart</groupId>
-        <artifactId>graphql-java-servlet</artifactId>
-        <version>${graphql-java-servlet.version}</version>
-      </dependency>
-
-      <!-- RESTEasy + servlet-initializer -->
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-core</artifactId>
-        <version>${resteasy.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-servlet-initializer</artifactId>
-        <version>${resteasy.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.federicorispo</groupId>
-        <artifactId>resteasy-guice</artifactId>
-        <version>${resteasy-guice.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-jackson2-provider</artifactId>
-        <version>${resteasy.version}</version>
-      </dependency>
-
-      <!-- Authentication (gRPC) -->
-      <dependency>
-        <groupId>com.zextras.carbonio.user-management</groupId>
-        <artifactId>carbonio-user-management-grpc-sdk</artifactId>
-        <version>${carbonio-user-management-grpc-sdk.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-netty-shaded</artifactId>
-        <version>${io.grpc.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-inprocess</artifactId>
-        <version>${io.grpc.version}</version>
-      </dependency>
-
-      <!-- Database -->
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>${hikaricp.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.ebean</groupId>
-        <artifactId>ebean-postgres</artifactId>
-        <version>${ebean.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-database-postgresql</artifactId>
-        <version>${flyway-database-postgresql.version}</version>
-      </dependency>
-
-      <!-- HTTP client -->
-      <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${apache-httpclient.version}</version>
-      </dependency>
-
-      <!-- Testing -->
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <version>${assertj.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <!-- Helper to test JSON responses -->
-      <dependency>
-        <groupId>org.skyscreamer</groupId>
-        <artifactId>jsonassert</artifactId>
-        <version>${jsonassert.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <!-- Testcontainers -->
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers</artifactId>
-        <version>${testcontainers.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>${testcontainers.junit.jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${testcontainers.postgresql.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.mock-server</groupId>
-        <artifactId>mockserver-netty-no-dependencies</artifactId>
-        <version>${mock-server.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.mock-server</groupId>
-        <artifactId>mockserver-client-java-no-dependencies</artifactId>
-        <version>${mock-server.version}</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${maven-jacoco.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <repositories>
     <repository>
@@ -292,6 +106,14 @@ SPDX-License-Identifier: AGPL-3.0-only
       <url>https://zextras.jfrog.io/artifactory/java-sdk</url>
     </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>artifactory</id>
+      <name>Zextras releases</name>
+      <url>https://zextras.jfrog.io/artifactory/public-maven-repo</url>
+    </repository>
+  </distributionManagement>
 
   <profiles>
     <profile>

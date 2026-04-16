@@ -26,3 +26,7 @@ LICENSES
 
 # VS Code
 .vscode/.run/
+
+# Quarkus build artifacts
+.flattened-pom.xml
+/META-INF/

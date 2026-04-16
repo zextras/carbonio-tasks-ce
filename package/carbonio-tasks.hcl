@@ -4,7 +4,7 @@
 
 services {
   check {
-    http     = "http://127.78.0.16:10000/rest/health/live/"
+    http     = "http://127.78.0.16:10000/q/health/live"
     method   = "GET"
     timeout  = "1s"
     interval = "5s"
