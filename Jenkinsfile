@@ -14,6 +14,7 @@ library(
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     projectType: 'CE',
+    mavenPublish: [module: 'app'],
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
     packaging: [pkgbuildPath: 'package/PKGBUILD', buildFlags: '-ds'],
     docker: [
