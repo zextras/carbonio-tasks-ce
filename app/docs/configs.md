@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
-
-SPDX-License-Identifier: AGPL-3.0-only
--->
-
 # Default Configuration
 
 ## Networking Config
@@ -16,7 +10,7 @@ Overridable by `/etc/carbonio/tasks/config.properties`
 | `carbonio.postgresql.port` | `20000` |
 | `carbonio.service-discover.host` | `127.0.0.1` |
 | `carbonio.service-discover.port` | `8500` |
-| `carbonio.service.host` | `0.0.0.0` |
+| `carbonio.service.host` | `127.78.0.16` |
 | `carbonio.service.port` | `10000` |
 | `carbonio.user-management.host` | `127.78.0.16` |
 | `carbonio.user-management.port` | `20001` |
