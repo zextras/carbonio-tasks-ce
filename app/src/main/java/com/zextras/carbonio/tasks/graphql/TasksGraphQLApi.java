@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.eclipse.microprofile.graphql.Description;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.GraphQLException;
+import org.eclipse.microprofile.graphql.Id;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Name;
 import org.eclipse.microprofile.graphql.Query;
@@ -55,7 +56,7 @@ public class TasksGraphQLApi {
 
   @Query("getTask")
   @Description("Returns a single task by its ID for the authenticated user.")
-  public TaskResponse getTask(@Name("taskId") String taskId) throws GraphQLException {
+  public TaskResponse getTask(@Id @Name("taskId") String taskId) throws GraphQLException {
     String userId = requestContext.getRequesterId();
     UUID uuid = UUID.fromString(taskId);
 
@@ -156,8 +157,9 @@ public class TasksGraphQLApi {
   }
 
   @Mutation("trashTask")
+  @Id
   @Description("Moves a task to the TRASH status, making it invisible to normal queries.")
-  public String trashTask(@Name("taskId") String taskId) throws GraphQLException {
+  public String trashTask(@Id @Name("taskId") String taskId) throws GraphQLException {
     String userId = requestContext.getRequesterId();
     UUID uuid = UUID.fromString(taskId);
 
