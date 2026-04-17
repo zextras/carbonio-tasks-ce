@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21.0.10_7-jdk-alpine
 
 WORKDIR /app
 
