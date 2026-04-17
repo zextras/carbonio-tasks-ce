@@ -1,22 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
 type Query {
-  "Returns service metadata: name, version and flavour."
-  getServiceInfo: ServiceInfo
+  "Returns a single task by its ID for the authenticated user."
+  getTask(
+  taskId: ID): Task
   "Returns all non-trashed tasks for the authenticated user, optionally filtered."
   findTasks(
   status: Status
-  priority: Priority): [TaskResponse]
-  "Returns a single task by its ID for the authenticated user."
-  getTask(
-  taskId: ID): TaskResponse
+  priority: Priority): [Task]
+  "Returns service metadata: name, version and flavour."
+  getServiceInfo: ServiceInfo
 }
 
 type Mutation {
-  "Creates a new task for the authenticated user."
-  createTask(
-  newTask: NewTaskInputInput): TaskResponse
   "Updates an existing task. Only fields present in the input are modified."
   updateTask(
-  updateTask: UpdateTaskInputInput): TaskResponse
+  updateTask: UpdateTaskInput): Task
+  "Creates a new task for the authenticated user."
+  createTask(
+  newTask: NewTaskInput): Task
   "Moves a task to the TRASH status, making it invisible to normal queries."
   trashTask(
   taskId: ID): ID
@@ -28,7 +32,7 @@ type ServiceInfo {
   version: String
 }
 
-type TaskResponse {
+type Task {
   createdAt: BigInteger
   description: String
   id: ID
@@ -39,7 +43,7 @@ type TaskResponse {
   title: String
 }
 
-input UpdateTaskInputInput {
+input UpdateTaskInput {
   description: String
   id: ID
   priority: Priority
@@ -49,7 +53,7 @@ input UpdateTaskInputInput {
   title: String
 }
 
-input NewTaskInputInput {
+input NewTaskInput {
   description: String
   priority: Priority
   reminderAllDay: Boolean
