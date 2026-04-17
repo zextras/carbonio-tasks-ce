@@ -2,11 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-FROM ubuntu:noble
-WORKDIR /app
+FROM --platform=linux/amd64 ubuntu:noble
+
+LABEL maintainer="Zextras <https://www.zextras.com>"
+LABEL description="Carbonio Tasks CE - Task management service (native binary)"
+
 RUN groupadd -r carbonio-tasks && useradd -r -g carbonio-tasks carbonio-tasks
-COPY app/target/*-runner ./runner
-RUN chmod +x ./runner
+
+WORKDIR /app
+
+COPY app/target/*-runner /app/carbonio-tasks-ce-runner
+RUN chmod +x /app/carbonio-tasks-ce-runner
+
 USER carbonio-tasks
+
 EXPOSE 10000
-CMD ["./runner", "-Djava.net.preferIPv4Stack=true"]
+
+ENTRYPOINT ["/app/carbonio-tasks-ce-runner", "-Djava.net.preferIPv4Stack=true"]
