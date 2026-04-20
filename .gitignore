@@ -30,3 +30,6 @@ LICENSES
 # Quarkus build artifacts
 .flattened-pom.xml
 /META-INF/
+
+# Docker packaging artifacts
+docker/packaging/artifacts/
