@@ -23,7 +23,7 @@ dt3_pipeline(
         rockySinglePkg: false,
     ],
     docker: [
-        [dockerfile: 'Dockerfile',
+        [dockerfile: 'docker/Dockerfile',
          imageName: 'carbonio-tasks-ce',
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
