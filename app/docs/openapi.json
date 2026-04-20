@@ -1,0 +1,11 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "carbonio-tasks-ce-app API",
+    "version" : "unversioned"
+  },
+  "paths" : { },
+  "servers" : [ {
+    "url" : "http://localhost:10000"
+  } ]
+}
