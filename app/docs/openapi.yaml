@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+---
+openapi: 3.1.0
+info:
+  title: carbonio-tasks-ce-app API
+  version: unversioned
+paths: {}
+servers:
+- url: http://localhost:10000
