@@ -15,12 +15,12 @@ type Query {
 }
 
 type Mutation {
-  "Moves a task to the TRASH status, making it invisible to normal queries."
-  trashTask(
-  taskId: ID): ID
   "Creates a new task for the authenticated user."
   createTask(
   newTask: NewTaskInput): Task
+  "Moves a task to the TRASH status, making it invisible to normal queries."
+  trashTask(
+  taskId: ID): ID
   "Updates an existing task. Only fields present in the input are modified."
   updateTask(
   updateTask: UpdateTaskInput): Task
