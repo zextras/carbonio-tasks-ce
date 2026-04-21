@@ -5,7 +5,6 @@
 package com.zextras.carbonio.tasks;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -30,9 +29,9 @@ import org.testcontainers.lifecycle.Startables;
  *   <li>Indirect dependencies (dependencies of our direct deps) are replaced with
  *       lightweight mocks so that our IT suite is isolated from their failures.
  *       Specifically, {@code carbonio-mailbox} — which user-management calls for
- *       token validation — is stubbed by a WireMock SOAP server. mailbox's own
- *       integration with LDAP, MariaDB, and Postfix is covered by user-management's
- *       integration test suite, not ours.</li>
+ *       token validation via its internal REST API — is stubbed by WireMock.
+ *       mailbox's own integration with LDAP, MariaDB, and Postfix is covered by
+ *       user-management's integration test suite, not ours.</li>
  *   <li>Consul is also stubbed by the same WireMock container (via a second network alias)
  *       so no real Consul container is needed.</li>
  * </ul>
@@ -57,7 +56,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
    */
   public static final String AUTH_TOKEN = "test-auth-token-tasks-ce";
 
-  /** Fixed {@code zimbraId} returned by the WireMock SOAP stub for the test user. */
+  /** Fixed account ID returned by the WireMock internal API stub for the test user. */
   public static final String TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
 
   /**
@@ -99,15 +98,12 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     Startables.deepStart(wireMock, postgres).join();
 
     // Configure WireMock BEFORE starting user-management:
-    //   1. Upload the WSDL and XSD schema files so user-management's JAX-WS client can
-    //      parse the WSDL at http://{mailboxHost}/service/wsdl/ZimbraService.wsdl on boot.
-    //   2. Register the SOAP stub for GetInfoRequest token validation.
-    //   3. Register Consul HTTP API stubs so both tasks-ce and user-management can
+    //   1. Register the REST stub for GET /internal/accounts/myself token validation.
+    //   2. Register Consul HTTP API stubs so both tasks-ce and user-management can
     //      perform service discovery / KV lookups against WireMock on port 8080.
     try {
       String wireMockAdminUrl =
           "http://" + wireMock.getHost() + ":" + wireMock.getMappedPort(8080);
-      uploadWsdlAndSchemas(wireMockAdminUrl);
       setupMailboxWireMockStub(wireMockAdminUrl);
       setupConsulStubs(wireMockAdminUrl);
     } catch (Exception e) {
@@ -124,9 +120,9 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_PORT", "10000")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_HOST", "consul")
             .withEnv("NETWORKING_CONFIG_CARBONIO_SERVICE_DISCOVER_PORT", "8080")
-            // Point user-management at WireMock instead of a real mailbox
-            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_HOST", "carbonio-mailbox-mock")
-            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_PORT", "8080")
+            // Point user-management at WireMock instead of a real mailbox (internal REST API)
+            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_INTERNAL_HOST", "carbonio-mailbox-mock")
+            .withEnv("NETWORKING_CONFIG_CARBONIO_MAILBOX_INTERNAL_PORT", "8080")
             .dependsOn(wireMock)
             .waitingFor(
                 Wait.forHttp("/q/health/live")
@@ -173,137 +169,39 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   }
 
   /**
-   * Uploads the WSDL and XSD schema files to WireMock's {@code __files} directory so that
-   * user-management's JAX-WS client can fetch them at startup.
+   * Registers a WireMock stub for the mailbox internal REST endpoint that user-management
+   * calls to validate auth tokens: {@code GET /internal/accounts/myself}.
    *
-   * <p>WireMock serves any file under {@code __files} at the corresponding URL path. Files
-   * uploaded via {@code PUT /__admin/files/{path}} are accessible at {@code GET /{path}}.
+   * <p>When the Cookie header contains {@code ZM_AUTH_TOKEN=test-auth-token-tasks-ce},
+   * WireMock returns a minimal {@code AccountInfo} JSON. Any other token gets no stub
+   * → WireMock 404 → user-management treats the token as invalid → tasks-ce returns 401.
    *
-   * <p>user-management's {@code MailboxClient.Builder} fetches the WSDL at startup from
-   * {@code http://{mailbox}/service/wsdl/ZimbraService.wsdl}. The WSDL's {@code import}
-   * elements reference the XSDs with relative paths (e.g. {@code zimbra.xsd}), so the JAX-WS
-   * runtime resolves them at {@code http://{mailbox}/service/wsdl/zimbra.xsd} etc.
-   *
-   * <p>Schema files are bundled as test resources under {@code wsdl/} (extracted from
-   * {@code carbonio-mailbox-sdk} 1.14.0, which matches the version compiled into the
-   * {@code carbonio-user-management:devel} Docker image).
-   */
-  private static void uploadWsdlAndSchemas(String wireMockAdminUrl) throws Exception {
-    HttpClient client = HttpClient.newHttpClient();
-
-    String[] schemaFiles = {
-        "ZimbraService.wsdl",
-        "zimbra.xsd",
-        "zimbraAccount.xsd",
-        "zimbraMail.xsd",
-        "zimbraAdmin.xsd"
-    };
-
-    for (String fileName : schemaFiles) {
-      String resourcePath = "wsdl/" + fileName;
-      byte[] content;
-      try (InputStream is =
-          Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
-        if (is == null) {
-          throw new RuntimeException(
-              "Schema resource not found on classpath: " + resourcePath);
-        }
-        content = is.readAllBytes();
-      }
-
-      // Upload to WireMock's __files at service/wsdl/{fileName}
-      // → served automatically at GET /service/wsdl/{fileName}
-      HttpRequest uploadRequest =
-          HttpRequest.newBuilder()
-              .uri(URI.create(wireMockAdminUrl + "/__admin/files/service/wsdl/" + fileName))
-              .header("Content-Type", "application/octet-stream")
-              .PUT(HttpRequest.BodyPublishers.ofByteArray(content))
-              .build();
-
-      HttpResponse<String> uploadResponse =
-          client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
-
-      if (uploadResponse.statusCode() != 200 && uploadResponse.statusCode() != 201) {
-        throw new RuntimeException(
-            "Failed to upload " + fileName + " to WireMock (HTTP "
-                + uploadResponse.statusCode() + "): " + uploadResponse.body());
-      }
-    }
-  }
-
-  /**
-   * Registers a WireMock stub that intercepts the SOAP {@code GetInfoRequest} call that
-   * user-management sends to mailbox for token validation.
-   *
-   * <p>When a request arrives at {@code POST /service/soap} with a Cookie header containing
-   * {@code ZM_AUTH_TOKEN=test-auth-token-tasks-ce}, WireMock returns a minimal but valid
-   * SOAP 1.2 {@code GetInfoResponse}. Any other token gets no stub → 404 → UM treats the
-   * token as invalid → tasks-ce returns 401.
-   *
-   * <p>The XML format matches the schema generated from {@code zimbraAccount.xsd} (from
-   * carbonio-mailbox-sdk). Attributes use {@code <attr name="...">value</attr>} (not
-   * {@code <a n="...">}). This format is confirmed by UM's own test resources at
-   * {@code app/src/test/resources/soap/responses/GetInfoResponse.xml}.
+   * <p>The {@code features} map must include {@code carbonioFeatureTasksEnabled: true} —
+   * tasks-ce's {@code AuthenticationFilter} checks this before granting access.
    */
   private static void setupMailboxWireMockStub(String wireMockAdminUrl) throws Exception {
-    // Minimal valid SOAP 1.2 GetInfoResponse — fields required by UserService.mapGetInfoToUserMyself:
-    //   response.getName()       → <name>
-    //   response.getPublicURL()  → <publicURL>
-    //   response.getLifetime()   → <lifetime>
-    //   attrs: zimbraId, displayName, zimbraAccountStatus, zimbraIsExternalVirtualAccount
-    // Fields version, id, profileImageId are required by the XSD but can be dummy values.
-    String soapResponseXml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">"
-            + "<soap:Header>"
-            + "<context xmlns=\"urn:zimbra\"><change token=\"1\"/></context>"
-            + "</soap:Header>"
-            + "<soap:Body>"
-            + "<GetInfoResponse xmlns=\"urn:zimbraAccount\""
-            + " docSizeLimit=\"10485760\" attSizeLimit=\"10240000\">"
-            + "<version>23.9.0_ZEXTRAS_202309 carbonio 20230816-0759 FOSS</version>"
-            + "<id>" + TEST_USER_ID + "</id>"
-            + "<profileImageId>0</profileImageId>"
-            + "<name>test@carbonio.test</name>"
-            + "<lifetime>86400000</lifetime>"
-            + "<prefs>"
-            + "<pref name=\"zimbraPrefLocale\">en</pref>"
-            + "</prefs>"
-            + "<attrs>"
-            + "<attr name=\"zimbraId\">" + TEST_USER_ID + "</attr>"
-            + "<attr name=\"displayName\">Test User</attr>"
-            + "<attr name=\"zimbraAccountStatus\">active</attr>"
-            + "<attr name=\"zimbraIsExternalVirtualAccount\">FALSE</attr>"
-            // carbonioFeatureTasksEnabled=TRUE → tasks-ce AuthenticationFilter grants access
-            + "<attr name=\"carbonioFeatureTasksEnabled\">TRUE</attr>"
-            + "</attrs>"
-            + "<soapURL>http://carbonio.test/service/soap/</soapURL>"
-            + "<publicURL>http://carbonio.test</publicURL>"
-            + "</GetInfoResponse>"
-            + "</soap:Body>"
-            + "</soap:Envelope>";
-
-    // Escape the XML for embedding inside a JSON string value
-    String escapedXml = soapResponseXml
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t");
-
     String stubJson =
         "{"
-            + "\"request\": {"
-            + "  \"method\": \"POST\","
-            + "  \"url\": \"/service/soap/\","
-            + "  \"headers\": {"
-            + "    \"Cookie\": { \"contains\": \"ZM_AUTH_TOKEN=" + AUTH_TOKEN + "\" }"
-            + "  }"
+            + "\"request\":{"
+            + "\"method\":\"GET\","
+            + "\"urlPath\":\"/internal/accounts/myself\","
+            + "\"headers\":{\"Cookie\":{\"contains\":\"ZM_AUTH_TOKEN=" + AUTH_TOKEN + "\"}}"
             + "},"
-            + "\"response\": {"
-            + "  \"status\": 200,"
-            + "  \"headers\": { \"Content-Type\": \"application/soap+xml; charset=utf-8\" },"
-            + "  \"body\": \"" + escapedXml + "\""
+            + "\"response\":{"
+            + "\"status\":200,"
+            + "\"headers\":{\"Content-Type\":\"application/json; charset=utf-8\"},"
+            + "\"jsonBody\":{"
+            + "\"id\":\"" + TEST_USER_ID + "\","
+            + "\"name\":\"test@carbonio.test\","
+            + "\"displayName\":\"Test User\","
+            + "\"status\":\"active\","
+            + "\"isGlobalAdmin\":false,"
+            + "\"isExternal\":false,"
+            + "\"locale\":\"en_US\","
+            + "\"features\":{\"carbonioFeatureTasksEnabled\":true},"
+            + "\"capabilities\":{},"
+            + "\"sessionLifetimeMs\":86400000"
+            + "}"
             + "}"
             + "}";
 
