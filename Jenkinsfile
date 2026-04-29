@@ -11,6 +11,8 @@ library(
     ])
 )
 
+properties(defaultPipelineProperties())
+
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     projectType: 'CE',
