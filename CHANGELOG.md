@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/zextras/carbonio-tasks-ce/compare/v1.0.1...v1.1.0) (2026-05-04)
+
+### Features
+
+* migrate to gRPC UM SDK ([#105](https://github.com/zextras/carbonio-tasks-ce/issues/105)) ([8f3bdbc](https://github.com/zextras/carbonio-tasks-ce/commit/8f3bdbcacaf6b7514348bb3c06456aed2abb3ca7))
+* migrate to quarkus ([#110](https://github.com/zextras/carbonio-tasks-ce/issues/110)) ([8ae03f9](https://github.com/zextras/carbonio-tasks-ce/commit/8ae03f9d2cf65821a3c36184670fa4f1b869ad62))
+* systemd hardening and service-discover.target orchestration ([#108](https://github.com/zextras/carbonio-tasks-ce/issues/108)) ([28294c3](https://github.com/zextras/carbonio-tasks-ce/commit/28294c31500a9d49456f1547dc883ddf0fbe3193))
+
+### Bug Fixes
+
+* add @Name annotations to preserve GraphQL type names ([#111](https://github.com/zextras/carbonio-tasks-ce/issues/111)) ([916e23c](https://github.com/zextras/carbonio-tasks-ce/commit/916e23c84daa5d2fd877b15545fc86a06768d357))
+
 <!--
 SPDX-FileCopyrightText: 2026 Zextras <https://www.zextras.com>
 
