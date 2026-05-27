@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.0...v1.1.1) (2026-05-27)
+
+### Bug Fixes
+
+* **deps:** add explicit service-discover-base dependency ([#123](https://github.com/zextras/carbonio-tasks-ce/issues/123)) ([a503d7c](https://github.com/zextras/carbonio-tasks-ce/commit/a503d7cc1167c3b5cacbdfd8e5b8d5fa892029ff))
+
 ## [1.1.0](https://github.com/zextras/carbonio-tasks-ce/compare/v1.0.1...v1.1.0) (2026-05-04)
 
 ### Features
