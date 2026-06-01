@@ -4,10 +4,10 @@
 
 # groupadd + useradd in a BUILDPLATFORM prep stage so the final image has no
 # target-arch RUN (no QEMU => exec format error on arm64 cross-builds).
-FROM --platform=$BUILDPLATFORM ubuntu:noble AS prep
+FROM --platform=$BUILDPLATFORM docker.io/library/ubuntu:noble AS prep
 RUN groupadd -r carbonio-tasks && useradd -r -g carbonio-tasks carbonio-tasks
 
-FROM ubuntu:noble
+FROM docker.io/library/ubuntu:noble
 LABEL maintainer="Zextras <https://www.zextras.com>"
 LABEL description="Carbonio Tasks CE - Task management service (native binary)"
 
