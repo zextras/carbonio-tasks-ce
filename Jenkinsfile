@@ -27,6 +27,7 @@ dt3_pipeline(
     docker: [
         [dockerfile: 'docker/Dockerfile',
          imageName: 'carbonio-tasks-ce',
+         platforms: ['linux/amd64', 'linux/arm64'] as Set,
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
     ],

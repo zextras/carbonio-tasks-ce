@@ -1,30 +1,34 @@
 # SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
 #
 # SPDX-License-Identifier: AGPL-3.0-only
-
-pkgname="carbonio-tasks-ce"
+_pkgname="carbonio-tasks"
+pkgname="${_pkgname}-ce"
 pkgver="1.0.1"
 pkgrel="SNAPSHOT"
 pkgdesc="Carbonio Tasks"
 maintainer="Zextras <packages@zextras.com>"
-arch=('x86_64')
+arch=('aarch64' 'x86_64')
 license=("AGPL-3.0-only")
 section="admin"
 priority="optional"
 url="https://www.zextras.com/"
 depends=(
+  "pending-setups"
   "service-discover"
   "service-discover-base"
-  "pending-setups"
+)
+makedepends=(
+  "maven"
+  "openjdk-21-jdk-headless"
 )
 source=(
-  "421-carbonio-tasks.sh"
-  "carbonio-tasks"
-  "carbonio-tasks.hcl"
-  "carbonio-tasks.service"
-  "carbonio-tasks-setup"
-  "carbonio-tasks-sidecar.service"
-  "carbonio-tasks-ce-runner"
+  "421-${_pkgname}.sh"
+  "${_pkgname}"
+  "${_pkgname}.hcl"
+  "${_pkgname}.service"
+  "${_pkgname}-setup"
+  "${_pkgname}-sidecar.service"
+  "${_pkgname}-ce-runner"
   "intentions.json"
   "policies.json"
   "service-protocol.json"
@@ -42,49 +46,69 @@ sha256sums=(
   'a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e'
 )
 backup=(
-  "etc/zextras/service-discover/carbonio-tasks.hcl"
+  "etc/zextras/service-discover/${_pkgname}.hcl"
   "etc/carbonio/tasks/config.properties"
 )
 
-package() {
+build() {
   cd "${srcdir}"
 
-  install -Dm 755 carbonio-tasks \
-    "${pkgdir}/usr/bin/carbonio-tasks"
+  # When the CI nativeBuild stage has already placed the runner binary in
+  # the source dir (amd64), skip Maven — nothing to do.
+  if [ -f ${_pkgname}-ce-runner ]; then
+    return 0
+  fi
 
-  install -Dm 755 carbonio-tasks-setup \
-    "${pkgdir}/usr/bin/carbonio-tasks-setup"
+  # Cross-compilation: aarch64 native-image via Mandrel --target
+  if [ -n "${CROSS_COMPILE}" ] && [ "${CARCH}" = "aarch64" ]; then
+    export ADDITIONAL_NATIVE_ARGS="--target=aarch64-unknown-linux-gnu"
+  fi
 
-  install -Dm 755 carbonio-tasks-ce-runner \
-    "${pkgdir}/usr/share/carbonio/carbonio-tasks-ce-runner"
+  mvn package -Dnative \
+    -Dquarkus.native.additional-build-args="${ADDITIONAL_NATIVE_ARGS}" \
+    -DskipTests -Drevision=${pkgver}
 
-  install -Dm 644 carbonio-tasks.service \
-    "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
+  # Place runner where package() expects it
+  cp app/target/*-runner ${_pkgname}-ce-runner
+}
 
-  install -Dm 644 carbonio-tasks-sidecar.service \
-    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+package() {
+  install -Dm755 "${srcdir}/${_pkgname}" \
+    "${pkgdir}/usr/bin/${_pkgname}"
 
-  install -Dm 644 carbonio-tasks.hcl \
-    "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
+  install -Dm755 "${srcdir}/${_pkgname}-setup" \
+    "${pkgdir}/usr/bin/${_pkgname}-setup"
 
-  install -Dm 644 421-carbonio-tasks.sh \
-    "${pkgdir}/etc/zextras/pending-setups.d/421-carbonio-tasks.sh"
+  install -Dm755 "${srcdir}/${_pkgname}-ce-runner" \
+    "${pkgdir}/usr/share/carbonio/${_pkgname}-ce-runner"
 
-  install -Dm 644 intentions.json \
+  install -Dm644 "${srcdir}/${_pkgname}.service" \
+    "${pkgdir}/lib/systemd/system/${_pkgname}.service"
+
+  install -Dm644 "${srcdir}/${_pkgname}-sidecar.service" \
+    "${pkgdir}/lib/systemd/system/${_pkgname}-sidecar.service"
+
+  install -Dm644 "${srcdir}/${_pkgname}.hcl" \
+    "${pkgdir}/etc/zextras/service-discover/${_pkgname}.hcl"
+
+  install -Dm644 "${srcdir}/421-${_pkgname}.sh" \
+    "${pkgdir}/etc/zextras/pending-setups.d/421-${_pkgname}.sh"
+
+  install -Dm644 "${srcdir}/intentions.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/intentions.json"
 
-  install -Dm 644 policies.json \
+  install -Dm644 "${srcdir}/policies.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/policies.json"
 
-  install -Dm 644 service-protocol.json \
+  install -Dm644 "${srcdir}/service-protocol.json" \
     "${pkgdir}/etc/carbonio/tasks/service-discover/service-protocol.json"
 }
 
 postinst() {
-  getent group 'carbonio-tasks' >/dev/null ||
-    groupadd -r 'carbonio-tasks'
-  getent passwd 'carbonio-tasks' >/dev/null ||
-    useradd -r -M -g 'carbonio-tasks' -s /sbin/nologin 'carbonio-tasks'
+  getent group 'carbonio-tasks' >/dev/null \
+    || groupadd -r 'carbonio-tasks'
+  getent passwd 'carbonio-tasks' >/dev/null \
+    || useradd -r -M -g 'carbonio-tasks' -s /sbin/nologin 'carbonio-tasks'
 
   mkdir -p "/var/log/carbonio/tasks/"
   chown carbonio-tasks:carbonio-tasks "/var/log/carbonio/tasks"

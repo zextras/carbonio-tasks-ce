@@ -2,20 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-FROM --platform=linux/amd64 ubuntu:noble
+# groupadd + useradd in a BUILDPLATFORM prep stage so the final image has no
+# target-arch RUN (no QEMU => exec format error on arm64 cross-builds).
+FROM --platform=$BUILDPLATFORM ubuntu:noble AS prep
+RUN groupadd -r carbonio-tasks && useradd -r -g carbonio-tasks carbonio-tasks
 
+FROM ubuntu:noble
 LABEL maintainer="Zextras <https://www.zextras.com>"
 LABEL description="Carbonio Tasks CE - Task management service (native binary)"
 
-RUN groupadd -r carbonio-tasks && useradd -r -g carbonio-tasks carbonio-tasks
-
 WORKDIR /app
-
-COPY app/target/*-runner /app/carbonio-tasks-ce-runner
-RUN chmod +x /app/carbonio-tasks-ce-runner
-
+# Users/groups from prep stage (same base image — identical /etc files)
+COPY --from=prep /etc/passwd /etc/shadow /etc/group /etc/
+# COPY --chmod avoids a target-arch RUN (QEMU-free)
+COPY --chmod=755 app/target/*-runner /app/carbonio-tasks-ce-runner
 USER carbonio-tasks
-
 EXPOSE 10000
-
 ENTRYPOINT ["/app/carbonio-tasks-ce-runner", "-Djava.net.preferIPv4Stack=true"]
