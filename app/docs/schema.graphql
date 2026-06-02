@@ -7,11 +7,11 @@ type Query {
   findTasks(
   status: Status
   priority: Priority): [Task]
+  "Returns service metadata: name, version and flavour."
+  getServiceInfo: ServiceInfo
   "Returns a single task by its ID for the authenticated user."
   getTask(
   taskId: ID): Task
-  "Returns service metadata: name, version and flavour."
-  getServiceInfo: ServiceInfo
 }
 
 type Mutation {
