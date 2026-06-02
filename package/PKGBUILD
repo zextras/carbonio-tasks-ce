@@ -17,10 +17,6 @@ depends=(
   "service-discover"
   "service-discover-base"
 )
-makedepends=(
-  "maven"
-  "openjdk-21-jdk-headless"
-)
 source=(
   "421-${_pkgname}.sh"
   "${_pkgname}"
@@ -51,25 +47,9 @@ backup=(
 )
 
 build() {
-  cd "${srcdir}"
-
-  # When the CI nativeBuild stage has already placed the runner binary in
-  # the source dir (amd64), skip Maven — nothing to do.
-  if [ -f ${_pkgname}-ce-runner ]; then
-    return 0
-  fi
-
-  # Cross-compilation: aarch64 native-image via Mandrel --target
-  if [ -n "${CROSS_COMPILE}" ] && [ "${CARCH}" = "aarch64" ]; then
-    export ADDITIONAL_NATIVE_ARGS="--target=aarch64-unknown-linux-gnu"
-  fi
-
-  mvn package -Dnative \
-    -Dquarkus.native.additional-build-args="${ADDITIONAL_NATIVE_ARGS}" \
-    -DskipTests -Drevision=${pkgver}
-
-  # Place runner where package() expects it
-  cp app/target/*-runner ${_pkgname}-ce-runner
+  # The CI nativeBuild stage pre-builds the runner and places it in srcdir
+  # as ${_pkgname}-ce-runner (via Prepare artifacts). Nothing to build here.
+  : # no-op
 }
 
 package() {
