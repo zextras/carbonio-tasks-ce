@@ -20,7 +20,8 @@ dt3_pipeline(
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
     packaging: [
         pkgbuildPath: 'package/PKGBUILD',
-        buildFlags: '-ds',
+        buildFlags: '-ds --no-build',
+        preStashScript: 'rm -rf native-build native-build-arm64',
         ubuntuSinglePkg: false,
         rockySinglePkg: false,
     ],

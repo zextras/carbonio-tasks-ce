@@ -46,10 +46,21 @@ backup=(
   "etc/carbonio/tasks/config.properties"
 )
 
+makedepends=(
+  "maven"
+  "openjdk-21-jdk-headless"
+)
+
 build() {
-  # The CI nativeBuild stage pre-builds the runner and places it in srcdir
-  # as ${_pkgname}-ce-runner (via Prepare artifacts). Nothing to build here.
-  : # no-op
+  cd "${srcdir}"
+
+  # CI pre-builds the runner and invokes yap with -n (skip build).
+  # This fallback runs only for manual local builds without -n.
+  if [ ! -f "${_pkgname}-ce-runner" ]; then
+    mvn package -Dnative \
+      -DskipTests -Drevision=${pkgver}
+    cp app/target/*-runner ${_pkgname}-ce-runner
+  fi
 }
 
 package() {
