@@ -11,8 +11,11 @@ library(
     ])
 )
 
+properties(defaultPipelineProperties())
+
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
+    projectType: 'CE',
     mavenPublish: ['app'],
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
     packaging: [
@@ -28,7 +31,7 @@ dt3_pipeline(
          description: 'Carbonio Tasks CE Service'],
     ],
     sonarqube: true,
-    reuse: [projectType: 'CE'],
+    reuse: [:],
     reuseExcludePaths: ['**/db/migration/**'],
     bumpDownstream: [
         repo:                   'zextras/carbonio-tasks',
