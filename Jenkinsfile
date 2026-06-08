@@ -20,8 +20,6 @@ dt3_pipeline(
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
     packaging: [
         buildFlags: '-ds',
-        ubuntuSinglePkg: false,
-        rockySinglePkg: false,
     ],
     docker: [
         [dockerfile: 'docker/Dockerfile',
