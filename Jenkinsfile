@@ -17,9 +17,8 @@ dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     projectType: 'CE',
     mavenPublish: ['app'],
-    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
+    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
     packaging: [
-        pkgbuildPath: 'package/PKGBUILD',
         buildFlags: '-ds',
         ubuntuSinglePkg: false,
         rockySinglePkg: false,
@@ -30,9 +29,7 @@ dt3_pipeline(
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
     ],
-    sonarqube: true,
     reuse: [:],
-    reuseExcludePaths: ['**/db/migration/**'],
     bumpDownstream: [
         repo:                   'zextras/carbonio-tasks',
         branch:                 'devel',
