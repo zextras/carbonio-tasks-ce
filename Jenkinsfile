@@ -30,15 +30,5 @@ dt3_pipeline(
     reuse: [:],
     flywayGuard: [
         migrationPaths: ['app/src/main/resources/db/migration'],
-    ],
-    bumpDownstream: [
-        repo:                   'zextras/carbonio-tasks',
-        branch:                 'devel',
-        property:               'carbonio-tasks-ce.version',
-        notificationRecipients: [
-            'matteo.galvagni@zextras.com',
-            'noman.alishaukat@zextras.com',
-            'riccardo.degan@zextras.com',
-        ],
     ]
 )
