@@ -28,6 +28,9 @@ dt3_pipeline(
          description: 'Carbonio Tasks CE Service'],
     ],
     reuse: [:],
+    flywayGuard: [
+        migrationPaths: ['app/src/main/resources/db/migration'],
+    ],
     bumpDownstream: [
         repo:                   'zextras/carbonio-tasks',
         branch:                 'devel',
