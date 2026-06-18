@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 library(
-    identifier: 'jenkins-lib-common@dt3-migration',
+    identifier: 'jenkins-lib-common@dt3-pipeline',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         credentialsId: 'jenkins-integration-with-github-account',
@@ -17,12 +17,9 @@ dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     projectType: 'CE',
     mavenPublish: ['app'],
-    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner', appModule: 'app'],
+    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
     packaging: [
-        pkgbuildPath: 'package/PKGBUILD',
         buildFlags: '-ds',
-        ubuntuSinglePkg: false,
-        rockySinglePkg: false,
     ],
     docker: [
         [dockerfile: 'docker/Dockerfile',
@@ -30,22 +27,8 @@ dt3_pipeline(
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
     ],
-    sonarqube: true,
     reuse: [:],
-    reuseExcludePaths: ['**/db/migration/**'],
-    bumpDownstream: [
-        repo:                   'zextras/carbonio-tasks',
-        branch:                 'devel',
-        property:               'carbonio-tasks-ce.version',
-        notificationRecipients: [
-            'matteo.galvagni@zextras.com',
-            'noman.alishaukat@zextras.com',
-            'riccardo.degan@zextras.com',
-        ],
-    ],
-    failureNotificationRecipients: [
-        'matteo.galvagni@zextras.com',
-        'noman.alishaukat@zextras.com',
-        'riccardo.degan@zextras.com',
-    ],
+    flywayGuard: [
+        migrationPaths: ['app/src/main/resources/db/migration'],
+    ]
 )

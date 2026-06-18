@@ -1,0 +1,20 @@
+{
+  "branches": ["devel"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    ["@semantic-release/commit-analyzer", { "preset": "conventionalcommits" }],
+    ["@semantic-release/release-notes-generator", { "preset": "conventionalcommits" }],
+    "@semantic-release/changelog",
+    ["@semantic-release/exec", {
+      "prepareCmd": "./package/bump-version.sh ${nextRelease.version} 1"
+    }],
+    ["@semantic-release/git", {
+      "assets": [
+        "CHANGELOG.md",
+        "pom.xml",
+        "package/PKGBUILD"
+      ],
+      "message": "chore(release): ${nextRelease.version}"
+    }]
+  ]
+}
