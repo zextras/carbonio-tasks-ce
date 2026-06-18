@@ -1,25 +1,25 @@
 type Query {
+  "Returns all non-trashed tasks for the authenticated user, optionally filtered."
+  findTasks(
+  status: Status
+  priority: Priority): [Task]
   "Returns service metadata: name, version and flavour."
   getServiceInfo: ServiceInfo
   "Returns a single task by its ID for the authenticated user."
   getTask(
   taskId: ID): Task
-  "Returns all non-trashed tasks for the authenticated user, optionally filtered."
-  findTasks(
-  status: Status
-  priority: Priority): [Task]
 }
 
 type Mutation {
   "Creates a new task for the authenticated user."
   createTask(
   newTask: NewTaskInput): Task
-  "Updates an existing task. Only fields present in the input are modified."
-  updateTask(
-  updateTask: UpdateTaskInput): Task
   "Moves a task to the TRASH status, making it invisible to normal queries."
   trashTask(
   taskId: ID): ID
+  "Updates an existing task. Only fields present in the input are modified."
+  updateTask(
+  updateTask: UpdateTaskInput): Task
 }
 
 type ServiceInfo {
@@ -39,6 +39,15 @@ type Task {
   title: String
 }
 
+input NewTaskInput {
+  description: String
+  priority: Priority
+  reminderAllDay: Boolean
+  reminderAt: BigInteger
+  status: Status
+  title: String
+}
+
 input UpdateTaskInput {
   description: String
   id: ID
@@ -49,23 +58,14 @@ input UpdateTaskInput {
   title: String
 }
 
-input NewTaskInput {
-  description: String
-  priority: Priority
-  reminderAllDay: Boolean
-  reminderAt: BigInteger
-  status: Status
-  title: String
+enum Priority {
+  HIGH
+  LOW
+  MEDIUM
 }
 
 enum Status {
   COMPLETE
   OPEN
   TRASH
-}
-
-enum Priority {
-  HIGH
-  LOW
-  MEDIUM
 }
