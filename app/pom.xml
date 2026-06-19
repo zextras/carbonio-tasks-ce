@@ -51,17 +51,17 @@ SPDX-License-Identifier: AGPL-3.0-only
     <dependency>
       <groupId>com.zextras.carbonio.quarkus</groupId>
       <artifactId>carbonio-quarkus-extensions-bootstrap</artifactId>
-      <version>1.9.1-1</version>
+      <version>1.9.2-1</version>
     </dependency>
     <dependency>
       <groupId>com.zextras.carbonio.quarkus</groupId>
       <artifactId>carbonio-quarkus-extensions-database</artifactId>
-      <version>1.9.1-1</version>
+      <version>1.9.2-1</version>
     </dependency>
     <dependency>
       <groupId>com.zextras.carbonio.quarkus</groupId>
       <artifactId>carbonio-quarkus-extensions-graphql</artifactId>
-      <version>1.9.1-1</version>
+      <version>1.9.2-1</version>
     </dependency>
 
     <!-- Database: Panache ORM + Flyway -->
@@ -99,7 +99,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <dependency>
       <groupId>com.zextras.carbonio.quarkus</groupId>
       <artifactId>carbonio-quarkus-extensions-bootstrap</artifactId>
-      <version>1.9.1-1</version>
+      <version>1.9.2-1</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
