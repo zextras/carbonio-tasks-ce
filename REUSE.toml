@@ -22,6 +22,12 @@ SPDX-FileCopyrightText = "2026 Zextras"
 SPDX-License-Identifier = "AGPL-3.0-only"
 
 [[annotations]]
+path = "COPYING"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Zextras"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
 path = ".github/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Zextras"
@@ -46,13 +52,19 @@ SPDX-FileCopyrightText = "2025 Zextras"
 SPDX-License-Identifier = "AGPL-3.0-only"
 
 [[annotations]]
+path = ["app/src/main/resources/db/migration/**", "app/src/main/resources/META-INF/carbonio-migrations.list"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Zextras"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
 path = "yap.json"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2023 Zextras s.r.l"
 SPDX-License-Identifier = "AGPL-3.0-only"
 
 [[annotations]]
-path = "**"
+path = ["mvnw", "mvnw.cmd"]
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2026 Zextras <https://www.zextras.com>"
-SPDX-License-Identifier = "AGPL-3.0-only"
+SPDX-FileCopyrightText = "2001-2024 The Apache Software Foundation <https://www.apache.org>"
+SPDX-License-Identifier = "Apache-2.0"
