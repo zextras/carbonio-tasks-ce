@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.1...v1.1.2) (2026-06-19)
+
+### Bug Fixes
+
+* project-owned REUSE.toml ([#141](https://github.com/zextras/carbonio-tasks-ce/issues/141)) ([baf7838](https://github.com/zextras/carbonio-tasks-ce/commit/baf7838d0959c93fa8e6f8b8c2c0629ad9db7756))
+* **setup:** bump extensions to 1.9.1-1 and harden carbonio-tasks-setup ([#140](https://github.com/zextras/carbonio-tasks-ce/issues/140)) ([79aa533](https://github.com/zextras/carbonio-tasks-ce/commit/79aa5334ff17647e58ff4b459cb825a73cfda7ed))
+
 ## [1.1.1](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.0...v1.1.1) (2026-05-27)
 
 ### Bug Fixes
