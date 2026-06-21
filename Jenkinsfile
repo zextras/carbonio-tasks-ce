@@ -15,7 +15,6 @@ properties(defaultPipelineProperties())
 
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
-    projectType: 'CE',
     mavenPublish: ['app'],
     nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
     packaging: [
@@ -27,7 +26,7 @@ dt3_pipeline(
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
     ],
-    reuse: [:],
+    reuse: [projectType: 'CE'],
     flywayGuard: [
         migrationPaths: ['app/src/main/resources/db/migration'],
     ]

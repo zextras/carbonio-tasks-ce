@@ -21,9 +21,6 @@ dist/
 .project
 .settings/
 
-# License
-LICENSES
-
 # VS Code
 .vscode/.run/
 
