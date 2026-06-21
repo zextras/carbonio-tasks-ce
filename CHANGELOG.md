@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.2...v1.1.3) (2026-06-21)
+
+### Bug Fixes
+
+* declare docs license centrally (header-less generated docs) ([#143](https://github.com/zextras/carbonio-tasks-ce/issues/143)) ([1aaacaf](https://github.com/zextras/carbonio-tasks-ce/commit/1aaacaf396cb1e7c752e2ff1f9e02541da5f118d))
+
 ## [1.1.2](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.1...v1.1.2) (2026-06-19)
 
 ### Bug Fixes
