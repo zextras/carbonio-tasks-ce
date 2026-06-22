@@ -1,3 +1,9 @@
+## [1.1.4](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.3...v1.1.4) (2026-06-22)
+
+### Bug Fixes
+
+* units: remove unneeded ReadOnlyPaths ([fd25898](https://github.com/zextras/carbonio-tasks-ce/commit/fd25898fc7296bf3cb764069b9e3d650c3c70fa4))
+
 ## [1.1.3](https://github.com/zextras/carbonio-tasks-ce/compare/v1.1.2...v1.1.3) (2026-06-21)
 
 ### Bug Fixes
