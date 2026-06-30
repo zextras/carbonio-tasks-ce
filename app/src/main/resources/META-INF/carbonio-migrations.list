@@ -1,1 +1,2 @@
 com.zextras.carbonio.tasks.config.migration.V1__RenameDbCredentials
+com.zextras.carbonio.tasks.config.migration.V2__MigrateDottedDbCredentialsToSlash
