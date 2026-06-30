@@ -1,8 +1,8 @@
 AGPL-3.0-only (https://spdx.org/licenses/AGPL-3.0-only.html) applies to:
 
-  Carbonio Quarkus Extensions - Bootstrap Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-bootstrap:1.9.2-1)
-  Carbonio Quarkus Extensions - Database Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-database:1.9.2-1)
-  Carbonio Quarkus Extensions - GraphQL Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-graphql:1.9.2-1)
+  Carbonio Quarkus Extensions - Bootstrap Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-bootstrap:1.10.1-1)
+  Carbonio Quarkus Extensions - Database Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-database:1.10.1-1)
+  Carbonio Quarkus Extensions - GraphQL Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-graphql:1.10.1-1)
   Carbonio User Management - gRPC SDK (com.zextras.carbonio.user-management:carbonio-user-management-grpc-sdk:1.0.3-dev.21.79fc3fa2)
 
 Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
