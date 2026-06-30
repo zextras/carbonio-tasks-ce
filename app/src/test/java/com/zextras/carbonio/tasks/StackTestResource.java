@@ -233,12 +233,13 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     HttpClient client = HttpClient.newHttpClient();
 
     // DB credentials for tasks-ce.
-    // CarbonioBootstrapFactory.loadConsulKV() issues a SINGLE recursive GET:
-    //   GET /v1/kv/carbonio-tasks/?recurse
-    // and expects a JSON array of all KV entries. Individual-key stubs never match that
-    // request, so we register one stub that covers the whole prefix and returns all three
-    // credential entries in the Consul recursive-response format.
-    postConsulKvRecursiveStub(client, wireMockAdminUrl, "carbonio-tasks/",
+    // carbonio-quarkus-extensions (>= 1.10.x) issues a SINGLE ROOT recursive GET at boot:
+    //   GET /v1/kv/?recurse   (prefix == "", urlPath ignores the query string)
+    // Consul ACL-filters that root recurse to the keys the token can read; the boot factory then
+    // derives the own-service application-config view from the carbonio-tasks/* subset. So we stub
+    // the ROOT recurse (not the per-prefix one) and return all three credential entries in the
+    // Consul recursive-response format. (Pre-1.10 the factory recursed /v1/kv/carbonio-tasks/.)
+    postConsulKvRecursiveStub(client, wireMockAdminUrl, "",
         new String[][]{
             {"carbonio-tasks/database/credentials/db-name",     DB_NAME},
             {"carbonio-tasks/database/credentials/db-username", DB_USER},
