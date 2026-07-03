@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-FROM --platform=linux/amd64 docker.io/library/ubuntu:noble
+FROM --platform=linux/amd64 docker.io/library/ubuntu:resolute
 
 LABEL maintainer="Zextras <https://www.zextras.com>"
 LABEL description="Carbonio Tasks CE - Task management service (native binary)"
