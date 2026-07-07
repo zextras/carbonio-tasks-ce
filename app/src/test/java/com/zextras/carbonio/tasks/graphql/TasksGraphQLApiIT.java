@@ -163,7 +163,7 @@ class TasksGraphQLApiIT {
   @Test
   void findTasksShouldFilterByStatus() {
     createTaskViaApiWithStatus("Open Task", "OPEN");
-    createTaskViaApiWithStatus("Closed Task", "CLOSED");
+    createTaskViaApiWithStatus("Completed Task", "COMPLETE");
 
     postAuth("{\"query\": \"{ findTasks(status: OPEN) { id title status } }\"}")
         .statusCode(200)
