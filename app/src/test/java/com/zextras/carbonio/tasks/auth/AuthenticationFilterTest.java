@@ -13,7 +13,6 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 import java.util.List;
-import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,9 +69,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of("carbonioFeatureTasksEnabled"));
 
-    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=valid-token");
-
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("valid-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -103,9 +100,7 @@ class AuthenticationFilterTest {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("invalid-token");
 
-    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=invalid-token");
-
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders))
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("invalid-token"))
         .thenThrow(new ApiException(401, "Unauthorized"));
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
@@ -126,9 +121,7 @@ class AuthenticationFilterTest {
 
     MyselfDto guestUser = new MyselfDto().info(userInfo).features(List.of());
 
-    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=guest-token");
-
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(guestUser);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("guest-token")).thenReturn(guestUser);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -148,9 +141,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=inactive-token");
-
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("inactive-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -170,9 +161,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=no-tasks-token");
-
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("no-tasks-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 

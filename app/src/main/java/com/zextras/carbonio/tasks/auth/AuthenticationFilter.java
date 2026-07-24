@@ -14,7 +14,6 @@ import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
-  private static final String COOKIE_HEADER = "Cookie";
 
   @Inject
   UserResourceApi userResourceApi;
@@ -71,9 +69,7 @@ public class AuthenticationFilter {
     String token = zmCookie.getValue();
 
     try {
-      Map<String, String> headers =
-          Map.of(COOKIE_HEADER, Config.ACCEPTED_COOKIE_TYPE + "=" + token);
-      MyselfDto userMyself = userResourceApi.internalUsersMyselfGet(headers);
+      MyselfDto userMyself = userResourceApi.internalUsersMyselfGet(token);
 
       if ("GUEST".equalsIgnoreCase(userMyself.getInfo().getType())) {
         logger.error("The request is forbidden: the user is a guest");
