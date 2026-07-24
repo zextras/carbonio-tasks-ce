@@ -25,7 +25,7 @@ import org.testcontainers.lifecycle.Startables;
  * <p><b>Testing philosophy (narrow integration tests):</b>
  * <ul>
  *   <li>Direct dependencies of tasks-ce are run as real Docker containers:
- *       {@code carbonio-user-management} (gRPC auth validation).</li>
+ *       {@code carbonio-user-management} (REST auth validation).</li>
  *   <li>Indirect dependencies (dependencies of our direct deps) are replaced with
  *       lightweight mocks so that our IT suite is isolated from their failures.
  *       Specifically, {@code carbonio-mailbox} — which user-management calls for
@@ -112,7 +112,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
     userManagement =
         new GenericContainer<>(
-                "registry.dev.zextras.com/dev/carbonio-user-management:devel")
+                "registry.dev.zextras.com/dev/carbonio-user-management:d4c8d51b")
             .withNetwork(network)
             .withNetworkAliases("carbonio-user-management")
             .withExposedPorts(10000) // gRPC and HTTP share port 10000 (use-separate-server=false)
@@ -153,7 +153,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             Map.entry("quarkus.datasource.jdbc.url", POSTGRES_JDBC_URL),
             Map.entry("quarkus.datasource.username", DB_USER),
             Map.entry("quarkus.datasource.password", DB_PASSWORD),
-            // User Management gRPC client
+            // User Management REST client
             Map.entry("networking-config.carbonio.user-management.host", "localhost"),
             Map.entry(
                 "networking-config.carbonio.user-management.port",

@@ -74,15 +74,13 @@ SPDX-License-Identifier: AGPL-3.0-only
       <artifactId>quarkus-flyway</artifactId>
     </dependency>
 
-    <!-- gRPC client: Quarkus-managed @GrpcClient for carbonio-user-management -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-grpc</artifactId>
-    </dependency>
+    <!-- REST client for carbonio-user-management: OpenAPI-generated carbonio-user-management-rest-sdk
+         (UserResourceApi), produced by UserManagementClientProducer. Replaces the former
+         quarkus-grpc + carbonio-user-management-grpc-sdk client. -->
     <dependency>
       <groupId>com.zextras.carbonio.user-management</groupId>
-      <artifactId>carbonio-user-management-grpc-sdk</artifactId>
-      <version>${carbonio-user-management-grpc-sdk.version}</version>
+      <artifactId>carbonio-user-management-rest-sdk</artifactId>
+      <version>${carbonio-user-management-rest-sdk.version}</version>
     </dependency>
 
     <!-- Test -->
@@ -123,12 +121,6 @@ SPDX-License-Identifier: AGPL-3.0-only
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
       <version>1.21.4</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- gRPC test server: netty-shaded provides ServerBuilder.forPort() transport -->
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-netty-shaded</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -4,19 +4,16 @@
 
 package com.zextras.carbonio.tasks.auth;
 
-import com.zextras.carbonio.tasks.clients.UserManagementClient;
-import com.zextras.carbonio.user_management.sdk.grpc.GetUserMyselfRequest;
-import com.zextras.carbonio.user_management.sdk.grpc.UserInfoProto;
-import com.zextras.carbonio.user_management.sdk.grpc.UserManagementServiceGrpc.UserManagementServiceBlockingStub;
-import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfProto;
-import com.zextras.carbonio.user_management.sdk.grpc.UserMyselfResponse;
-import com.zextras.carbonio.user_management.sdk.grpc.UserTypeProto;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
+import com.zextras.carbonio.user_management.sdk.rest.ApiException;
+import com.zextras.carbonio.user_management.sdk.rest.api.UserResourceApi;
+import com.zextras.carbonio.user_management.sdk.rest.model.MyselfDto;
+import com.zextras.carbonio.user_management.sdk.rest.model.UserInfoDto;
 import io.vertx.core.http.Cookie;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,19 +26,15 @@ import org.mockito.Mockito;
  */
 class AuthenticationFilterTest {
 
-  private UserManagementClient umClientMock;
-  private UserManagementServiceBlockingStub stubMock;
+  private UserResourceApi userResourceApiMock;
   private AuthenticationFilter filter;
 
   @BeforeEach
   void setUp() throws Exception {
-    umClientMock = Mockito.mock(UserManagementClient.class);
-    stubMock = Mockito.mock(UserManagementServiceBlockingStub.class);
-
-    Mockito.when(umClientMock.getBlockingStub()).thenReturn(stubMock);
+    userResourceApiMock = Mockito.mock(UserResourceApi.class);
 
     filter = new AuthenticationFilter();
-    inject(filter, "userManagementClient", umClientMock);
+    inject(filter, "userResourceApi", userResourceApiMock);
   }
 
   private static void inject(Object target, String fieldName, Object value) throws Exception {
@@ -64,29 +57,22 @@ class AuthenticationFilterTest {
   }
 
   @Test
-  void givenAValidCookieForAnActiveInternalUserWithTasksFeatureTheFilterShouldSetRequesterId() {
+  void givenAValidCookieForAnActiveInternalUserWithTasksFeatureTheFilterShouldSetRequesterId()
+      throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("valid-token");
 
-    UserInfoProto userInfo =
-        UserInfoProto.newBuilder()
-            .setUserId("00000000-0000-0000-0000-000000000000")
-            .setType(UserTypeProto.INTERNAL)
-            .setStatus("active")
-            .build();
+    UserInfoDto userInfo =
+        new UserInfoDto()
+            .userId("00000000-0000-0000-0000-000000000000")
+            .type("INTERNAL")
+            .status("active");
 
-    UserMyselfProto userMyself =
-        UserMyselfProto.newBuilder()
-            .setInfo(userInfo)
-            .addFeatures("carbonioFeatureTasksEnabled")
-            .build();
+    MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of("carbonioFeatureTasksEnabled"));
 
-    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder().setUser(userMyself).build();
+    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=valid-token");
 
-    GetUserMyselfRequest expectedRequest =
-        GetUserMyselfRequest.newBuilder().setToken("valid-token").build();
-
-    Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -109,19 +95,18 @@ class AuthenticationFilterTest {
     Mockito.verify(ctx.response()).setStatusCode(401);
     Mockito.verify(ctx.response()).end();
     Mockito.verify(ctx, Mockito.never()).next();
-    Mockito.verifyNoInteractions(umClientMock);
+    Mockito.verifyNoInteractions(userResourceApiMock);
   }
 
   @Test
-  void givenAnInvalidTokenTheFilterShouldRespondWith401() {
+  void givenAnInvalidTokenTheFilterShouldRespondWith401() throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("invalid-token");
 
-    GetUserMyselfRequest expectedRequest =
-        GetUserMyselfRequest.newBuilder().setToken("invalid-token").build();
+    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=invalid-token");
 
-    Mockito.when(stubMock.getUserMyself(expectedRequest))
-        .thenThrow(new StatusRuntimeException(Status.UNAUTHENTICATED));
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders))
+        .thenThrow(new ApiException(401, "Unauthorized"));
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -133,24 +118,17 @@ class AuthenticationFilterTest {
   }
 
   @Test
-  void givenAGuestUserTheFilterShouldRespondWith401() {
+  void givenAGuestUserTheFilterShouldRespondWith401() throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("guest-token");
 
-    UserInfoProto userInfo =
-        UserInfoProto.newBuilder()
-            .setUserId("guest-id")
-            .setType(UserTypeProto.GUEST)
-            .setStatus("active")
-            .build();
+    UserInfoDto userInfo = new UserInfoDto().userId("guest-id").type("GUEST").status("active");
 
-    UserMyselfProto guestUser = UserMyselfProto.newBuilder().setInfo(userInfo).build();
-    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder().setUser(guestUser).build();
+    MyselfDto guestUser = new MyselfDto().info(userInfo).features(List.of());
 
-    GetUserMyselfRequest expectedRequest =
-        GetUserMyselfRequest.newBuilder().setToken("guest-token").build();
+    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=guest-token");
 
-    Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(guestUser);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -162,24 +140,17 @@ class AuthenticationFilterTest {
   }
 
   @Test
-  void givenAnInactiveUserTheFilterShouldRespondWith401() {
+  void givenAnInactiveUserTheFilterShouldRespondWith401() throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("inactive-token");
 
-    UserInfoProto userInfo =
-        UserInfoProto.newBuilder()
-            .setUserId("inactive-id")
-            .setType(UserTypeProto.INTERNAL)
-            .setStatus("locked")
-            .build();
+    UserInfoDto userInfo = new UserInfoDto().userId("inactive-id").type("INTERNAL").status("locked");
 
-    UserMyselfProto userMyself = UserMyselfProto.newBuilder().setInfo(userInfo).build();
-    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder().setUser(userMyself).build();
+    MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    GetUserMyselfRequest expectedRequest =
-        GetUserMyselfRequest.newBuilder().setToken("inactive-token").build();
+    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=inactive-token");
 
-    Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -191,24 +162,17 @@ class AuthenticationFilterTest {
   }
 
   @Test
-  void givenAUserWithoutTasksFeatureTheFilterShouldRespondWith401() {
+  void givenAUserWithoutTasksFeatureTheFilterShouldRespondWith401() throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("no-tasks-token");
 
-    UserInfoProto userInfo =
-        UserInfoProto.newBuilder()
-            .setUserId("user-id")
-            .setType(UserTypeProto.INTERNAL)
-            .setStatus("active")
-            .build();
+    UserInfoDto userInfo = new UserInfoDto().userId("user-id").type("INTERNAL").status("active");
 
-    UserMyselfProto userMyself = UserMyselfProto.newBuilder().setInfo(userInfo).build();
-    UserMyselfResponse grpcResponse = UserMyselfResponse.newBuilder().setUser(userMyself).build();
+    MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    GetUserMyselfRequest expectedRequest =
-        GetUserMyselfRequest.newBuilder().setToken("no-tasks-token").build();
+    Map<String, String> expectedHeaders = Map.of("Cookie", "ZM_AUTH_TOKEN=no-tasks-token");
 
-    Mockito.when(stubMock.getUserMyself(expectedRequest)).thenReturn(grpcResponse);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(expectedHeaders)).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 

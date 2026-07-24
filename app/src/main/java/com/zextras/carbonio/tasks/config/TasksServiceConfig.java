@@ -22,11 +22,11 @@ public final class TasksServiceConfig {
 
     private NetworkingConfig() {}
 
-    /** Host of the carbonio-user-management gRPC service. */
+    /** Host of the carbonio-user-management REST service. */
     @ConfigKey
     public static final String USER_MANAGEMENT_HOST = "carbonio.user-management.host";
 
-    /** Port of the carbonio-user-management gRPC service. */
+    /** Port of the carbonio-user-management REST service. */
     @ConfigKey
     public static final String USER_MANAGEMENT_PORT = "carbonio.user-management.port";
 

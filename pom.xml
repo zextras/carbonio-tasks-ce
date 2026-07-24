@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
-    <carbonio-user-management-grpc-sdk.version>1.2.2-1</carbonio-user-management-grpc-sdk.version>
+    <carbonio-user-management-rest-sdk.version>1.2.5-SNAPSHOT.161.d4c8d51b</carbonio-user-management-rest-sdk.version>
 
     <!-- Plugins -->
     <maven-compiler.version>3.13.0</maven-compiler.version>
