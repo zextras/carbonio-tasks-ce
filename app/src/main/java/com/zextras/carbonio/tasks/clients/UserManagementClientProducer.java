@@ -27,10 +27,6 @@ import java.net.http.HttpClient;
 @ApplicationScoped
 public class UserManagementClientProducer {
 
-  private static final String DEFAULT_HOST = "127.78.0.16";
-  private static final String DEFAULT_PORT = "20001";
-  private static final String DEFAULT_PROTOCOL = "http";
-
   private final NetworkingConfigService networkingConfig;
 
   @Inject
@@ -41,15 +37,14 @@ public class UserManagementClientProducer {
   @Produces
   @ApplicationScoped
   public UserResourceApi produceUserResourceApi() {
-    String host = networkingConfig.get(NetworkingConfig.USER_MANAGEMENT_HOST).orElse(DEFAULT_HOST);
-    String port = networkingConfig.get(NetworkingConfig.USER_MANAGEMENT_PORT).orElse(DEFAULT_PORT);
-
-    String userManagementUrl = String.format("%s://%s:%s", DEFAULT_PROTOCOL, host, port);
+    String host = networkingConfig.get(NetworkingConfig.USER_MANAGEMENT_HOST).orElseThrow();
+    String port = networkingConfig.get(NetworkingConfig.USER_MANAGEMENT_PORT).orElseThrow();
 
     HttpClient.Builder httpClientBuilder =
         HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1);
     ApiClient apiClient =
-        new ApiClient(httpClientBuilder, ApiClient.createDefaultObjectMapper(), userManagementUrl);
+        new ApiClient(
+            httpClientBuilder, ApiClient.createDefaultObjectMapper(), "http://" + host + ":" + port);
     return new UserResourceApi(apiClient);
   }
 }
