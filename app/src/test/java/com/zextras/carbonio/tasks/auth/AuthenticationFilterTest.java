@@ -133,7 +133,7 @@ class AuthenticationFilterTest {
   }
 
   @Test
-  void givenAGuestUserTheFilterShouldRespondWith401() {
+  void givenAGuestUserTheFilterShouldRespondWith403() {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("guest-token");
 
@@ -156,13 +156,13 @@ class AuthenticationFilterTest {
 
     filter.filter(ctx);
 
-    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).setStatusCode(403);
     Mockito.verify(ctx.response()).end();
     Mockito.verify(ctx, Mockito.never()).next();
   }
 
   @Test
-  void givenAnInactiveUserTheFilterShouldRespondWith401() {
+  void givenAnInactiveUserTheFilterShouldRespondWith403() {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("inactive-token");
 
@@ -185,13 +185,13 @@ class AuthenticationFilterTest {
 
     filter.filter(ctx);
 
-    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).setStatusCode(403);
     Mockito.verify(ctx.response()).end();
     Mockito.verify(ctx, Mockito.never()).next();
   }
 
   @Test
-  void givenAUserWithoutTasksFeatureTheFilterShouldRespondWith401() {
+  void givenAUserWithoutTasksFeatureTheFilterShouldRespondWith403() {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("no-tasks-token");
 
@@ -214,7 +214,7 @@ class AuthenticationFilterTest {
 
     filter.filter(ctx);
 
-    Mockito.verify(ctx.response()).setStatusCode(401);
+    Mockito.verify(ctx.response()).setStatusCode(403);
     Mockito.verify(ctx.response()).end();
     Mockito.verify(ctx, Mockito.never()).next();
   }
