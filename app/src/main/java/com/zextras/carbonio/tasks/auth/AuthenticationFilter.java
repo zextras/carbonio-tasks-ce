@@ -58,8 +58,9 @@ public class AuthenticationFilter {
 
   /**
    * Core auth logic. Called for every request matching {@code /graphql} or {@code /graphql/}.
-   * Sets {@link Context#REQUESTER_ID} in the routing context on success, or ends the response with
-   * HTTP 401 on failure.
+   * Sets {@link Context#REQUESTER_ID} in the routing context on success. Ends the response with
+   * HTTP 401 if the request is not authenticated (missing/invalid cookie), or HTTP 403 if the
+   * user is authenticated but not entitled to use Tasks (guest, inactive, or feature disabled).
    */
   void filter(RoutingContext ctx) {
     io.vertx.core.http.Cookie zmCookie = ctx.request().getCookie(Config.ACCEPTED_COOKIE_TYPE);
@@ -79,20 +80,20 @@ public class AuthenticationFilter {
       UserMyselfProto userMyself = grpcResponse.getUser();
 
       if (userMyself.getInfo().getType() == UserTypeProto.GUEST) {
-        logger.error("The request is unauthorized: the user is a guest");
-        ctx.response().setStatusCode(401).end();
+        logger.error("The request is forbidden: the user is a guest");
+        ctx.response().setStatusCode(403).end();
         return;
       }
 
       if (!userMyself.getInfo().getStatus().equalsIgnoreCase("active")) {
-        logger.error("The request is unauthorized: the user is not active");
-        ctx.response().setStatusCode(401).end();
+        logger.error("The request is forbidden: the user is not active");
+        ctx.response().setStatusCode(403).end();
         return;
       }
 
       if (!userMyself.getFeaturesList().contains("carbonioFeatureTasksEnabled")) {
-        logger.error("The request is unauthorized: the user does not have Tasks feature enabled");
-        ctx.response().setStatusCode(401).end();
+        logger.error("The request is forbidden: the user does not have Tasks feature enabled");
+        ctx.response().setStatusCode(403).end();
         return;
       }
 
