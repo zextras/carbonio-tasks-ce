@@ -112,7 +112,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
     userManagement =
         new GenericContainer<>(
-                "registry.dev.zextras.com/dev/carbonio-user-management:1b809e66")
+                "registry.dev.zextras.com/dev/carbonio-user-management:774babb1")
             .withNetwork(network)
             .withNetworkAliases("carbonio-user-management")
             .withExposedPorts(10000) // gRPC and HTTP share port 10000 (use-separate-server=false)

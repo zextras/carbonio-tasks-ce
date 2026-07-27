@@ -69,7 +69,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of("carbonioFeatureTasksEnabled"));
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("valid-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "valid-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -100,7 +100,7 @@ class AuthenticationFilterTest {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("invalid-token");
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("invalid-token"))
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "invalid-token"))
         .thenThrow(new ApiException(401, "Unauthorized"));
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
@@ -122,7 +122,7 @@ class AuthenticationFilterTest {
     // getCode() returns 0. This is what happens on network failure, connection refused, request
     // timeout, and - in the native binary - a Jackson InvalidDefinitionException caused by
     // missing reflection metadata for the SDK's response DTOs.
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("some-token"))
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "some-token"))
         .thenThrow(new ApiException(new java.net.http.HttpTimeoutException("x")));
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
@@ -143,7 +143,7 @@ class AuthenticationFilterTest {
 
     MyselfDto guestUser = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("guest-token")).thenReturn(guestUser);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "guest-token")).thenReturn(guestUser);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -163,7 +163,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("inactive-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "inactive-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -183,7 +183,7 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet("no-tasks-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "no-tasks-token")).thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 

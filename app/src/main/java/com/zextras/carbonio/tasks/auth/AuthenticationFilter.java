@@ -72,7 +72,7 @@ public class AuthenticationFilter {
     String token = zmCookie.getValue();
 
     try {
-      MyselfDto userMyself = userResourceApi.internalUsersMyselfGet(token);
+      MyselfDto userMyself = userResourceApi.internalUsersMyselfGet(null, token);
 
       if ("GUEST".equalsIgnoreCase(userMyself.getInfo().getType())) {
         logger.error("The request is forbidden: the user is a guest");
