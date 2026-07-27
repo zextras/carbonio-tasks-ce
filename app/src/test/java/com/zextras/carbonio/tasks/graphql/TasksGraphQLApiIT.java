@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Integration tests for all authenticated GraphQL operations.
  *
- * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process — this avoids
- * Quarkus test-mode gRPC routing and enables connecting to the real user-management container.
+ * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to
+ * the real user-management container over the network.
  * DB cleanup uses direct JDBC since {@code @Inject} is not available in integration test mode.
  */
 @QuarkusIntegrationTest

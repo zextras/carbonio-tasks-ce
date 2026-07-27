@@ -3,7 +3,7 @@ AGPL-3.0-only (https://spdx.org/licenses/AGPL-3.0-only.html) applies to:
   Carbonio Quarkus Extensions - Bootstrap Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-bootstrap:1.11.2-1)
   Carbonio Quarkus Extensions - Database Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-database:1.11.2-1)
   Carbonio Quarkus Extensions - GraphQL Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-graphql:1.11.2-1)
-  Carbonio User Management - gRPC SDK (com.zextras.carbonio.user-management:carbonio-user-management-grpc-sdk:1.2.2-1)
+  Carbonio User Management - REST SDK (com.zextras.carbonio.user-management:carbonio-user-management-rest-sdk:1.3.0-1)
 
 Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
 
@@ -19,25 +19,12 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   CDI Language Model (jakarta.enterprise:jakarta.enterprise.lang-model:4.1.0)
   ClassMate (com.fasterxml:classmate:1.7.1)
   error-prone annotations (com.google.errorprone:error_prone_annotations:2.49.0)
-  FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.2)
   flyway-core (org.flywaydb:flyway-core:12.0.0)
-  Google Android Annotations Library (com.google.android:annotations:4.1.1.4)
-  Gson (com.google.code.gson:gson:2.14.0)
-  Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.1)
-  Guava: Google Core Libraries for Java (com.google.guava:guava:33.6.0-jre)
   Hibernate Models (org.hibernate.models:hibernate-models:1.1.1)
   Hibernate ORM - hibernate-core (org.hibernate.orm:hibernate-core:7.4.3.Final)
   Hibernate ORM - hibernate-graalvm (org.hibernate.orm:hibernate-graalvm:7.4.3.Final)
   Hibernate Validator Engine (org.hibernate.validator:hibernate-validator:9.1.1.Final)
-  io.grpc:grpc-api (io.grpc:grpc-api:1.81.0)
-  io.grpc:grpc-context (io.grpc:grpc-context:1.81.0)
-  io.grpc:grpc-core (io.grpc:grpc-core:1.81.0)
-  io.grpc:grpc-netty (io.grpc:grpc-netty:1.81.0)
-  io.grpc:grpc-protobuf (io.grpc:grpc-protobuf:1.81.0)
-  io.grpc:grpc-protobuf-lite (io.grpc:grpc-protobuf-lite:1.81.0)
-  io.grpc:grpc-stub (io.grpc:grpc-stub:1.81.0)
-  io.grpc:grpc-util (io.grpc:grpc-util:1.81.0)
-  J2ObjC Annotations (com.google.j2objc:j2objc-annotations:2.8)
+  Jackson datatype: JSR310 (com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.0)
   Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.22)
   Jackson-core (com.fasterxml.jackson.core:jackson-core:2.22.0)
   jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.22.0)
@@ -70,8 +57,6 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   Netty/TomcatNative [OpenSSL - Classes] (io.netty:netty-tcnative-classes:2.0.77.Final)
   Netty/Transport (io.netty:netty-transport:4.1.135.Final)
   Netty/Transport/Native/Unix/Common (io.netty:netty-transport-native-unix-common:4.1.135.Final)
-  perfmark:perfmark-api (io.perfmark:perfmark-api:0.27.0)
-  proto-google-common-protos (com.google.api.grpc:proto-google-common-protos:2.71.0)
   Quarkus - Agroal - Runtime (io.quarkus:quarkus-agroal:3.37.2)
   Quarkus - ArC - Runtime (io.quarkus:quarkus-arc:3.37.2)
   Quarkus - Bootstrap - Classloader common utilities (io.quarkus:quarkus-classloader-commons:3.37.2)
@@ -85,11 +70,6 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   Quarkus - DevServices - Runtime (io.quarkus:quarkus-devservices:3.37.2)
   Quarkus - Flyway - Runtime (io.quarkus:quarkus-flyway:3.37.2)
   Quarkus - FS Util (io.quarkus:quarkus-fs-util:1.4.2)
-  Quarkus - gRPC - API (io.quarkus:quarkus-grpc-api:3.37.2)
-  Quarkus - gRPC - Reflection (io.quarkus:quarkus-grpc-reflection:3.37.2)
-  Quarkus - gRPC - Runtime (io.quarkus:quarkus-grpc:3.37.2)
-  Quarkus - gRPC - Stubs for health and reflection (io.quarkus:quarkus-grpc-stubs:3.37.2)
-  Quarkus - gRPC Common - Runtime (io.quarkus:quarkus-grpc-common:3.37.2)
   Quarkus - Hibernate ORM - Runtime (io.quarkus:quarkus-hibernate-orm:3.37.2)
   Quarkus - Hibernate ORM with Panache - Common - Runtime (io.quarkus:quarkus-hibernate-orm-panache-common:3.37.2)
   Quarkus - Hibernate ORM with Panache - Runtime (io.quarkus:quarkus-hibernate-orm-panache:3.37.2)
@@ -107,7 +87,6 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   Quarkus - SmallRye Context Propagation - Runtime (io.quarkus:quarkus-smallrye-context-propagation:3.37.2)
   Quarkus - SmallRye GraphQL - Runtime (io.quarkus:quarkus-smallrye-graphql:3.37.2)
   Quarkus - SmallRye Health - Runtime (io.quarkus:quarkus-smallrye-health:3.37.2)
-  Quarkus - SmallRye Stork - Runtime (io.quarkus:quarkus-smallrye-stork:3.37.2)
   Quarkus - TLS Registry - Runtime (io.quarkus:quarkus-tls-registry:3.37.2)
   Quarkus - TLS Registry - Runtime SPI (io.quarkus:quarkus-tls-registry-spi:3.37.2)
   Quarkus - Transaction Annotations - Runtime (io.quarkus:quarkus-transaction-annotations:3.37.2)
@@ -154,8 +133,6 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   SmallRye Mutiny Zero JDK Flow / Reactive Streams Adapters (io.smallrye.reactive:mutiny-zero-flow-adapters:1.2.1)
   SmallRye Reactive Converters: API (io.smallrye.reactive:smallrye-reactive-converter-api:3.0.3)
   SmallRye Reactive Converters: Mutiny (io.smallrye.reactive:smallrye-reactive-converter-mutiny:3.0.3)
-  SmallRye Stork : Core (io.smallrye.stork:stork-core:2.7.9)
-  SmallRye Stork : Main API classes (io.smallrye.stork:stork-api:2.7.9)
   SmallRye: GraphQL Common :: Schema Model (io.smallrye:smallrye-graphql-schema-model:2.18.3)
   SmallRye: GraphQL Server :: API (io.smallrye:smallrye-graphql-api:2.18.3)
   SmallRye: GraphQL Server :: CDI (io.smallrye:smallrye-graphql-cdi:2.18.3)
@@ -163,10 +140,6 @@ Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
   Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28)
   Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28)
   Vert.x Core (io.vertx:vertx-core:4.5.28)
-  Vert.x gRPC (io.vertx:vertx-grpc:4.5.28)
-  Vert.x gRPC Client (io.vertx:vertx-grpc-client:4.5.28)
-  Vert.x gRPC Common (io.vertx:vertx-grpc-common:4.5.28)
-  Vert.x gRPC Server (io.vertx:vertx-grpc-server:4.5.28)
   Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28)
   Vert.x Web (io.vertx:vertx-web:4.5.28)
   Vert.x Web Common (io.vertx:vertx-web-common:4.5.28)
@@ -181,7 +154,6 @@ BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html) applies to:
 
   ANTLR 4 Runtime (org.antlr:antlr4-runtime:4.13.2)
   Protocol Buffers [Core] (com.google.protobuf:protobuf-java:4.35.0)
-  Protocol Buffers [Util] (com.google.protobuf:protobuf-java-util:4.35.0)
 
 EDL 1.0 (https://spdx.org/licenses/EDL 1.0.html) applies to:
 
@@ -192,10 +164,6 @@ EPL-1.0 (https://spdx.org/licenses/EPL-1.0.html) applies to:
 
   Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28)
   Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28)
-  Vert.x gRPC (io.vertx:vertx-grpc:4.5.28)
-  Vert.x gRPC Client (io.vertx:vertx-grpc-client:4.5.28)
-  Vert.x gRPC Common (io.vertx:vertx-grpc-common:4.5.28)
-  Vert.x gRPC Server (io.vertx:vertx-grpc-server:4.5.28)
   Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28)
   Vert.x Web Common (io.vertx:vertx-web-common:4.5.28)
 
@@ -260,10 +228,6 @@ MIT (https://spdx.org/licenses/MIT.html) applies to:
   graphql-java (com.graphql-java:graphql-java:25.0)
   graphql-java-extended-scalars (com.graphql-java:graphql-java-extended-scalars:24.0)
   SLF4J API Module (org.slf4j:slf4j-api:2.0.18)
-
-MIT license (https://spdx.org/licenses/MIT license.html) applies to:
-
-  Animal Sniffer Annotations (org.codehaus.mojo:animal-sniffer-annotations:1.27)
 
 MIT-0 (https://spdx.org/licenses/MIT-0.html) applies to:
 
