@@ -113,6 +113,28 @@ class AuthenticationFilterTest {
   }
 
   @Test
+  void givenAUserManagementServiceCallFailureWithNoHttpResponseTheFilterShouldRespondWith503()
+      throws Exception {
+    Cookie zmCookie = Mockito.mock(Cookie.class);
+    Mockito.when(zmCookie.getValue()).thenReturn("some-token");
+
+    // The generated client's Throwable-only ApiException constructor never sets `code`, so
+    // getCode() returns 0. This is what happens on network failure, connection refused, request
+    // timeout, and - in the native binary - a Jackson InvalidDefinitionException caused by
+    // missing reflection metadata for the SDK's response DTOs.
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet("some-token"))
+        .thenThrow(new ApiException(new java.net.http.HttpTimeoutException("x")));
+
+    RoutingContext ctx = buildRoutingContext(zmCookie);
+
+    filter.filter(ctx);
+
+    Mockito.verify(ctx.response()).setStatusCode(503);
+    Mockito.verify(ctx.response()).end();
+    Mockito.verify(ctx, Mockito.never()).next();
+  }
+
+  @Test
   void givenAGuestUserTheFilterShouldRespondWith403() throws Exception {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("guest-token");

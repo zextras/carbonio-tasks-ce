@@ -54,8 +54,11 @@ public class AuthenticationFilter {
   /**
    * Core auth logic. Called for every request matching {@code /graphql} or {@code /graphql/}.
    * Sets {@link Context#REQUESTER_ID} in the routing context on success. Ends the response with
-   * HTTP 401 if the request is not authenticated (missing/invalid cookie), or HTTP 403 if the
-   * user is authenticated but not entitled to use Tasks (guest, inactive, or feature disabled).
+   * HTTP 401 if the request is not authenticated (missing/invalid cookie, or carbonio-user-management
+   * itself rejected the token), HTTP 403 if the user is authenticated but not entitled to use Tasks
+   * (guest, inactive, or feature disabled), or HTTP 503 if carbonio-user-management could not be
+   * reached/parsed at all (network failure, timeout, or - in the native binary - a JSON
+   * deserialization failure), since that is a dependency outage, not an invalid session.
    */
   void filter(RoutingContext ctx) {
     io.vertx.core.http.Cookie zmCookie = ctx.request().getCookie(Config.ACCEPTED_COOKIE_TYPE);
@@ -95,10 +98,21 @@ public class AuthenticationFilter {
     } catch (ApiException e) {
       if (e.getCode() == 401) {
         logger.error("The request is unauthorized: the cookie is invalid");
+        ctx.response().setStatusCode(401).end();
       } else {
+        // getCode() == 0 whenever the generated client takes its Throwable-only constructor path
+        // (network failure, connection refused, request timeout, or - in the native binary - a
+        // Jackson InvalidDefinitionException from missing reflection metadata): in every such
+        // case carbonio-user-management is unreachable or misbehaving, the cookie was never
+        // actually checked. Reporting 401 here (as opposed to 401 from a real UM-side rejection)
+        // would tell the browser "your session is invalid" and make the UI log the user out on
+        // an infrastructure blip. 503 is the standard, client-agnostic HTTP status for "a
+        // dependency this request needs is temporarily unavailable, retry later" - unlike the
+        // WebDAV-only 424 (Failed Dependency) that carbonio-message-dispatcher uses for the
+        // analogous gRPC case, 503 is understood by every HTTP client without special-casing.
         logger.error("User management service call failed: {}", e.getMessage());
+        ctx.response().setStatusCode(503).end();
       }
-      ctx.response().setStatusCode(401).end();
     }
   }
 }
