@@ -299,6 +299,79 @@ class TasksGraphQLApiIT {
             Matchers.containsString("Could not find task with id " + unknownId));
   }
 
+  // ─────────────── native resource-bundle regression guard (i18n.Scalars) ───────────────
+  //
+  // graphql-java loads a ResourceBundle named "i18n.Scalars" to build the human-readable
+  // messages for enum- and built-in-scalar-coercion failures (see
+  // graphql.scalar.CoercingUtil#i18nMsg, used by graphql.schema.GraphQLEnumType and by the
+  // Graphql*Coercing classes for Int/Float/Boolean/String/ID). Under GraalVM native-image,
+  // ResourceBundle.getBundle(...) throws MissingResourceException unless the bundle is
+  // explicitly registered at build time. quarkus-smallrye-graphql upstream only registers
+  // i18n.Validation and i18n.Parsing, never i18n.Scalars, so WITHOUT the explicit
+  // "-H:IncludeResourceBundles=i18n.Scalars" native build arg (see application.properties,
+  // quarkus.native.additional-build-args) any invalid enum literal or invalid built-in-scalar
+  // literal in a request crashes with an unhandled MissingResourceException, surfacing to the
+  // client as HTTP 500 with "data": null and no "errors" array, instead of a normal HTTP 200
+  // GraphQL validation error.
+  //
+  // The two tests below are the ONLY regression coverage for that registration. Commit 8700920
+  // added the native build arg fix, but in the very same commit changed
+  // findTasksShouldFilterByStatus to stop sending the invalid literal "CLOSED" (replacing it
+  // with the valid "COMPLETE"), which silently deleted the only test exercising the code path
+  // the fix protects. Do not repeat that mistake:
+  //  - Do NOT "simplify" or "fix" these tests by switching to a valid Status value or a
+  //    correctly-typed argument. An invalid literal is the entire point: it is what forces
+  //    graphql-java down the i18n.Scalars-dependent coercion path.
+  //  - These tests only prove the registration is intact when the suite runs against the
+  //    NATIVE binary. In JVM mode, ResourceBundle.getBundle("i18n.Scalars", ...) resolves
+  //    normally from i18n/Scalars.properties on the classpath regardless of the native build
+  //    arg, so a green result here in JVM mode does NOT prove the native registration works —
+  //    it only proves graphql-java's ordinary (non-native) behavior, which was never broken.
+  //    As of this writing, CI does not yet run the IT suite against the native binary
+  //    (jenkins-lib-common PR #150 adds that, still open).
+
+  /**
+   * Sends the exact invalid enum literal ({@code Status(CLOSED)}) that {@code
+   * findTasksShouldFilterByStatus} used to send before commit 8700920 replaced it with a valid
+   * one. {@code Status} only defines {@code OPEN}, {@code COMPLETE} and {@code TRASH}, so {@code
+   * CLOSED} forces graphql-java's {@code GraphQLEnumType} coercion to fail and build its error
+   * message from the {@code i18n.Scalars} resource bundle.
+   *
+   * <p>See the section comment above: this must keep sending an invalid literal, and it is only
+   * a real guard against the native resource-bundle registration when run against the native
+   * binary.
+   */
+  @Test
+  void findTasksWithInvalidEnumLiteralShouldReturnGraphQLErrorNotServerError() {
+    postAuth("{\"query\": \"{ findTasks(status: CLOSED) { id title status } }\"}")
+        // Explicitly NOT a 500: an unregistered i18n.Scalars bundle under native-image would
+        // throw MissingResourceException and surface here as HTTP 500 with a null "data".
+        .statusCode(200)
+        .body("errors", Matchers.not(Matchers.empty()))
+        .body("errors[0].message", Matchers.containsString("Status"));
+  }
+
+  /**
+   * Sends a Boolean literal ({@code true}) for {@code taskId}, which the schema types as the
+   * built-in {@code ID} scalar. {@code ID} only accepts {@code StringValue}/{@code IntValue}
+   * literals, so this forces {@code GraphqlIDCoercing} to fail and build its error message from
+   * the same {@code i18n.Scalars} bundle as the enum case above, via a different coercion path
+   * (built-in scalar rather than enum).
+   *
+   * <p>See the section comment above: this must keep sending a wrongly-typed literal, and it is
+   * only a real guard against the native resource-bundle registration when run against the
+   * native binary.
+   */
+  @Test
+  void getTaskWithWrongLiteralTypeShouldReturnGraphQLErrorNotServerError() {
+    postAuth("{\"query\": \"{ getTask(taskId: true) { id } }\"}")
+        // Explicitly NOT a 500: an unregistered i18n.Scalars bundle under native-image would
+        // throw MissingResourceException and surface here as HTTP 500 with a null "data".
+        .statusCode(200)
+        .body("errors", Matchers.not(Matchers.empty()))
+        .body("errors[0].message", Matchers.containsString("ID"));
+  }
+
   // ─────────────── helpers ───────────────
 
   private ValidatableResponse postAuth(String jsonBody) {
