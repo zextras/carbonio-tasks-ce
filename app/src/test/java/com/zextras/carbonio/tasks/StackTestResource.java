@@ -195,7 +195,17 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             + "\"displayName\":\"Test User\","
             + "\"status\":\"active\","
             + "\"isGlobalAdmin\":false,"
+            // Both booleans, because mailbox really returns both and they are NOT synonyms:
+            // isExternal is derived from zimbraMailTransport not matching the server named by
+            // zimbraMailHost (foreign/relayed MTA routing), while isExternalVirtualAccount is the
+            // LDAP zimbraIsExternalVirtualAccount flag marking a guest / external-share account.
+            // user-management's UserService#mapAccountInfoToUserMyself classifies GUEST-vs-INTERNAL
+            // off isExternalVirtualAccount() only. A normal internal account is false for both.
+            // Omitting the field let the mailbox-sdk AccountInfo record silently default it to
+            // false, which happened to give the right answer here only because this suite never
+            // exercises a guest account.
             + "\"isExternal\":false,"
+            + "\"isExternalVirtualAccount\":false,"
             + "\"locale\":\"en_US\","
             + "\"features\":{\"carbonioFeatureTasksEnabled\":true},"
             + "\"capabilities\":{},"
