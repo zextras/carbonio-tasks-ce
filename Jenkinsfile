@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 library(
-    identifier: 'jenkins-lib-common@main',
+    identifier: 'jenkins-lib-common@feat/native-integration-tests',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         credentialsId: 'jenkins-integration-with-github-account',
