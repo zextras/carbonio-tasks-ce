@@ -4,7 +4,6 @@
 
 package com.zextras.carbonio.tasks.dal.repositories;
 
-import com.zextras.carbonio.tasks.Constants.DatabaseSchema.Tables;
 import com.zextras.carbonio.tasks.dal.dao.Priority;
 import com.zextras.carbonio.tasks.dal.dao.Status;
 import com.zextras.carbonio.tasks.dal.dao.Task;
@@ -65,11 +64,7 @@ public class TaskRepository implements PanacheRepositoryBase<Task, UUID> {
   }
 
   public Optional<Task> getTask(UUID taskId, String userId) {
-    return find(
-            "id = ?1 and userId = ?2 and status != ?3",
-            taskId,
-            userId,
-            Status.TRASH)
+    return find("id = ?1 and userId = ?2 and status != ?3", taskId, userId, Status.TRASH)
         .firstResultOptional();
   }
 

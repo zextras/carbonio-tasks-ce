@@ -67,9 +67,11 @@ class AuthenticationFilterTest {
             .type("INTERNAL")
             .status("active");
 
-    MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of("carbonioFeatureTasksEnabled"));
+    MyselfDto userMyself =
+        new MyselfDto().info(userInfo).features(List.of("carbonioFeatureTasksEnabled"));
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "valid-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "valid-token"))
+        .thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -143,7 +145,8 @@ class AuthenticationFilterTest {
 
     MyselfDto guestUser = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "guest-token")).thenReturn(guestUser);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "guest-token"))
+        .thenReturn(guestUser);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -159,11 +162,13 @@ class AuthenticationFilterTest {
     Cookie zmCookie = Mockito.mock(Cookie.class);
     Mockito.when(zmCookie.getValue()).thenReturn("inactive-token");
 
-    UserInfoDto userInfo = new UserInfoDto().userId("inactive-id").type("INTERNAL").status("locked");
+    UserInfoDto userInfo =
+        new UserInfoDto().userId("inactive-id").type("INTERNAL").status("locked");
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "inactive-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "inactive-token"))
+        .thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 
@@ -183,7 +188,8 @@ class AuthenticationFilterTest {
 
     MyselfDto userMyself = new MyselfDto().info(userInfo).features(List.of());
 
-    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "no-tasks-token")).thenReturn(userMyself);
+    Mockito.when(userResourceApiMock.internalUsersMyselfGet(null, "no-tasks-token"))
+        .thenReturn(userMyself);
 
     RoutingContext ctx = buildRoutingContext(zmCookie);
 

@@ -20,8 +20,7 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class RequestContext {
 
-  @Inject
-  RoutingContext routingContext;
+  @Inject RoutingContext routingContext;
 
   public String getRequesterId() {
     return routingContext.get(Context.REQUESTER_ID);

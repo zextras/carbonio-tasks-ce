@@ -13,9 +13,7 @@ import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-/**
- * Integration test for the {@code getServiceInfo} GraphQL query.
- */
+/** Integration test for the {@code getServiceInfo} GraphQL query. */
 @QuarkusIntegrationTest
 @WithTestResource(StackTestResource.class)
 class ServiceInfoApiIT {

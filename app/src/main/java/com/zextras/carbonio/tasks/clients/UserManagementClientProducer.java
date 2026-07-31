@@ -21,9 +21,9 @@ import java.time.Duration;
  * NetworkingConfigService} ({@code networking-config.carbonio.user-management.*}, see {@code
  * application.properties}), same as the gRPC client it replaces.
  *
- * <p>The {@link HttpClient} is explicitly pinned to HTTP/1.1: the JDK client's default (HTTP/2
- * with an HTTP/1.1 upgrade attempt) trips plaintext HTTP/1.1-only servers (e.g. WireMock in the
- * ITs) into a protocol error/hang.
+ * <p>The {@link HttpClient} is explicitly pinned to HTTP/1.1: the JDK client's default (HTTP/2 with
+ * an HTTP/1.1 upgrade attempt) trips plaintext HTTP/1.1-only servers (e.g. WireMock in the ITs)
+ * into a protocol error/hang.
  */
 @ApplicationScoped
 public class UserManagementClientProducer {
@@ -54,7 +54,9 @@ public class UserManagementClientProducer {
         HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1);
     ApiClient apiClient =
         new ApiClient(
-            httpClientBuilder, ApiClient.createDefaultObjectMapper(), "http://" + host + ":" + port);
+            httpClientBuilder,
+            ApiClient.createDefaultObjectMapper(),
+            "http://" + host + ":" + port);
     apiClient.setConnectTimeout(USER_MANAGEMENT_TIMEOUT);
     apiClient.setReadTimeout(USER_MANAGEMENT_TIMEOUT);
     return new UserResourceApi(apiClient);

@@ -18,9 +18,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Integration tests for all authenticated GraphQL operations.
  *
- * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to
- * the real user-management container over the network.
- * DB cleanup uses direct JDBC since {@code @Inject} is not available in integration test mode.
+ * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to the
+ * real user-management container over the network. DB cleanup uses direct JDBC since
+ * {@code @Inject} is not available in integration test mode.
  */
 @QuarkusIntegrationTest
 @WithTestResource(StackTestResource.class)
@@ -28,9 +28,9 @@ class TasksGraphQLApiIT {
 
   @BeforeEach
   void cleanUp() throws Exception {
-    try (var conn = DriverManager.getConnection(
-             StackTestResource.POSTGRES_JDBC_URL, "test", "test");
-         var stmt = conn.createStatement()) {
+    try (var conn =
+            DriverManager.getConnection(StackTestResource.POSTGRES_JDBC_URL, "test", "test");
+        var stmt = conn.createStatement()) {
       stmt.execute("DELETE FROM task");
     }
   }
@@ -112,9 +112,7 @@ class TasksGraphQLApiIT {
     String taskId = createTaskViaApi("Find Me");
 
     String getQuery =
-        "{\"query\": \"{ getTask(taskId: \\\""
-            + taskId
-            + "\\\") { id title priority status } }\"}";
+        "{\"query\": \"{ getTask(taskId: \\\"" + taskId + "\\\") { id title priority status } }\"}";
 
     postAuth(getQuery)
         .statusCode(200)
@@ -127,10 +125,7 @@ class TasksGraphQLApiIT {
   @Test
   void getTaskWithUnknownIdShouldReturnGraphQLError() {
     String unknownId = "00000000-0000-0000-0000-000000000001";
-    String query =
-        "{\"query\": \"{ getTask(taskId: \\\""
-            + unknownId
-            + "\\\") { id title } }\"}";
+    String query = "{\"query\": \"{ getTask(taskId: \\\"" + unknownId + "\\\") { id title } }\"}";
 
     postAuth(query)
         .statusCode(200)
@@ -222,22 +217,22 @@ class TasksGraphQLApiIT {
 
     // Set reminder
     postAuth(
-        "{\"query\": \"mutation { updateTask(updateTask: {"
-            + "id: \\\""
-            + taskId
-            + "\\\", reminderAt: 1700000000000, reminderAllDay: true"
-            + "}) { id reminderAt reminderAllDay } }\"}")
+            "{\"query\": \"mutation { updateTask(updateTask: {"
+                + "id: \\\""
+                + taskId
+                + "\\\", reminderAt: 1700000000000, reminderAllDay: true"
+                + "}) { id reminderAt reminderAllDay } }\"}")
         .statusCode(200)
         .body("data.updateTask.reminderAt", Matchers.notNullValue())
         .body("data.updateTask.reminderAllDay", Matchers.equalTo(true));
 
     // Clear reminder: reminderAt=0 (REMINDER_AT_RESET_VALUE) + reminderAllDay=false
     postAuth(
-        "{\"query\": \"mutation { updateTask(updateTask: {"
-            + "id: \\\""
-            + taskId
-            + "\\\", reminderAt: 0, reminderAllDay: false"
-            + "}) { id reminderAt reminderAllDay } }\"}")
+            "{\"query\": \"mutation { updateTask(updateTask: {"
+                + "id: \\\""
+                + taskId
+                + "\\\", reminderAt: 0, reminderAllDay: false"
+                + "}) { id reminderAt reminderAllDay } }\"}")
         .statusCode(200)
         .body("data.updateTask.reminderAt", Matchers.nullValue())
         .body("data.updateTask.reminderAllDay", Matchers.nullValue());
@@ -277,15 +272,11 @@ class TasksGraphQLApiIT {
     String taskId = createTaskViaApi("Disappearing Task");
     postAuth("{\"query\": \"mutation { trashTask(taskId: \\\"" + taskId + "\\\") }\"}");
 
-    postAuth(
-        "{\"query\": \"{ getTask(taskId: \\\""
-            + taskId
-            + "\\\") { id } }\"}")
+    postAuth("{\"query\": \"{ getTask(taskId: \\\"" + taskId + "\\\") { id } }\"}")
         .statusCode(200)
         .body("errors", Matchers.notNullValue())
         .body(
-            "errors[0].message",
-            Matchers.containsString("Could not find task with id " + taskId));
+            "errors[0].message", Matchers.containsString("Could not find task with id " + taskId));
   }
 
   @Test
@@ -332,14 +323,13 @@ class TasksGraphQLApiIT {
 
   /**
    * Sends the exact invalid enum literal ({@code Status(CLOSED)}) that {@code
-   * findTasksShouldFilterByStatus} used to send before commit 8700920 replaced it with a valid
-   * one. {@code Status} only defines {@code OPEN}, {@code COMPLETE} and {@code TRASH}, so {@code
-   * CLOSED} forces graphql-java's {@code GraphQLEnumType} coercion to fail and build its error
-   * message from the {@code i18n.Scalars} resource bundle.
+   * findTasksShouldFilterByStatus} used to send before commit 8700920 replaced it with a valid one.
+   * {@code Status} only defines {@code OPEN}, {@code COMPLETE} and {@code TRASH}, so {@code CLOSED}
+   * forces graphql-java's {@code GraphQLEnumType} coercion to fail and build its error message from
+   * the {@code i18n.Scalars} resource bundle.
    *
-   * <p>See the section comment above: this must keep sending an invalid literal, and it is only
-   * a real guard against the native resource-bundle registration when run against the native
-   * binary.
+   * <p>See the section comment above: this must keep sending an invalid literal, and it is only a
+   * real guard against the native resource-bundle registration when run against the native binary.
    */
   @Test
   void findTasksWithInvalidEnumLiteralShouldReturnGraphQLErrorNotServerError() {
@@ -354,13 +344,13 @@ class TasksGraphQLApiIT {
   /**
    * Sends a Boolean literal ({@code true}) for {@code taskId}, which the schema types as the
    * built-in {@code ID} scalar. {@code ID} only accepts {@code StringValue}/{@code IntValue}
-   * literals, so this forces {@code GraphqlIDCoercing} to fail and build its error message from
-   * the same {@code i18n.Scalars} bundle as the enum case above, via a different coercion path
+   * literals, so this forces {@code GraphqlIDCoercing} to fail and build its error message from the
+   * same {@code i18n.Scalars} bundle as the enum case above, via a different coercion path
    * (built-in scalar rather than enum).
    *
    * <p>See the section comment above: this must keep sending a wrongly-typed literal, and it is
-   * only a real guard against the native resource-bundle registration when run against the
-   * native binary.
+   * only a real guard against the native resource-bundle registration when run against the native
+   * binary.
    */
   @Test
   void getTaskWithWrongLiteralTypeShouldReturnGraphQLErrorNotServerError() {
@@ -386,9 +376,7 @@ class TasksGraphQLApiIT {
 
   String createTaskViaApi(String title) {
     String query =
-        "{\"query\": \"mutation { createTask(newTask: {title: \\\""
-            + title
-            + "\\\"}) { id } }\"}";
+        "{\"query\": \"mutation { createTask(newTask: {title: \\\"" + title + "\\\"}) { id } }\"}";
     return RestAssured.given()
         .contentType(ContentType.JSON)
         .cookie("ZM_AUTH_TOKEN", StackTestResource.AUTH_TOKEN)

@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
  * Verifies that the AuthenticationFilter is correctly wired into the GraphQL endpoint and enforces
  * authentication using the REAL carbonio-user-management REST service.
  *
- * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to
- * the real user-management container over the network.
+ * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to the
+ * real user-management container over the network.
  */
 @QuarkusIntegrationTest
 @WithTestResource(StackTestResource.class)

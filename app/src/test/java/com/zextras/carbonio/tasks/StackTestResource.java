@@ -23,22 +23,22 @@ import org.testcontainers.lifecycle.Startables;
  * Integration test stack for carbonio-tasks-ce.
  *
  * <p><b>Testing philosophy (narrow integration tests):</b>
+ *
  * <ul>
- *   <li>Direct dependencies of tasks-ce are run as real Docker containers:
- *       {@code carbonio-user-management} (REST auth validation).</li>
- *   <li>Indirect dependencies (dependencies of our direct deps) are replaced with
- *       lightweight mocks so that our IT suite is isolated from their failures.
- *       Specifically, {@code carbonio-mailbox} — which user-management calls for
- *       token validation via its internal REST API — is stubbed by WireMock.
- *       mailbox's own integration with LDAP, MariaDB, and Postfix is covered by
- *       user-management's integration test suite, not ours.</li>
- *   <li>Consul is also stubbed by the same WireMock container (via a second network alias)
- *       so no real Consul container is needed.</li>
+ *   <li>Direct dependencies of tasks-ce are run as real Docker containers: {@code
+ *       carbonio-user-management} (REST auth validation).
+ *   <li>Indirect dependencies (dependencies of our direct deps) are replaced with lightweight mocks
+ *       so that our IT suite is isolated from their failures. Specifically, {@code
+ *       carbonio-mailbox} — which user-management calls for token validation via its internal REST
+ *       API — is stubbed by WireMock. mailbox's own integration with LDAP, MariaDB, and Postfix is
+ *       covered by user-management's integration test suite, not ours.
+ *   <li>Consul is also stubbed by the same WireMock container (via a second network alias) so no
+ *       real Consul container is needed.
  * </ul>
  *
- * <p>Containers are static singletons: they start once per JVM and are reused
- * across all {@code @QuarkusIntegrationTest} classes. {@code stop()} is a no-op;
- * Testcontainers' JVM shutdown hook handles cleanup.
+ * <p>Containers are static singletons: they start once per JVM and are reused across all
+ * {@code @QuarkusIntegrationTest} classes. {@code stop()} is a no-op; Testcontainers' JVM shutdown
+ * hook handles cleanup.
  */
 public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
@@ -50,9 +50,9 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   private static Map<String, String> cachedConfig;
 
   /**
-   * Fixed {@code ZM_AUTH_TOKEN} used by tests and matched by the WireMock stub.
-   * Any other token value will receive no stub match → WireMock returns 404 →
-   * user-management treats the token as invalid → tasks-ce returns 401.
+   * Fixed {@code ZM_AUTH_TOKEN} used by tests and matched by the WireMock stub. Any other token
+   * value will receive no stub match → WireMock returns 404 → user-management treats the token as
+   * invalid → tasks-ce returns 401.
    */
   public static final String AUTH_TOKEN = "test-auth-token-tasks-ce";
 
@@ -102,8 +102,7 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     //   2. Register Consul HTTP API stubs so both tasks-ce and user-management can
     //      perform service discovery / KV lookups against WireMock on port 8080.
     try {
-      String wireMockAdminUrl =
-          "http://" + wireMock.getHost() + ":" + wireMock.getMappedPort(8080);
+      String wireMockAdminUrl = "http://" + wireMock.getHost() + ":" + wireMock.getMappedPort(8080);
       setupMailboxWireMockStub(wireMockAdminUrl);
       setupConsulStubs(wireMockAdminUrl);
     } catch (Exception e) {
@@ -168,15 +167,15 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   }
 
   /**
-   * Registers a WireMock stub for the mailbox internal REST endpoint that user-management
-   * calls to validate auth tokens: {@code GET /internal/accounts/myself}.
+   * Registers a WireMock stub for the mailbox internal REST endpoint that user-management calls to
+   * validate auth tokens: {@code GET /internal/accounts/myself}.
    *
-   * <p>When the Cookie header contains {@code ZM_AUTH_TOKEN=test-auth-token-tasks-ce},
-   * WireMock returns a minimal {@code AccountInfo} JSON. Any other token gets no stub
-   * → WireMock 404 → user-management treats the token as invalid → tasks-ce returns 401.
+   * <p>When the Cookie header contains {@code ZM_AUTH_TOKEN=test-auth-token-tasks-ce}, WireMock
+   * returns a minimal {@code AccountInfo} JSON. Any other token gets no stub → WireMock 404 →
+   * user-management treats the token as invalid → tasks-ce returns 401.
    *
-   * <p>The {@code features} map must include {@code carbonioFeatureTasksEnabled: true} —
-   * tasks-ce's {@code AuthenticationFilter} checks this before granting access.
+   * <p>The {@code features} map must include {@code carbonioFeatureTasksEnabled: true} — tasks-ce's
+   * {@code AuthenticationFilter} checks this before granting access.
    */
   private static void setupMailboxWireMockStub(String wireMockAdminUrl) throws Exception {
     String stubJson =
@@ -184,13 +183,17 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
             + "\"request\":{"
             + "\"method\":\"GET\","
             + "\"urlPath\":\"/internal/accounts/myself\","
-            + "\"headers\":{\"Cookie\":{\"contains\":\"ZM_AUTH_TOKEN=" + AUTH_TOKEN + "\"}}"
+            + "\"headers\":{\"Cookie\":{\"contains\":\"ZM_AUTH_TOKEN="
+            + AUTH_TOKEN
+            + "\"}}"
             + "},"
             + "\"response\":{"
             + "\"status\":200,"
             + "\"headers\":{\"Content-Type\":\"application/json; charset=utf-8\"},"
             + "\"jsonBody\":{"
-            + "\"id\":\"" + TEST_USER_ID + "\","
+            + "\"id\":\""
+            + TEST_USER_ID
+            + "\","
             + "\"name\":\"test@carbonio.test\","
             + "\"displayName\":\"Test User\","
             + "\"status\":\"active\","
@@ -226,7 +229,9 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
 
     if (response.statusCode() != 201) {
       throw new RuntimeException(
-          "Failed to configure WireMock stub (HTTP " + response.statusCode() + "): "
+          "Failed to configure WireMock stub (HTTP "
+              + response.statusCode()
+              + "): "
               + response.body());
     }
   }
@@ -234,9 +239,9 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
   /**
    * Registers WireMock stubs that impersonate the Consul HTTP API.
    *
-   * <p>tasks-ce reads its DB credentials from Consul KV at startup.
-   * user-management reads optional cache-TTL config (returns 404 → defaults used).
-   * Both services register themselves as Consul services (→ 200 stubs).
+   * <p>tasks-ce reads its DB credentials from Consul KV at startup. user-management reads optional
+   * cache-TTL config (returns 404 → defaults used). Both services register themselves as Consul
+   * services (→ 200 stubs).
    */
   private static void setupConsulStubs(String wireMockAdminUrl) throws Exception {
     HttpClient client = HttpClient.newHttpClient();
@@ -248,95 +253,125 @@ public class StackTestResource implements QuarkusTestResourceLifecycleManager {
     // derives the own-service application-config view from the carbonio-tasks/* subset. So we stub
     // the ROOT recurse (not the per-prefix one) and return all three credential entries in the
     // Consul recursive-response format. (Pre-1.10 the factory recursed /v1/kv/carbonio-tasks/.)
-    postConsulKvRecursiveStub(client, wireMockAdminUrl, "",
-        new String[][]{
-            {"carbonio-tasks/database/credentials/db-name",     DB_NAME},
-            {"carbonio-tasks/database/credentials/db-username", DB_USER},
-            {"carbonio-tasks/database/credentials/db-password", DB_PASSWORD},
+    postConsulKvRecursiveStub(
+        client,
+        wireMockAdminUrl,
+        "",
+        new String[][] {
+          {"carbonio-tasks/database/credentials/db-name", DB_NAME},
+          {"carbonio-tasks/database/credentials/db-username", DB_USER},
+          {"carbonio-tasks/database/credentials/db-password", DB_PASSWORD},
         });
 
     // Catch-all for unknown KV keys → 404 (priority 10 = lowest; urlPathPattern ignores query)
-    postStub(client, wireMockAdminUrl,
+    postStub(
+        client,
+        wireMockAdminUrl,
         "{\"priority\":10,"
-        + "\"request\":{\"method\":\"GET\",\"urlPathPattern\":\"/v1/kv/.*\"},"
-        + "\"response\":{\"status\":404}}");
+            + "\"request\":{\"method\":\"GET\",\"urlPathPattern\":\"/v1/kv/.*\"},"
+            + "\"response\":{\"status\":404}}");
 
     // Service registration / deregistration → 200
-    for (String pattern : new String[]{
-        "/v1/agent/service/register.*",
-        "/v1/agent/service/deregister/.*",
-        "/v1/agent/check/register.*",
-        "/v1/agent/check/deregister/.*"}) {
-      postStub(client, wireMockAdminUrl,
-          "{\"request\":{\"method\":\"PUT\",\"urlPathPattern\":\"" + pattern + "\"},"
-          + "\"response\":{\"status\":200}}");
+    for (String pattern :
+        new String[] {
+          "/v1/agent/service/register.*",
+          "/v1/agent/service/deregister/.*",
+          "/v1/agent/check/register.*",
+          "/v1/agent/check/deregister/.*"
+        }) {
+      postStub(
+          client,
+          wireMockAdminUrl,
+          "{\"request\":{\"method\":\"PUT\",\"urlPathPattern\":\""
+              + pattern
+              + "\"},"
+              + "\"response\":{\"status\":200}}");
     }
 
     // Service discovery → empty array
-    for (String pattern : new String[]{"/v1/health/service/.*", "/v1/catalog/service/.*"}) {
-      postStub(client, wireMockAdminUrl,
-          "{\"request\":{\"method\":\"GET\",\"urlPathPattern\":\"" + pattern + "\"},"
-          + "\"response\":{\"status\":200,"
-          + "\"headers\":{\"Content-Type\":\"application/json\"},\"body\":\"[]\"}}");
+    for (String pattern : new String[] {"/v1/health/service/.*", "/v1/catalog/service/.*"}) {
+      postStub(
+          client,
+          wireMockAdminUrl,
+          "{\"request\":{\"method\":\"GET\",\"urlPathPattern\":\""
+              + pattern
+              + "\"},"
+              + "\"response\":{\"status\":200,"
+              + "\"headers\":{\"Content-Type\":\"application/json\"},\"body\":\"[]\"}}");
     }
 
     // Agent self / status (urlPath = path-only exact match, ignores query string)
-    postStub(client, wireMockAdminUrl,
+    postStub(
+        client,
+        wireMockAdminUrl,
         "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/agent/self\"},"
-        + "\"response\":{\"status\":200,"
-        + "\"headers\":{\"Content-Type\":\"application/json\"},"
-        + "\"jsonBody\":{\"Config\":{\"Datacenter\":\"dc1\",\"NodeName\":\"mock-consul\"}}}}");
-    postStub(client, wireMockAdminUrl,
+            + "\"response\":{\"status\":200,"
+            + "\"headers\":{\"Content-Type\":\"application/json\"},"
+            + "\"jsonBody\":{\"Config\":{\"Datacenter\":\"dc1\",\"NodeName\":\"mock-consul\"}}}}");
+    postStub(
+        client,
+        wireMockAdminUrl,
         "{\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/status/leader\"},"
-        + "\"response\":{\"status\":200,"
-        + "\"headers\":{\"Content-Type\":\"application/json\"},"
-        + "\"body\":\"\\\"127.0.0.1:8300\\\"\"}}");
+            + "\"response\":{\"status\":200,"
+            + "\"headers\":{\"Content-Type\":\"application/json\"},"
+            + "\"body\":\"\\\"127.0.0.1:8300\\\"\"}}");
   }
 
   /**
-   * Registers a single WireMock stub that matches the Consul recursive KV fetch:
-   *   GET /v1/kv/{prefix}?recurse   (urlPath ignores the query string)
+   * Registers a single WireMock stub that matches the Consul recursive KV fetch: GET
+   * /v1/kv/{prefix}?recurse (urlPath ignores the query string)
    *
-   * <p>CarbonioBootstrapFactory issues exactly one bulk GET — it never fetches individual keys.
-   * The response is a JSON array with one object per key-value pair, values base64-encoded,
-   * which is exactly what the real Consul API returns for {@code ?recurse}.</p>
+   * <p>CarbonioBootstrapFactory issues exactly one bulk GET — it never fetches individual keys. The
+   * response is a JSON array with one object per key-value pair, values base64-encoded, which is
+   * exactly what the real Consul API returns for {@code ?recurse}.
    *
-   * @param kvEntries  array of {key, plainTextValue} pairs to include in the response
+   * @param kvEntries array of {key, plainTextValue} pairs to include in the response
    */
   private static void postConsulKvRecursiveStub(
       HttpClient client, String baseUrl, String prefix, String[][] kvEntries) throws Exception {
     StringBuilder arrayBody = new StringBuilder("[");
     for (int i = 0; i < kvEntries.length; i++) {
-      String key   = kvEntries[i][0];
+      String key = kvEntries[i][0];
       String value = kvEntries[i][1];
-      String b64   = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+      String b64 = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
       if (i > 0) arrayBody.append(",");
-      arrayBody.append("{\"LockIndex\":0,\"Key\":\"").append(key).append("\",\"Flags\":0,")
-               .append("\"Value\":\"").append(b64).append("\",\"CreateIndex\":1,\"ModifyIndex\":1}");
+      arrayBody
+          .append("{\"LockIndex\":0,\"Key\":\"")
+          .append(key)
+          .append("\",\"Flags\":0,")
+          .append("\"Value\":\"")
+          .append(b64)
+          .append("\",\"CreateIndex\":1,\"ModifyIndex\":1}");
     }
     arrayBody.append("]");
 
     // Escape the JSON array for embedding as a string value inside the WireMock stub JSON
-    String escapedBody = arrayBody.toString()
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"");
+    String escapedBody = arrayBody.toString().replace("\\", "\\\\").replace("\"", "\\\"");
 
     // urlPath matches /v1/kv/carbonio-tasks/ regardless of ?recurse or any other query param
-    postStub(client, baseUrl,
+    postStub(
+        client,
+        baseUrl,
         "{\"priority\":1,"
-        + "\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/kv/" + prefix + "\"},"
-        + "\"response\":{\"status\":200,"
-        + "\"headers\":{\"Content-Type\":\"application/json\"},"
-        + "\"body\":\"" + escapedBody + "\"}}");
+            + "\"request\":{\"method\":\"GET\",\"urlPath\":\"/v1/kv/"
+            + prefix
+            + "\"},"
+            + "\"response\":{\"status\":200,"
+            + "\"headers\":{\"Content-Type\":\"application/json\"},"
+            + "\"body\":\""
+            + escapedBody
+            + "\"}}");
   }
 
   /** Posts a single WireMock stub JSON to the admin mappings endpoint. */
-  private static void postStub(HttpClient client, String baseUrl, String stubJson) throws Exception {
-    HttpRequest req = HttpRequest.newBuilder()
-        .uri(URI.create(baseUrl + "/__admin/mappings"))
-        .header("Content-Type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(stubJson))
-        .build();
+  private static void postStub(HttpClient client, String baseUrl, String stubJson)
+      throws Exception {
+    HttpRequest req =
+        HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl + "/__admin/mappings"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(stubJson))
+            .build();
     HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
     if (resp.statusCode() != 201) {
       throw new RuntimeException(

@@ -17,8 +17,7 @@ import org.eclipse.microprofile.graphql.Name;
 @Name("Task")
 public class TaskResponse {
 
-  @Id
-  private String id;
+  @Id private String id;
   private String title;
   private String description;
   private Priority priority;
