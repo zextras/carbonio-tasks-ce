@@ -56,7 +56,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <skip.jacoco.full.report.generation>true</skip.jacoco.full.report.generation>
 
     <!-- CI-friendly versioning -->
-    <revision>1.4.1</revision>
+    <revision>1.4.2</revision>
     <!-- changelist default is -SNAPSHOT; override with -Dchangelist= for releases -->
     <changelist>-1</changelist>
   </properties>
