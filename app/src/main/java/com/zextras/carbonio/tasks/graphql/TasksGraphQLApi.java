@@ -33,18 +33,16 @@ import org.eclipse.microprofile.graphql.Query;
  * SmallRye GraphQL API endpoint providing queries and mutations for carbonio-tasks-ce.
  *
  * <p>Authentication is handled by {@link com.zextras.carbonio.tasks.auth.AuthenticationFilter}
- * which populates the request-scoped {@link RequestContext} with the authenticated user's ID.
- * Input validation is done inline (previously handled by Ebean's {@code InputFieldsValidator}).
+ * which populates the request-scoped {@link RequestContext} with the authenticated user's ID. Input
+ * validation is done inline (previously handled by Ebean's {@code InputFieldsValidator}).
  */
 @GraphQLApi
 @ApplicationScoped
 public class TasksGraphQLApi {
 
-  @Inject
-  TaskRepository taskRepository;
+  @Inject TaskRepository taskRepository;
 
-  @Inject
-  RequestContext requestContext;
+  @Inject RequestContext requestContext;
 
   // ──────────────────────────── Queries ────────────────────────────
 
@@ -193,8 +191,8 @@ public class TasksGraphQLApi {
   }
 
   /**
-   * Validates common constraints for both {@code createTask} and {@code updateTask} inputs.
-   * Mirrors the logic of the old {@code InputFieldsValidator}.
+   * Validates common constraints for both {@code createTask} and {@code updateTask} inputs. Mirrors
+   * the logic of the old {@code InputFieldsValidator}.
    */
   private void validateUpsertInput(
       String title, String description, Long reminderAt, Boolean reminderAllDay)
@@ -219,8 +217,7 @@ public class TasksGraphQLApi {
 
     if ((reminderAt == null && reminderAllDay != null)
         || (reminderAt != null && reminderAllDay == null)) {
-      errors.append(
-          "The reminderAt and the reminderAllDay attributes must be both always set");
+      errors.append("The reminderAt and the reminderAllDay attributes must be both always set");
     }
 
     String errorMessage = errors.toString().stripTrailing();

@@ -38,8 +38,7 @@ public class AuthenticationFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-  @Inject
-  UserResourceApi userResourceApi;
+  @Inject UserResourceApi userResourceApi;
 
   /**
    * Registers the auth handler on the Vert.x router. Called once at startup when Quarkus publishes
@@ -52,10 +51,10 @@ public class AuthenticationFilter {
   }
 
   /**
-   * Core auth logic. Called for every request matching {@code /graphql} or {@code /graphql/}.
-   * Sets {@link Context#REQUESTER_ID} in the routing context on success. Ends the response with
-   * HTTP 401 if the request is not authenticated (missing/invalid cookie, or carbonio-user-management
-   * itself rejected the token), HTTP 403 if the user is authenticated but not entitled to use Tasks
+   * Core auth logic. Called for every request matching {@code /graphql} or {@code /graphql/}. Sets
+   * {@link Context#REQUESTER_ID} in the routing context on success. Ends the response with HTTP 401
+   * if the request is not authenticated (missing/invalid cookie, or carbonio-user-management itself
+   * rejected the token), HTTP 403 if the user is authenticated but not entitled to use Tasks
    * (guest, inactive, or feature disabled), or HTTP 503 if carbonio-user-management could not be
    * reached/parsed at all (network failure, timeout, or - in the native binary - a JSON
    * deserialization failure), since that is a dependency outage, not an invalid session.

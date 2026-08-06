@@ -12,9 +12,9 @@ import java.util.function.BiConsumer;
  * Migrates Consul KV keys from the pre-Quarkus naming (hikari-*, db-*) to the
  * carbonio-quarkus-extensions-database slash-separated KV paths.
  *
- * <p>ConsulKvClient.set(key, value) constructs the URL as {consulBaseUrl}/v1/kv/{key}, so
- * target keys must use Consul KV path separators (slashes), not property name separators (dots).
- * The database extension reads from carbonio-tasks/database/credentials/db-name (slashes) which
+ * <p>ConsulKvClient.set(key, value) constructs the URL as {consulBaseUrl}/v1/kv/{key}, so target
+ * keys must use Consul KV path separators (slashes), not property name separators (dots). The
+ * database extension reads from carbonio-tasks/database/credentials/db-name (slashes) which
  * SmallRye Config maps to the property application-config.database.credentials.db-name (dots).
  *
  * <p>Idempotent: each entry is skipped if the old key no longer exists in Consul.

@@ -1,243 +1,269 @@
-AGPL-3.0-only (https://spdx.org/licenses/AGPL-3.0-only.html) applies to:
 
-  Carbonio Quarkus Extensions - Bootstrap Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-bootstrap:1.12.1-1)
-  Carbonio Quarkus Extensions - Database Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-database:1.12.1-1)
-  Carbonio Quarkus Extensions - GraphQL Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-graphql:1.12.1-1)
-  Carbonio User Management - REST SDK (com.zextras.carbonio.user-management:carbonio-user-management-rest-sdk:1.3.0-1)
+List of third-party dependencies grouped by their license type.
 
-Apache-2.0 (https://spdx.org/licenses/Apache-2.0.html) applies to:
+    AGPL-3.0-only:
 
-  Agroal API (io.agroal:agroal-api:3.2.1)
-  Agroal Connection Pool (io.agroal:agroal-pool:3.2.1)
-  Agroal Narayana Integration (io.agroal:agroal-narayana:3.2.1)
-  ArC - Runtime (io.quarkus.arc:arc:3.37.2)
-  Brotli4j (com.aayushatharva.brotli4j:brotli4j:1.23.0)
-  Brotli4j (com.aayushatharva.brotli4j:native-linux-x86_64:1.23.0)
-  Brotli4j (com.aayushatharva.brotli4j:service:1.23.0)
-  Caffeine cache (com.github.ben-manes.caffeine:caffeine:3.2.4)
-  CDI APIs (jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0)
-  CDI Language Model (jakarta.enterprise:jakarta.enterprise.lang-model:4.1.0)
-  ClassMate (com.fasterxml:classmate:1.7.1)
-  error-prone annotations (com.google.errorprone:error_prone_annotations:2.49.0)
-  flyway-core (org.flywaydb:flyway-core:12.0.0)
-  Hibernate Models (org.hibernate.models:hibernate-models:1.1.1)
-  Hibernate ORM - hibernate-core (org.hibernate.orm:hibernate-core:7.4.3.Final)
-  Hibernate ORM - hibernate-graalvm (org.hibernate.orm:hibernate-graalvm:7.4.3.Final)
-  Hibernate Validator Engine (org.hibernate.validator:hibernate-validator:9.1.1.Final)
-  Jackson datatype: JSR310 (com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.0)
-  Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.22)
-  Jackson-core (com.fasterxml.jackson.core:jackson-core:2.22.0)
-  jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.22.0)
-  Jakarta Dependency Injection (jakarta.inject:jakarta.inject-api:2.0.1)
-  Jakarta Validation API (jakarta.validation:jakarta.validation-api:3.1.1)
-  Java Concurrency Tools Core Library (org.jctools:jctools-core:4.0.5)
-  java-dataloader (com.graphql-java:java-dataloader:6.0.0)
-  JBoss Log Manager (org.jboss.logmanager:jboss-logmanager:3.2.2.Final)
-  JBoss Logging 3 (org.jboss.logging:jboss-logging:3.6.3.Final)
-  JBoss Threads (org.jboss.threads:jboss-threads:3.9.2)
-  Local-only Hibernate Cache for Quarkus (org.hibernate.local-cache:quarkus-local-cache:0.5.0)
-  MicroProfile Config API (org.eclipse.microprofile.config:microprofile-config-api:3.1.1)
-  MicroProfile Context Propagation (org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.3)
-  MicroProfile GraphQL :: API (org.eclipse.microprofile.graphql:microprofile-graphql-api:2.0)
-  MicroProfile Health API (org.eclipse.microprofile.health:microprofile-health-api:4.0.1)
-  Narayana: ArjunaJTA narayana-jta (org.jboss.narayana.jta:narayana-jta:7.3.4.Final)
-  Narayana: ArjunaJTS integration (org.jboss.narayana.jts:narayana-jts-integration:7.3.4.Final)
-  Netty/Buffer (io.netty:netty-buffer:4.1.135.Final)
-  Netty/Codec (io.netty:netty-codec:4.1.135.Final)
-  Netty/Codec/DNS (io.netty:netty-codec-dns:4.1.135.Final)
-  Netty/Codec/HAProxy (io.netty:netty-codec-haproxy:4.1.135.Final)
-  Netty/Codec/HTTP (io.netty:netty-codec-http:4.1.135.Final)
-  Netty/Codec/HTTP2 (io.netty:netty-codec-http2:4.1.135.Final)
-  Netty/Codec/Socks (io.netty:netty-codec-socks:4.1.135.Final)
-  Netty/Common (io.netty:netty-common:4.1.135.Final)
-  Netty/Handler (io.netty:netty-handler:4.1.135.Final)
-  Netty/Handler/Proxy (io.netty:netty-handler-proxy:4.1.135.Final)
-  Netty/Resolver (io.netty:netty-resolver:4.1.135.Final)
-  Netty/Resolver/DNS (io.netty:netty-resolver-dns:4.1.135.Final)
-  Netty/TomcatNative [OpenSSL - Classes] (io.netty:netty-tcnative-classes:2.0.77.Final)
-  Netty/Transport (io.netty:netty-transport:4.1.135.Final)
-  Netty/Transport/Native/Unix/Common (io.netty:netty-transport-native-unix-common:4.1.135.Final)
-  Quarkus - Agroal - Runtime (io.quarkus:quarkus-agroal:3.37.2)
-  Quarkus - ArC - Runtime (io.quarkus:quarkus-arc:3.37.2)
-  Quarkus - Bootstrap - Classloader common utilities (io.quarkus:quarkus-classloader-commons:3.37.2)
-  Quarkus - Bootstrap - Runner (io.quarkus:quarkus-bootstrap-runner:3.37.2)
-  Quarkus - Caffeine - Runtime (io.quarkus:quarkus-caffeine:3.37.2)
-  Quarkus - Core - Runtime (io.quarkus:quarkus-core:3.37.2)
-  Quarkus - Credentials - Runtime (io.quarkus:quarkus-credentials:3.37.2)
-  Quarkus - Datasource - Common (io.quarkus:quarkus-datasource-common:3.37.2)
-  Quarkus - Datasource - Runtime (io.quarkus:quarkus-datasource:3.37.2)
-  Quarkus - Development mode - SPI (io.quarkus:quarkus-development-mode-spi:3.37.2)
-  Quarkus - DevServices - Runtime (io.quarkus:quarkus-devservices:3.37.2)
-  Quarkus - Flyway - Runtime (io.quarkus:quarkus-flyway:3.37.2)
-  Quarkus - FS Util (io.quarkus:quarkus-fs-util:1.4.2)
-  Quarkus - Hibernate ORM - Runtime (io.quarkus:quarkus-hibernate-orm:3.37.2)
-  Quarkus - Hibernate ORM with Panache - Common - Runtime (io.quarkus:quarkus-hibernate-orm-panache-common:3.37.2)
-  Quarkus - Hibernate ORM with Panache - Runtime (io.quarkus:quarkus-hibernate-orm-panache:3.37.2)
-  Quarkus - Hibernate Validator - Runtime (io.quarkus:quarkus-hibernate-validator:3.37.2)
-  Quarkus - IDE Launcher (io.quarkus:quarkus-ide-launcher:3.37.2)
-  Quarkus - JDBC - PostgreSQL - Runtime (io.quarkus:quarkus-jdbc-postgresql:3.37.2)
-  Quarkus - JSON-B - Runtime (io.quarkus:quarkus-jsonb:3.37.2)
-  Quarkus - JSON-P - Runtime (io.quarkus:quarkus-jsonp:3.37.2)
-  Quarkus - Mutiny - Runtime (io.quarkus:quarkus-mutiny:3.37.2)
-  Quarkus - Narayana JTA - Runtime (io.quarkus:quarkus-narayana-jta:3.37.2)
-  Quarkus - Netty - Runtime (io.quarkus:quarkus-netty:3.37.2)
-  Quarkus - Panache - Common - Runtime (io.quarkus:quarkus-panache-common:3.37.2)
-  Quarkus - Panache - Hibernate - Common - Runtime (io.quarkus:quarkus-panache-hibernate-common:3.37.2)
-  Quarkus - Security - Runtime SPI (io.quarkus:quarkus-security-runtime-spi:3.37.2)
-  Quarkus - SmallRye Context Propagation - Runtime (io.quarkus:quarkus-smallrye-context-propagation:3.37.2)
-  Quarkus - SmallRye GraphQL - Runtime (io.quarkus:quarkus-smallrye-graphql:3.37.2)
-  Quarkus - SmallRye Health - Runtime (io.quarkus:quarkus-smallrye-health:3.37.2)
-  Quarkus - TLS Registry - Runtime (io.quarkus:quarkus-tls-registry:3.37.2)
-  Quarkus - TLS Registry - Runtime SPI (io.quarkus:quarkus-tls-registry-spi:3.37.2)
-  Quarkus - Transaction Annotations - Runtime (io.quarkus:quarkus-transaction-annotations:3.37.2)
-  Quarkus - Value Registry (io.quarkus:quarkus-value-registry:3.37.2)
-  Quarkus - Vert.x - HTTP - Runtime (io.quarkus:quarkus-vertx-http:3.37.2)
-  Quarkus - Vert.x - Runtime (io.quarkus:quarkus-vertx:3.37.2)
-  Quarkus - Vert.x Late Bound MDC Provider (io.quarkus:quarkus-vertx-latebound-mdc-provider:3.37.2)
-  Quarkus - Virtual Threads - Runtime (io.quarkus:quarkus-virtual-threads:3.37.2)
-  Quarkus Security API (io.quarkus.security:quarkus-security:2.3.2)
-  SLF4J: JBoss Log Manager (org.jboss.slf4j:slf4j-jboss-logmanager:2.0.2.Final)
-  SmallRye Certificate Generator - Private Key PEM utilities (io.smallrye.certs:smallrye-private-key-pem-parser:0.9.3)
-  SmallRye Common: Annotations (io.smallrye.common:smallrye-common-annotation:2.18.1)
-  SmallRye Common: Classloader (io.smallrye.common:smallrye-common-classloader:2.18.1)
-  SmallRye Common: Constraints (io.smallrye.common:smallrye-common-constraint:2.18.1)
-  SmallRye Common: CPU (io.smallrye.common:smallrye-common-cpu:2.18.1)
-  SmallRye Common: Expressions (io.smallrye.common:smallrye-common-expression:2.18.1)
-  SmallRye Common: Functions (io.smallrye.common:smallrye-common-function:2.18.1)
-  SmallRye Common: IO (io.smallrye.common:smallrye-common-io:2.18.1)
-  SmallRye Common: Net (io.smallrye.common:smallrye-common-net:2.18.1)
-  SmallRye Common: OS (io.smallrye.common:smallrye-common-os:2.18.1)
-  SmallRye Common: References (io.smallrye.common:smallrye-common-ref:2.18.1)
-  SmallRye Common: Vert.x 4 Context Utilities (io.smallrye.common:smallrye-common-vertx-context:2.18.1)
-  SmallRye Config: CDI (io.smallrye.config:smallrye-config:3.17.2)
-  SmallRye Config: Common (io.smallrye.config:smallrye-config-common:3.17.2)
-  SmallRye Config: Core (io.smallrye.config:smallrye-config-core:3.17.2)
-  SmallRye Config: Validator (io.smallrye.config:smallrye-config-validator:3.17.2)
-  SmallRye Context Propagation: API (io.smallrye:smallrye-context-propagation-api:2.3.0)
-  SmallRye Context Propagation: Core (io.smallrye:smallrye-context-propagation:2.3.0)
-  SmallRye Context Propagation: JTA (io.smallrye:smallrye-context-propagation-jta:2.3.0)
-  SmallRye Context Propagation: Storage (io.smallrye:smallrye-context-propagation-storage:2.3.0)
-  SmallRye Fault Tolerance: Vert.x Integration (io.smallrye:smallrye-fault-tolerance-vertx:6.11.1)
-  SmallRye Health: API (io.smallrye:smallrye-health-api:4.3.0)
-  SmallRye Health: Implementation (io.smallrye:smallrye-health:4.3.0)
-  SmallRye Health: Provided Health Checks (io.smallrye:smallrye-health-provided-checks:4.3.0)
-  SmallRye Mutiny - Core library (io.smallrye.reactive:mutiny:3.2.1)
-  SmallRye Mutiny - Integration with SmallRye Context Propagation (io.smallrye.reactive:mutiny-smallrye-context-propagation:3.2.1)
-  SmallRye Mutiny - Runtime Helpers (io.smallrye.reactive:smallrye-mutiny-vertx-runtime:3.22.2)
-  SmallRye Mutiny - Vert.x Auth Common (io.smallrye.reactive:smallrye-mutiny-vertx-auth-common:3.22.2)
-  SmallRye Mutiny - Vert.x Bridge Common (io.smallrye.reactive:smallrye-mutiny-vertx-bridge-common:3.22.2)
-  SmallRye Mutiny - Vert.x Core (io.smallrye.reactive:smallrye-mutiny-vertx-core:3.22.2)
-  SmallRye Mutiny - Vert.x URI Template (io.smallrye.reactive:smallrye-mutiny-vertx-uri-template:3.22.2)
-  SmallRye Mutiny - Vert.x Web (io.smallrye.reactive:smallrye-mutiny-vertx-web:3.22.2)
-  SmallRye Mutiny - Vert.x Web Common (io.smallrye.reactive:smallrye-mutiny-vertx-web-common:3.22.2)
-  SmallRye Mutiny Zero JDK Flow / Reactive Streams Adapters (io.smallrye.reactive:mutiny-zero-flow-adapters:1.2.1)
-  SmallRye Reactive Converters: API (io.smallrye.reactive:smallrye-reactive-converter-api:3.0.3)
-  SmallRye Reactive Converters: Mutiny (io.smallrye.reactive:smallrye-reactive-converter-mutiny:3.0.3)
-  SmallRye: GraphQL Common :: Schema Model (io.smallrye:smallrye-graphql-schema-model:2.18.3)
-  SmallRye: GraphQL Server :: API (io.smallrye:smallrye-graphql-api:2.18.3)
-  SmallRye: GraphQL Server :: CDI (io.smallrye:smallrye-graphql-cdi:2.18.3)
-  SmallRye: GraphQL Server :: Implementation (io.smallrye:smallrye-graphql:2.18.3)
-  Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28)
-  Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28)
-  Vert.x Core (io.vertx:vertx-core:4.5.28)
-  Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28)
-  Vert.x Web (io.vertx:vertx-web:4.5.28)
-  Vert.x Web Common (io.vertx:vertx-web-common:4.5.28)
-  wildfly-common (org.wildfly.common:wildfly-common:2.0.1)
+        * Carbonio Quarkus Extensions - Bootstrap Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-bootstrap:1.12.1-1 - no url defined)
+        * Carbonio Quarkus Extensions - Database Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-database:1.12.1-1 - no url defined)
+        * Carbonio Quarkus Extensions - GraphQL Runtime (com.zextras.carbonio.quarkus:carbonio-quarkus-extensions-graphql:1.12.1-1 - no url defined)
+        * Carbonio User Management - REST SDK (com.zextras.carbonio.user-management:carbonio-user-management-rest-sdk:1.3.0-1 - no url defined)
 
-BSD-2-Clause (https://spdx.org/licenses/BSD-2-Clause.html) applies to:
+    Apache 2.0:
 
-  crac (org.crac:crac:1.5.0)
-  PostgreSQL JDBC Driver (org.postgresql:postgresql:42.7.11)
+        * error-prone annotations (com.google.errorprone:error_prone_annotations:2.49.0 - https://errorprone.info/error_prone_annotations)
 
-BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html) applies to:
+    Apache License 2.0:
 
-  ANTLR 4 Runtime (org.antlr:antlr4-runtime:4.13.2)
-  Protocol Buffers [Core] (com.google.protobuf:protobuf-java:4.35.0)
+        * Agroal API (io.agroal:agroal-api:3.2.1 - https://github.com/agroal)
+        * Agroal Connection Pool (io.agroal:agroal-pool:3.2.1 - https://github.com/agroal)
+        * Agroal Narayana Integration (io.agroal:agroal-narayana:3.2.1 - https://github.com/agroal)
+        * Brotli4j (com.aayushatharva.brotli4j:brotli4j:1.23.0 - https://github.com/hyperxpro/Brotli4j/brotli4j)
+        * Brotli4j (com.aayushatharva.brotli4j:native-linux-x86_64:1.23.0 - https://github.com/hyperxpro/Brotli4j/natives/native-linux-x86_64)
+        * Brotli4j (com.aayushatharva.brotli4j:service:1.23.0 - https://github.com/hyperxpro/Brotli4j/service)
+        * CDI APIs (jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0 - http://cdi-spec.org)
+        * CDI Language Model (jakarta.enterprise:jakarta.enterprise.lang-model:4.1.0 - https://projects.eclipse.org/projects/ee4j/jakarta.enterprise.cdi-parent/jakarta.enterprise.lang-model)
+        * Hibernate Validator Engine (org.hibernate.validator:hibernate-validator:9.1.1.Final - https://hibernate.org/validator)
+        * Jakarta Validation API (jakarta.validation:jakarta.validation-api:3.1.1 - https://beanvalidation.org)
+        * JBoss Log Manager (org.jboss.logmanager:jboss-logmanager:3.2.2.Final - http://www.jboss.org)
+        * JBoss Logging 3 (org.jboss.logging:jboss-logging:3.6.3.Final - https://www.jboss.org)
+        * JBoss Threads (org.jboss.threads:jboss-threads:3.9.2 - https://github.com/jbossas/jboss-threads)
+        * Local-only Hibernate Cache for Quarkus (org.hibernate.local-cache:quarkus-local-cache:0.5.0 - https://github.com/hibernate/quarkus-local-cache)
+        * SLF4J: JBoss Log Manager (org.jboss.slf4j:slf4j-jboss-logmanager:2.0.2.Final - http://www.jboss.org)
+        * SmallRye Certificate Generator - Private Key PEM utilities (io.smallrye.certs:smallrye-private-key-pem-parser:0.9.3 - https://github.com/cescoffier/certificate-generator)
+        * wildfly-common (org.wildfly.common:wildfly-common:2.0.1 - http://www.jboss.org)
 
-EDL 1.0 (https://spdx.org/licenses/EDL 1.0.html) applies to:
+    Apache License Version 2.0:
 
-  Angus Activation Registries (org.eclipse.angus:angus-activation:2.0.3)
-  Jakarta Activation API (jakarta.activation:jakarta.activation-api:2.1.4)
+        * Hibernate Models (org.hibernate.models:hibernate-models:1.1.1 - https://github.com/hibernate/hibernate-models)
 
-EPL-1.0 (https://spdx.org/licenses/EPL-1.0.html) applies to:
+    Apache License, Version 2.0:
 
-  Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28)
-  Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28)
-  Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28)
-  Vert.x Web Common (io.vertx:vertx-web-common:4.5.28)
+        * ArC - Runtime (io.quarkus.arc:arc:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Caffeine cache (com.github.ben-manes.caffeine:caffeine:3.2.4 - https://github.com/ben-manes/caffeine)
+        * ClassMate (com.fasterxml:classmate:1.7.1 - https://github.com/FasterXML/java-classmate)
+        * flyway-core (org.flywaydb:flyway-core:12.0.0 - https://flywaydb.org/flyway-core)
+        * Hibernate ORM - hibernate-core (org.hibernate.orm:hibernate-core:7.4.3.Final - https://hibernate.org/orm)
+        * Hibernate ORM - hibernate-graalvm (org.hibernate.orm:hibernate-graalvm:7.4.3.Final - https://hibernate.org/orm)
+        * Java Concurrency Tools Core Library (org.jctools:jctools-core:4.0.5 - https://github.com/JCTools)
+        * MicroProfile Config API (org.eclipse.microprofile.config:microprofile-config-api:3.1.1 - https://microprofile.io/project/eclipse/microprofile-config/microprofile-config-api)
+        * MicroProfile Context Propagation (org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.3 - http://microprofile.io/microprofile-context-propagation-api)
+        * MicroProfile GraphQL :: API (org.eclipse.microprofile.graphql:microprofile-graphql-api:2.0 - http://microprofile.io/microprofile-graphql-parent/microprofile-graphql-api)
+        * MicroProfile Health API (org.eclipse.microprofile.health:microprofile-health-api:4.0.1 - https://microprofile.io/project/eclipse/microprofile-health/microprofile-health-api)
+        * Netty/Buffer (io.netty:netty-buffer:4.1.135.Final - https://netty.io/netty-buffer/)
+        * Netty/Codec (io.netty:netty-codec:4.1.135.Final - https://netty.io/netty-codec/)
+        * Netty/Codec/DNS (io.netty:netty-codec-dns:4.1.135.Final - https://netty.io/netty-codec-dns/)
+        * Netty/Codec/HAProxy (io.netty:netty-codec-haproxy:4.1.135.Final - https://netty.io/netty-codec-haproxy/)
+        * Netty/Codec/HTTP (io.netty:netty-codec-http:4.1.135.Final - https://netty.io/netty-codec-http/)
+        * Netty/Codec/HTTP2 (io.netty:netty-codec-http2:4.1.135.Final - https://netty.io/netty-codec-http2/)
+        * Netty/Codec/Socks (io.netty:netty-codec-socks:4.1.135.Final - https://netty.io/netty-codec-socks/)
+        * Netty/Common (io.netty:netty-common:4.1.135.Final - https://netty.io/netty-common/)
+        * Netty/Handler (io.netty:netty-handler:4.1.135.Final - https://netty.io/netty-handler/)
+        * Netty/Handler/Proxy (io.netty:netty-handler-proxy:4.1.135.Final - https://netty.io/netty-handler-proxy/)
+        * Netty/Resolver (io.netty:netty-resolver:4.1.135.Final - https://netty.io/netty-resolver/)
+        * Netty/Resolver/DNS (io.netty:netty-resolver-dns:4.1.135.Final - https://netty.io/netty-resolver-dns/)
+        * Netty/Transport (io.netty:netty-transport:4.1.135.Final - https://netty.io/netty-transport/)
+        * Netty/Transport/Native/Unix/Common (io.netty:netty-transport-native-unix-common:4.1.135.Final - https://netty.io/netty-transport-native-unix-common/)
+        * Quarkus - Bootstrap - Classloader common utilities (io.quarkus:quarkus-classloader-commons:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Bootstrap - Runner (io.quarkus:quarkus-bootstrap-runner:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - FS Util (io.quarkus:quarkus-fs-util:1.4.2 - https://quarkus.io/)
+        * Quarkus - Value Registry (io.quarkus:quarkus-value-registry:3.37.2 - https://github.com/quarkusio/quarkus)
+        * SmallRye Common: Annotations (io.smallrye.common:smallrye-common-annotation:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Classloader (io.smallrye.common:smallrye-common-classloader:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Constraints (io.smallrye.common:smallrye-common-constraint:2.18.1 - http://smallrye.io)
+        * SmallRye Common: CPU (io.smallrye.common:smallrye-common-cpu:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Expressions (io.smallrye.common:smallrye-common-expression:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Functions (io.smallrye.common:smallrye-common-function:2.18.1 - http://smallrye.io)
+        * SmallRye Common: IO (io.smallrye.common:smallrye-common-io:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Net (io.smallrye.common:smallrye-common-net:2.18.1 - http://smallrye.io)
+        * SmallRye Common: OS (io.smallrye.common:smallrye-common-os:2.18.1 - http://smallrye.io)
+        * SmallRye Common: References (io.smallrye.common:smallrye-common-ref:2.18.1 - http://smallrye.io)
+        * SmallRye Common: Vert.x 4 Context Utilities (io.smallrye.common:smallrye-common-vertx-context:2.18.1 - http://smallrye.io)
+        * SmallRye Config: CDI (io.smallrye.config:smallrye-config:3.17.2 - https://smallrye.io)
+        * SmallRye Config: Common (io.smallrye.config:smallrye-config-common:3.17.2 - https://smallrye.io)
+        * SmallRye Config: Core (io.smallrye.config:smallrye-config-core:3.17.2 - https://smallrye.io)
+        * SmallRye Config: Validator (io.smallrye.config:smallrye-config-validator:3.17.2 - https://smallrye.io)
+        * SmallRye Fault Tolerance: Vert.x Integration (io.smallrye:smallrye-fault-tolerance-vertx:6.11.1 - https://smallrye.io)
+        * SmallRye Health: API (io.smallrye:smallrye-health-api:4.3.0 - http://smallrye.io)
+        * SmallRye Health: Implementation (io.smallrye:smallrye-health:4.3.0 - http://smallrye.io)
+        * SmallRye Health: Provided Health Checks (io.smallrye:smallrye-health-provided-checks:4.3.0 - http://smallrye.io)
+        * SmallRye Mutiny - Core library (io.smallrye.reactive:mutiny:3.2.1 - https://smallrye.io/smallrye-mutiny)
+        * SmallRye Mutiny - Integration with SmallRye Context Propagation (io.smallrye.reactive:mutiny-smallrye-context-propagation:3.2.1 - https://smallrye.io/smallrye-mutiny)
+        * SmallRye Mutiny Zero JDK Flow / Reactive Streams Adapters (io.smallrye.reactive:mutiny-zero-flow-adapters:1.2.1 - https://smallrye.io)
+        * SmallRye: GraphQL Common :: Schema Model (io.smallrye:smallrye-graphql-schema-model:2.18.3 - http://smallrye.io)
+        * SmallRye: GraphQL Server :: API (io.smallrye:smallrye-graphql-api:2.18.3 - http://smallrye.io)
+        * SmallRye: GraphQL Server :: CDI (io.smallrye:smallrye-graphql-cdi:2.18.3 - http://smallrye.io)
+        * SmallRye: GraphQL Server :: Implementation (io.smallrye:smallrye-graphql:2.18.3 - http://smallrye.io)
 
-EPL-2.0 (https://spdx.org/licenses/EPL-2.0.html) applies to:
+    Apache-2.0:
 
-  Jakarta Annotations API (jakarta.annotation:jakarta.annotation-api:3.0.0)
-  Jakarta Interceptors (jakarta.interceptor:jakarta.interceptor-api:2.2.0)
-  Jakarta RESTful WS API (jakarta.ws.rs:jakarta.ws.rs-api:3.1.0)
-  jakarta.resource API (jakarta.resource:jakarta.resource-api:2.1.0)
-  jakarta.transaction API (jakarta.transaction:jakarta.transaction-api:2.0.1)
-  Vert.x Core (io.vertx:vertx-core:4.5.28)
-  Vert.x Web (io.vertx:vertx-web:4.5.28)
+        * Narayana: ArjunaJTA narayana-jta (org.jboss.narayana.jta:narayana-jta:7.3.4.Final - https://narayana.io)
+        * Narayana: ArjunaJTS integration (org.jboss.narayana.jts:narayana-jts-integration:7.3.4.Final - https://narayana.io)
 
-Eclipse Distribution License - v 1.0 (https://spdx.org/licenses/Eclipse Distribution License - v 1.0.html) applies to:
+    BSD-2-Clause:
 
-  istack common utility code runtime (com.sun.istack:istack-commons-runtime:4.1.2)
-  Jakarta XML Binding API (jakarta.xml.bind:jakarta.xml.bind-api:4.0.5)
-  JAXB Core (org.glassfish.jaxb:jaxb-core:4.0.9)
-  JAXB Runtime (org.glassfish.jaxb:jaxb-runtime:4.0.9)
-  TXW2 Runtime (org.glassfish.jaxb:txw2:4.0.9)
+        * crac (org.crac:crac:1.5.0 - https://github.com/crac/org.crac)
+        * PostgreSQL JDBC Driver (org.postgresql:postgresql:42.7.11 - https://jdbc.postgresql.org)
 
-Eclipse Distribution License v. 1.0 (https://spdx.org/licenses/Eclipse Distribution License v. 1.0.html) applies to:
+    BSD-3-Clause:
 
-  Jakarta Persistence API (jakarta.persistence:jakarta.persistence-api:3.2.0)
-  Yasson (org.eclipse:yasson:3.0.4)
+        * ANTLR 4 Runtime (org.antlr:antlr4-runtime:4.13.2 - https://www.antlr.org/antlr4-runtime/)
+        * Protocol Buffers [Core] (com.google.protobuf:protobuf-java:4.35.0 - https://developers.google.com/protocol-buffers/protobuf-java/)
 
-Eclipse Public License 2.0 (https://spdx.org/licenses/Eclipse Public License 2.0.html) applies to:
+    EDL 1.0:
 
-  Eclipse Parsson (org.eclipse.parsson:parsson:1.1.9)
-  Jakarta JSON Binding API (jakarta.json.bind:jakarta.json.bind-api:3.0.2)
-  Jakarta JSON Processing API (jakarta.json:jakarta.json-api:2.1.3)
+        * Angus Activation Registries (org.eclipse.angus:angus-activation:2.0.3 - https://github.com/eclipse-ee4j/angus-activation/angus-activation)
+        * Jakarta Activation API (jakarta.activation:jakarta.activation-api:2.1.4 - https://github.com/jakartaee/jaf-api)
 
-Eclipse Public License v. 2.0 (https://spdx.org/licenses/Eclipse Public License v. 2.0.html) applies to:
+    EPL 2.0:
 
-  Eclipse Expressly (org.glassfish.expressly:expressly:6.0.0)
-  Jakarta Expression Language API (jakarta.el:jakarta.el-api:6.0.1)
-  Jakarta Persistence API (jakarta.persistence:jakarta.persistence-api:3.2.0)
-  Yasson (org.eclipse:yasson:3.0.4)
+        * Jakarta Annotations API (jakarta.annotation:jakarta.annotation-api:3.0.0 - https://projects.eclipse.org/projects/ee4j.ca)
+        * Jakarta Interceptors (jakarta.interceptor:jakarta.interceptor-api:2.2.0 - https://github.com/jakartaee/interceptors)
+        * jakarta.resource API (jakarta.resource:jakarta.resource-api:2.1.0 - https://github.com/eclipse-ee4j/jca-api)
+        * jakarta.transaction API (jakarta.transaction:jakarta.transaction-api:2.0.1 - https://projects.eclipse.org/projects/ee4j.jta)
 
-GNU General Public License, version 2 with the GNU Classpath Exception (https://spdx.org/licenses/GNU General Public License, version 2 with the GNU Classpath Exception.html) applies to:
+    EPL-2.0:
 
-  Eclipse Expressly (org.glassfish.expressly:expressly:6.0.0)
-  Eclipse Parsson (org.eclipse.parsson:parsson:1.1.9)
-  Jakarta Expression Language API (jakarta.el:jakarta.el-api:6.0.1)
-  Jakarta JSON Binding API (jakarta.json.bind:jakarta.json.bind-api:3.0.2)
-  Jakarta JSON Processing API (jakarta.json:jakarta.json-api:2.1.3)
+        * Jakarta RESTful WS API (jakarta.ws.rs:jakarta.ws.rs-api:3.1.0 - https://github.com/eclipse-ee4j/jaxrs-api)
 
-GPL-2.0-with-classpath-exception (https://spdx.org/licenses/GPL-2.0-with-classpath-exception.html) applies to:
+    Eclipse Distribution License - v 1.0:
 
-  Jakarta RESTful WS API (jakarta.ws.rs:jakarta.ws.rs-api:3.1.0)
+        * istack common utility code runtime (com.sun.istack:istack-commons-runtime:4.1.2 - https://projects.eclipse.org/projects/ee4j/istack-commons/istack-commons-runtime)
+        * Jakarta XML Binding API (jakarta.xml.bind:jakarta.xml.bind-api:4.0.5 - https://github.com/jakartaee/jaxb-api/jakarta.xml.bind-api)
+        * JAXB Core (org.glassfish.jaxb:jaxb-core:4.0.9 - https://eclipse-ee4j.github.io/jaxb-ri/)
+        * JAXB Runtime (org.glassfish.jaxb:jaxb-runtime:4.0.9 - https://eclipse-ee4j.github.io/jaxb-ri/)
+        * TXW2 Runtime (org.glassfish.jaxb:txw2:4.0.9 - https://eclipse-ee4j.github.io/jaxb-ri/)
 
-GPL2 w/ CPE (https://spdx.org/licenses/GPL2 w/ CPE.html) applies to:
+    Eclipse Distribution License v. 1.0:
 
-  Jakarta Annotations API (jakarta.annotation:jakarta.annotation-api:3.0.0)
-  Jakarta Interceptors (jakarta.interceptor:jakarta.interceptor-api:2.2.0)
-  jakarta.resource API (jakarta.resource:jakarta.resource-api:2.1.0)
-  jakarta.transaction API (jakarta.transaction:jakarta.transaction-api:2.0.1)
+        * Jakarta Persistence API (jakarta.persistence:jakarta.persistence-api:3.2.0 - https://github.com/jakartaee/persistence)
+        * Yasson (org.eclipse:yasson:3.0.4 - https://projects.eclipse.org/projects/ee4j.yasson)
 
-MIT (https://spdx.org/licenses/MIT.html) applies to:
+    Eclipse Public License - v 1.0:
 
-  com.apollographql.federation:federation-graphql-java-support (com.apollographql.federation:federation-graphql-java-support:6.0.0)
-  graphql-java (com.graphql-java:graphql-java:25.0)
-  graphql-java-extended-scalars (com.graphql-java:graphql-java-extended-scalars:24.0)
-  SLF4J API Module (org.slf4j:slf4j-api:2.0.18)
+        * Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-auth-parent/vertx-auth-common)
+        * Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-bridge-common)
+        * Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-uri-template)
+        * Vert.x Web Common (io.vertx:vertx-web-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-web-parent/vertx-web-common)
 
-MIT-0 (https://spdx.org/licenses/MIT-0.html) applies to:
+    Eclipse Public License - v 2.0:
 
-  reactive-streams (org.reactivestreams:reactive-streams:1.0.4)
+        * Vert.x Core (io.vertx:vertx-core:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-core)
+        * Vert.x Web (io.vertx:vertx-web:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-web-parent/vertx-web)
 
-Public Domain (https://spdx.org/licenses/Public Domain.html) applies to:
+    Eclipse Public License 2.0:
 
-  JBoss Transaction SPI (org.jboss:jboss-transaction-spi:8.0.0.Final)
+        * Eclipse Parsson (org.eclipse.parsson:parsson:1.1.9 - https://github.com/eclipse-ee4j/parsson/parsson)
+        * Jakarta JSON Binding API (jakarta.json.bind:jakarta.json.bind-api:3.0.2 - https://projects.eclipse.org/projects/ee4j.jsonb/jakarta.json.bind-api)
+        * Jakarta JSON Processing API (jakarta.json:jakarta.json-api:2.1.3 - https://github.com/eclipse-ee4j/jsonp)
 
-The Apache License, Version 2.0 (https://spdx.org/licenses/The Apache License, Version 2.0.html) applies to:
+    Eclipse Public License v. 2.0:
 
-  JSpecify annotations (org.jspecify:jspecify:1.0.0)
+        * Eclipse Expressly (org.glassfish.expressly:expressly:6.0.0 - https://projects.eclipse.org/projects/ee4j.expressly)
+        * Jakarta Expression Language API (jakarta.el:jakarta.el-api:6.0.1 - https://projects.eclipse.org/projects/ee4j.el)
+        * Jakarta Persistence API (jakarta.persistence:jakarta.persistence-api:3.2.0 - https://github.com/jakartaee/persistence)
+        * Yasson (org.eclipse:yasson:3.0.4 - https://projects.eclipse.org/projects/ee4j.yasson)
 
+    GNU General Public License, version 2 with the GNU Classpath Exception:
+
+        * Eclipse Expressly (org.glassfish.expressly:expressly:6.0.0 - https://projects.eclipse.org/projects/ee4j.expressly)
+        * Eclipse Parsson (org.eclipse.parsson:parsson:1.1.9 - https://github.com/eclipse-ee4j/parsson/parsson)
+        * Jakarta Expression Language API (jakarta.el:jakarta.el-api:6.0.1 - https://projects.eclipse.org/projects/ee4j.el)
+        * Jakarta JSON Binding API (jakarta.json.bind:jakarta.json.bind-api:3.0.2 - https://projects.eclipse.org/projects/ee4j.jsonb/jakarta.json.bind-api)
+        * Jakarta JSON Processing API (jakarta.json:jakarta.json-api:2.1.3 - https://github.com/eclipse-ee4j/jsonp)
+
+    GPL-2.0-with-classpath-exception:
+
+        * Jakarta RESTful WS API (jakarta.ws.rs:jakarta.ws.rs-api:3.1.0 - https://github.com/eclipse-ee4j/jaxrs-api)
+
+    GPL2 w/ CPE:
+
+        * Jakarta Annotations API (jakarta.annotation:jakarta.annotation-api:3.0.0 - https://projects.eclipse.org/projects/ee4j.ca)
+        * Jakarta Interceptors (jakarta.interceptor:jakarta.interceptor-api:2.2.0 - https://github.com/jakartaee/interceptors)
+        * jakarta.resource API (jakarta.resource:jakarta.resource-api:2.1.0 - https://github.com/eclipse-ee4j/jca-api)
+        * jakarta.transaction API (jakarta.transaction:jakarta.transaction-api:2.0.1 - https://projects.eclipse.org/projects/ee4j.jta)
+
+    MIT:
+
+        * graphql-java (com.graphql-java:graphql-java:25.0 - https://github.com/graphql-java/graphql-java)
+        * graphql-java-extended-scalars (com.graphql-java:graphql-java-extended-scalars:24.0 - https://github.com/graphql-java/graphql-java-extended-scalars)
+        * SLF4J API Module (org.slf4j:slf4j-api:2.0.18 - http://www.slf4j.org)
+
+    MIT License:
+
+        * com.apollographql.federation:federation-graphql-java-support (com.apollographql.federation:federation-graphql-java-support:6.0.0 - https://github.com/apollographql/federation-jvm)
+
+    MIT-0:
+
+        * reactive-streams (org.reactivestreams:reactive-streams:1.0.4 - http://www.reactive-streams.org/)
+
+    Public Domain:
+
+        * JBoss Transaction SPI (org.jboss:jboss-transaction-spi:8.0.0.Final - http://www.jboss.org)
+
+    The Apache License, Version 2.0:
+
+        * JSpecify annotations (org.jspecify:jspecify:1.0.0 - http://jspecify.org/)
+
+    The Apache Software License, Version 2.0:
+
+        * Jackson datatype: JSR310 (com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.0 - https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jsr310)
+        * Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.22 - https://github.com/FasterXML/jackson)
+        * Jackson-core (com.fasterxml.jackson.core:jackson-core:2.22.0 - https://github.com/FasterXML/jackson-core)
+        * jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.22.0 - https://github.com/FasterXML/jackson)
+        * Jakarta Dependency Injection (jakarta.inject:jakarta.inject-api:2.0.1 - https://github.com/eclipse-ee4j/injection-api)
+        * java-dataloader (com.graphql-java:java-dataloader:6.0.0 - https://github.com/graphql-java/java-dataloader)
+        * Netty/TomcatNative [OpenSSL - Classes] (io.netty:netty-tcnative-classes:2.0.77.Final - https://github.com/netty/netty-tcnative/netty-tcnative-classes/)
+        * Quarkus - Agroal - Runtime (io.quarkus:quarkus-agroal:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - ArC - Runtime (io.quarkus:quarkus-arc:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Caffeine - Runtime (io.quarkus:quarkus-caffeine:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Core - Runtime (io.quarkus:quarkus-core:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Credentials - Runtime (io.quarkus:quarkus-credentials:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Datasource - Common (io.quarkus:quarkus-datasource-common:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Datasource - Runtime (io.quarkus:quarkus-datasource:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Development mode - SPI (io.quarkus:quarkus-development-mode-spi:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - DevServices - Runtime (io.quarkus:quarkus-devservices:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Flyway - Runtime (io.quarkus:quarkus-flyway:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Hibernate ORM - Runtime (io.quarkus:quarkus-hibernate-orm:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Hibernate ORM with Panache - Common - Runtime (io.quarkus:quarkus-hibernate-orm-panache-common:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Hibernate ORM with Panache - Runtime (io.quarkus:quarkus-hibernate-orm-panache:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Hibernate Validator - Runtime (io.quarkus:quarkus-hibernate-validator:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - IDE Launcher (io.quarkus:quarkus-ide-launcher:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - JDBC - PostgreSQL - Runtime (io.quarkus:quarkus-jdbc-postgresql:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - JSON-B - Runtime (io.quarkus:quarkus-jsonb:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - JSON-P - Runtime (io.quarkus:quarkus-jsonp:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Mutiny - Runtime (io.quarkus:quarkus-mutiny:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Narayana JTA - Runtime (io.quarkus:quarkus-narayana-jta:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Netty - Runtime (io.quarkus:quarkus-netty:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Panache - Common - Runtime (io.quarkus:quarkus-panache-common:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Panache - Hibernate - Common - Runtime (io.quarkus:quarkus-panache-hibernate-common:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Security - Runtime SPI (io.quarkus:quarkus-security-runtime-spi:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - SmallRye Context Propagation - Runtime (io.quarkus:quarkus-smallrye-context-propagation:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - SmallRye GraphQL - Runtime (io.quarkus:quarkus-smallrye-graphql:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - SmallRye Health - Runtime (io.quarkus:quarkus-smallrye-health:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - TLS Registry - Runtime (io.quarkus:quarkus-tls-registry:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - TLS Registry - Runtime SPI (io.quarkus:quarkus-tls-registry-spi:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Transaction Annotations - Runtime (io.quarkus:quarkus-transaction-annotations:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Vert.x - HTTP - Runtime (io.quarkus:quarkus-vertx-http:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Vert.x - Runtime (io.quarkus:quarkus-vertx:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Vert.x Late Bound MDC Provider (io.quarkus:quarkus-vertx-latebound-mdc-provider:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus - Virtual Threads - Runtime (io.quarkus:quarkus-virtual-threads:3.37.2 - https://github.com/quarkusio/quarkus)
+        * Quarkus Security API (io.quarkus.security:quarkus-security:2.3.2 - http://www.jboss.org)
+        * SmallRye Context Propagation: API (io.smallrye:smallrye-context-propagation-api:2.3.0 - https://github.com/smallrye/smallrye-context-propagation)
+        * SmallRye Context Propagation: Core (io.smallrye:smallrye-context-propagation:2.3.0 - https://github.com/smallrye/smallrye-context-propagation)
+        * SmallRye Context Propagation: JTA (io.smallrye:smallrye-context-propagation-jta:2.3.0 - https://github.com/smallrye/smallrye-context-propagation)
+        * SmallRye Context Propagation: Storage (io.smallrye:smallrye-context-propagation-storage:2.3.0 - https://github.com/smallrye/smallrye-context-propagation)
+        * SmallRye Mutiny - Runtime Helpers (io.smallrye.reactive:smallrye-mutiny-vertx-runtime:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x Auth Common (io.smallrye.reactive:smallrye-mutiny-vertx-auth-common:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x Bridge Common (io.smallrye.reactive:smallrye-mutiny-vertx-bridge-common:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x Core (io.smallrye.reactive:smallrye-mutiny-vertx-core:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x URI Template (io.smallrye.reactive:smallrye-mutiny-vertx-uri-template:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x Web (io.smallrye.reactive:smallrye-mutiny-vertx-web:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Mutiny - Vert.x Web Common (io.smallrye.reactive:smallrye-mutiny-vertx-web-common:3.22.2 - https://smallrye.io/smallrye-mutiny-vertx-bindings)
+        * SmallRye Reactive Converters: API (io.smallrye.reactive:smallrye-reactive-converter-api:3.0.3 - https://smallrye.io)
+        * SmallRye Reactive Converters: Mutiny (io.smallrye.reactive:smallrye-reactive-converter-mutiny:3.0.3 - https://smallrye.io)
+        * Vert.x Auth Common (io.vertx:vertx-auth-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-auth-parent/vertx-auth-common)
+        * Vert.x Bridge Common (io.vertx:vertx-bridge-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-bridge-common)
+        * Vert.x Core (io.vertx:vertx-core:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-core)
+        * Vert.x URI Template (io.vertx:vertx-uri-template:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-uri-template)
+        * Vert.x Web (io.vertx:vertx-web:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-web-parent/vertx-web)
+        * Vert.x Web Common (io.vertx:vertx-web-common:4.5.28 - https://github.com/vert-x3/vertx-parent/vertx-ext/vertx-ext-parent/vertx-web-parent/vertx-web-common)

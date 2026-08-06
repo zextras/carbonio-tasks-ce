@@ -13,8 +13,7 @@ import org.eclipse.microprofile.graphql.Name;
 @Name("UpdateTaskInput")
 public class UpdateTaskInput {
 
-  @Id
-  private String id;
+  @Id private String id;
   private String title;
   private String description;
   private Priority priority;
