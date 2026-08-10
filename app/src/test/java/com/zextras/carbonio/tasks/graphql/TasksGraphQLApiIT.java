@@ -5,8 +5,6 @@
 package com.zextras.carbonio.tasks.graphql;
 
 import com.zextras.carbonio.tasks.StackTestResource;
-import io.quarkus.test.common.WithTestResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
@@ -22,9 +20,7 @@ import org.junit.jupiter.api.Test;
  * real user-management container over the network. DB cleanup uses direct JDBC since
  * {@code @Inject} is not available in integration test mode.
  */
-@QuarkusIntegrationTest
-@WithTestResource(StackTestResource.class)
-class TasksGraphQLApiIT {
+class TasksGraphQLApiIT extends AbstractTasksIT {
 
   @BeforeEach
   void cleanUp() throws Exception {

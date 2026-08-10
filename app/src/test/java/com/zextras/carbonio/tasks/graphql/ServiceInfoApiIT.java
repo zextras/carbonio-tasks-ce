@@ -6,17 +6,13 @@ package com.zextras.carbonio.tasks.graphql;
 
 import com.zextras.carbonio.tasks.Constants.Tasks;
 import com.zextras.carbonio.tasks.StackTestResource;
-import io.quarkus.test.common.WithTestResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 /** Integration test for the {@code getServiceInfo} GraphQL query. */
-@QuarkusIntegrationTest
-@WithTestResource(StackTestResource.class)
-class ServiceInfoApiIT {
+class ServiceInfoApiIT extends AbstractTasksIT {
 
   @Test
   void getServiceInfoShouldReturnCorrectServiceMetadata() {
