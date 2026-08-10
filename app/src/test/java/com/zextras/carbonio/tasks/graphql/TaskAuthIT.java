@@ -4,9 +4,6 @@
 
 package com.zextras.carbonio.tasks.graphql;
 
-import com.zextras.carbonio.tasks.StackTestResource;
-import io.quarkus.test.common.WithTestResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -18,9 +15,7 @@ import org.junit.jupiter.api.Test;
  * <p>Uses {@code @QuarkusIntegrationTest} so the app runs as a separate process and connects to the
  * real user-management container over the network.
  */
-@QuarkusIntegrationTest
-@WithTestResource(StackTestResource.class)
-class TaskAuthIT {
+class TaskAuthIT extends AbstractTasksIT {
 
   private static final String ANY_QUERY =
       "{\"query\": \"mutation { createTask(newTask: {title: \\\"t\\\"}) { id } }\"}";
