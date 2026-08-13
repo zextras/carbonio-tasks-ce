@@ -24,6 +24,7 @@ Overridable by Consul KV
 | `carbonio-tasks/database/credentials/db-name` | *(not set)* | Crashes; but always set by database bootstrap |
 | `carbonio-tasks/database/credentials/db-password` | *(not set)* | Crashes; but always set by database bootstrap |
 | `carbonio-tasks/database/credentials/db-username` | *(not set)* | Crashes; but always set by database bootstrap |
+| `carbonio-tasks/database/db-pool-foreground-validation` | *(not set)* | 500ms (foreground validation enabled by default) |
 | `carbonio-tasks/database/db-pool-idle-timeout` | *(not set)* | Quarkus default: 5 minutes |
 | `carbonio-tasks/database/db-pool-leak-detection` | *(not set)* | Quarkus default: disabled |
 | `carbonio-tasks/database/db-pool-max-lifetime` | *(not set)* | Quarkus default: no limit |
