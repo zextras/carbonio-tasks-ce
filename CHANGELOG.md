@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.3...v1.4.4) (2026-09-02)
+
+### Bug Fixes
+
+* **ci:** bump jenkins-lib-common to v4.10.2 to fix semantic-release Release stage crash ([#167](https://github.com/zextras/carbonio-tasks-ce/issues/167)) ([8f752d8](https://github.com/zextras/carbonio-tasks-ce/commit/8f752d856f5753eaaaabc28d5931525a95a72019))
+* **ci:** point semantic-release at main ahead of default-branch rename ([#166](https://github.com/zextras/carbonio-tasks-ce/issues/166)) ([360c797](https://github.com/zextras/carbonio-tasks-ce/commit/360c797fbb0a41516932c97b48accec896ee129d))
+
 ## [1.4.3](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.2...v1.4.3) (2026-08-13)
 
 ## [1.4.2](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.1...v1.4.2) (2026-08-06)
