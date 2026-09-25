@@ -16,7 +16,10 @@ properties(defaultPipelineProperties())
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
     mavenPublish: ['app'],
-    nativeBuild: [runnerName: 'carbonio-tasks-ce-runner'],
+    nativeBuild: [
+        runnerName: 'carbonio-tasks-ce-runner',
+        aarch64: true,
+    ],
     packaging: [
         buildFlags: '-ds',
     ],
@@ -28,7 +31,8 @@ dt3_pipeline(
         [dockerfile: 'docker/tasks-sidecar/Dockerfile',
          imageName: 'carbonio-tasks-ce-sidecar',
          title: 'Carbonio Tasks CE Sidecar',
-         description: 'Carbonio Tasks Community Edition Sidecar'],
+         description: 'Carbonio Tasks Community Edition Sidecar',
+         platforms: ['linux/amd64', 'linux/arm64'] as Set],
     ],
     reuse: [projectType: 'CE'],
     flywayGuard: [
