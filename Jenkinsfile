@@ -25,6 +25,10 @@ dt3_pipeline(
          imageName: 'carbonio-tasks-ce',
          title: 'Carbonio Tasks CE',
          description: 'Carbonio Tasks CE Service'],
+        [dockerfile: 'docker/tasks-sidecar/Dockerfile',
+         imageName: 'carbonio-tasks-ce-sidecar',
+         title: 'Carbonio Tasks CE Sidecar',
+         description: 'Carbonio Tasks Community Edition Sidecar'],
     ],
     reuse: [projectType: 'CE'],
     flywayGuard: [
