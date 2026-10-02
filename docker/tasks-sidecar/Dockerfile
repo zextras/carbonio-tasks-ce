@@ -4,6 +4,7 @@
 
 # native-image cannot cross-compile (oracle/graal#407): nativeBuild.aarch64 builds
 # the arm64 runner on arm64 hardware and lands it in app/target-arm64/.
+ARG SIDECAR_IMAGE=registry.dev.zextras.com/dev/carbonio-sidecar:main
 FROM --platform=$BUILDPLATFORM docker.io/library/busybox AS runner
 
 ARG TARGETARCH
@@ -19,7 +20,7 @@ RUN set -eu; mkdir -p /out; \
     esac; \
     cp "${src}"/*-runner /out/carbonio-tasks-runner
 
-FROM registry.dev.zextras.com/dev/carbonio-sidecar:devel
+FROM ${SIDECAR_IMAGE}
 
 # Service registration
 COPY package/carbonio-tasks.hcl /consul/config/
