@@ -24,6 +24,7 @@ source=(
   "carbonio-tasks.service"
   "carbonio-tasks-setup"
   "carbonio-tasks-sidecar.service"
+  "carbonio-tasks-sidecar-legacy.service"
   "carbonio-tasks-ce-runner"
   "intentions.json"
   "policies.json"
@@ -36,6 +37,7 @@ sha256sums=(
   'aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893'
   '24e386632ccb84b6f5deb64638a4d850cbb9d375f90815e04ba69c40af0bce12'
   '73133d352f760168abac729527db277b5d9f69ed69323c9bedd08ed03e6dc675'
+  'bbaf345de429834394cc58d2fc66c9d0f1df2bc9accffabd9c13c184a3447d34'
   'SKIP'
   '6915995b96568ffc4f207b74b126908231e0a4df12a97d83f07307258640cc2d'
   '9f837e3573888b27c2ee3723414982bfa55388564de5e3d801cb55e8e6836b32'
@@ -46,7 +48,7 @@ backup=(
   "etc/carbonio/tasks/config.properties"
 )
 
-package() {
+_package_common() {
   cd "${srcdir}"
 
   install -Dm 755 carbonio-tasks \
@@ -60,9 +62,6 @@ package() {
 
   install -Dm 644 carbonio-tasks.service \
     "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
-
-  install -Dm 644 carbonio-tasks-sidecar.service \
-    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
 
   install -Dm 644 carbonio-tasks.hcl \
     "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
@@ -79,6 +78,24 @@ package() {
   install -Dm 644 service-protocol.json \
     "${pkgdir}/etc/carbonio/tasks/service-discover/service-protocol.json"
 }
+
+_package_systemd() {
+  _package_common
+
+  install -Dm 644 "${srcdir}/carbonio-tasks-sidecar.service" \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+}
+
+_package_legacy() {
+  _package_common
+
+  install -Dm 644 "${srcdir}/carbonio-tasks-sidecar-legacy.service" \
+    "${pkgdir}/lib/systemd/system/carbonio-tasks-sidecar.service"
+}
+
+package() { _package_systemd; }
+package__rocky_8() { _package_legacy; }
+package__ubuntu_jammy() { _package_legacy; }
 
 postinst() {
   getent group 'carbonio-tasks' >/dev/null ||
