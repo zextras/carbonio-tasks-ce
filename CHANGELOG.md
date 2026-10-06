@@ -1,3 +1,9 @@
+## [1.4.5](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.4...v1.4.5) (2026-10-06)
+
+### Bug Fixes
+
+* restore legacy tasks sidecar unit for ubuntu jammy and rocky 8 (CO-4454) ([#175](https://github.com/zextras/carbonio-tasks-ce/issues/175)) ([af9bbcf](https://github.com/zextras/carbonio-tasks-ce/commit/af9bbcf167d335aa8b8c127e2f5fb15b7fc91d8b)), closes [#110](https://github.com/zextras/carbonio-tasks-ce/issues/110)
+
 ## [1.4.4](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.3...v1.4.4) (2026-09-02)
 
 ### Bug Fixes
