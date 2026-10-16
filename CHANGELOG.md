@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.5...v1.4.6) (2026-10-16)
+
+### Bug Fixes
+
+* **ci:** replace mapfile in checksum-verify for macOS bash 3.2 ([#178](https://github.com/zextras/carbonio-tasks-ce/issues/178)) ([dd6aee4](https://github.com/zextras/carbonio-tasks-ce/commit/dd6aee4e2bccb539e82653ec385416524cf9c68c)), closes [jenkins-lib-common#216](https://github.com/zextras/jenkins-lib-common/issues/216)
+* **graphql:** block introspection in prod ([#179](https://github.com/zextras/carbonio-tasks-ce/issues/179)) ([9e53948](https://github.com/zextras/carbonio-tasks-ce/commit/9e53948bc195c6fecb6151533056a61acc06a074))
+
 ## [1.4.5](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.4...v1.4.5) (2026-10-06)
 
 ### Bug Fixes
