@@ -1,3 +1,9 @@
+## [1.4.7](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.6...v1.4.7) (2026-10-17)
+
+### Bug Fixes
+
+* **graphql:** bound the SmallRye parsed-query cache ([#180](https://github.com/zextras/carbonio-tasks-ce/issues/180)) ([b0896a6](https://github.com/zextras/carbonio-tasks-ce/commit/b0896a6ef97e7333521fa2d6e1c367ef0ac5ff42))
+
 ## [1.4.6](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.5...v1.4.6) (2026-10-16)
 
 ### Bug Fixes
