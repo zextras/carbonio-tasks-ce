@@ -1,3 +1,9 @@
+## [1.4.8](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.7...v1.4.8) (2026-10-18)
+
+### Bug Fixes
+
+* **graphql:** run each GraphQL request on one worker thread ([#181](https://github.com/zextras/carbonio-tasks-ce/issues/181)) ([32ba160](https://github.com/zextras/carbonio-tasks-ce/commit/32ba160b12ddc0819db23b23c2fffc52e6c53810))
+
 ## [1.4.7](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.6...v1.4.7) (2026-10-17)
 
 ### Bug Fixes
