@@ -208,6 +208,32 @@ class TasksGraphQLApiIT extends AbstractTasksIT {
   }
 
   @Test
+  void updateTaskShouldPersistTheChanges() {
+    String taskId = createTaskViaApi("Original Title");
+
+    postAuth(
+            "{\"query\": \"mutation { updateTask(updateTask: {"
+                + "id: \\\""
+                + taskId
+                + "\\\", title: \\\"Persisted Title\\\", priority: HIGH, status: COMPLETE,"
+                + " reminderAt: 1700000000000, reminderAllDay: true"
+                + "}) { id } }\"}")
+        .statusCode(200)
+        .body("data.updateTask.id", Matchers.equalTo(taskId));
+
+    postAuth(
+            "{\"query\": \"{ getTask(taskId: \\\""
+                + taskId
+                + "\\\") { title priority status reminderAt reminderAllDay } }\"}")
+        .statusCode(200)
+        .body("data.getTask.title", Matchers.equalTo("Persisted Title"))
+        .body("data.getTask.priority", Matchers.equalTo("HIGH"))
+        .body("data.getTask.status", Matchers.equalTo("COMPLETE"))
+        .body("data.getTask.reminderAt", Matchers.equalTo(1700000000000L))
+        .body("data.getTask.reminderAllDay", Matchers.equalTo(true));
+  }
+
+  @Test
   void updateTaskShouldSetAndClearReminder() {
     String taskId = createTaskViaApi("Reminder Task");
 

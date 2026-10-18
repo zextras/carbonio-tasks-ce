@@ -56,13 +56,6 @@ public class TaskRepository implements PanacheRepositoryBase<Task, UUID> {
     return newTask;
   }
 
-  @Transactional
-  public void updateTask(Task taskToUpdate) {
-    // Use merge() for detached entities (loaded outside a transaction boundary).
-    // persist() is only for new (transient) entities; it throws on detached ones.
-    getEntityManager().merge(taskToUpdate);
-  }
-
   public Optional<Task> getTask(UUID taskId, String userId) {
     return find("id = ?1 and userId = ?2 and status != ?3", taskId, userId, Status.TRASH)
         .firstResultOptional();
