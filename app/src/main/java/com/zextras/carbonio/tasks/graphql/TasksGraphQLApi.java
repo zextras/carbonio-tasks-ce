@@ -150,7 +150,6 @@ public class TasksGraphQLApi {
       }
     }
 
-    taskRepository.updateTask(task);
     return toTaskResponse(task);
   }
 
@@ -171,7 +170,6 @@ public class TasksGraphQLApi {
                         GraphQLException.ExceptionType.DataFetchingException));
 
     task.setStatus(Status.TRASH);
-    taskRepository.updateTask(task);
     return taskId;
   }
 
