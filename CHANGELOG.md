@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.8...v1.5.0) (2026-10-18)
+
+### Features
+
+* **graphql:** one transaction per resolver on Quarkus 3.40.1 ([#182](https://github.com/zextras/carbonio-tasks-ce/issues/182)) ([7a73372](https://github.com/zextras/carbonio-tasks-ce/commit/7a73372b1bb6ea5cde36e6d101d940c69e3ae3ca))
+
 ## [1.4.8](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.7...v1.4.8) (2026-10-18)
 
 ### Bug Fixes
