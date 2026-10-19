@@ -15,7 +15,7 @@ properties(defaultPipelineProperties())
 
 dt3_pipeline(
     repoName: 'carbonio-tasks-ce',
-    mavenPublish: ['app'],
+    mavenPublish: ['.', 'app'],
     nativeBuild: [
         runnerName: 'carbonio-tasks-ce-runner',
         aarch64: true,
