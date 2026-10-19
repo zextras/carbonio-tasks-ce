@@ -110,20 +110,15 @@ SPDX-License-Identifier: AGPL-3.0-only
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>zextras-java-sdk</id>
-      <name>Zextras public maven repo</name>
-      <url>https://zextras.jfrog.io/artifactory/java-sdk</url>
-    </repository>
-  </repositories>
-
   <distributionManagement>
     <repository>
-      <id>artifactory</id>
-      <name>Zextras releases</name>
-      <url>https://zextras.jfrog.io/artifactory/public-maven-repo</url>
+      <id>nexus-prod</id>
+      <url>https://repo.zextras.tools/repository/public-maven-repo/</url>
     </repository>
+    <snapshotRepository>
+      <id>nexus-prod</id>
+      <url>https://repo.zextras.tools/repository/maven-snapshots/</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <profiles>
