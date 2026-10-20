@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/zextras/carbonio-tasks-ce/compare/v1.5.0...v1.5.1) (2026-10-20)
+
+### Bug Fixes
+
+* **deps:** inherit the carbonio-quarkus-extensions 1.16.0 parent ([#184](https://github.com/zextras/carbonio-tasks-ce/issues/184)) ([e0246d1](https://github.com/zextras/carbonio-tasks-ce/commit/e0246d1b8f245982d6e8be9c943eab6a8a59abb7))
+
 ## [1.5.0](https://github.com/zextras/carbonio-tasks-ce/compare/v1.4.8...v1.5.0) (2026-10-18)
 
 ### Features
