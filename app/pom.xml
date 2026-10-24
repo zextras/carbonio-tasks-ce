@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <properties>
     <assertj.version>3.27.7</assertj.version>
     <archunit.version>1.4.2</archunit.version>
-    <carbonio-quarkus-extensions.version>1.16.0-1</carbonio-quarkus-extensions.version>
+    <carbonio-quarkus-extensions.version>1.16.2-1</carbonio-quarkus-extensions.version>
   </properties>
 
   <dependencies>
