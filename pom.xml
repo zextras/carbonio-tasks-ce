@@ -39,7 +39,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
-    <carbonio-user-management-rest-sdk.version>1.3.0-1</carbonio-user-management-rest-sdk.version>
+    <carbonio-user-management-rest-sdk.version>1.4.5-1</carbonio-user-management-rest-sdk.version>
 
     <!-- Other properties -->
     <sonar.dependencyCheck.htmlReportPath>
