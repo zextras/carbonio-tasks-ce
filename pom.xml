@@ -39,7 +39,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <properties>
     <!-- Dependencies -->
-    <carbonio-user-management-rest-sdk.version>1.3.0-1</carbonio-user-management-rest-sdk.version>
+    <carbonio-user-management-rest-sdk.version>1.4.9</carbonio-user-management-rest-sdk.version>
 
     <!-- CI-friendly versioning -->
     <revision>1.5.1</revision>
