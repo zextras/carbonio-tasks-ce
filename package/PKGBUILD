@@ -44,7 +44,6 @@ sha256sums=(
   'a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e'
 )
 backup=(
-  "etc/zextras/service-discover/carbonio-tasks.hcl"
   "etc/carbonio/tasks/config.properties"
 )
 
