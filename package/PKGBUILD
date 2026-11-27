@@ -15,6 +15,7 @@ url="https://www.zextras.com/"
 depends=(
   "service-discover"
   "service-discover-base"
+  "service-discover-template"
   "pending-setups"
 )
 source=(
