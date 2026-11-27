@@ -36,7 +36,7 @@ sha256sums=(
   'c0b090cf42d0b0c59815261f9b14141ca234916e6edef30f9777d0decb9dce44'
   'c1c16b0da317b2deca259b52b483651c8fe471b0f6bd0227fbaec707b0a67408'
   '03135ec028143825a2c22ebbd42c709d24f233297ae9c01ffa83ae78020a8777'
-  '01c719db3d65886e98641fded6e0de3fffee536f21c6fd55ee746b34da8d1c1f'
+  'ce9ad609d97324b4daecde972cdc38edbbf5ec6dfbce34fb2ac0437b8fed9b15'
   'aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893'
   'f1699f607e0b86c0585822825822ff87ab21aa432d78caed038afe561c3c75a7'
   '73133d352f760168abac729527db277b5d9f69ed69323c9bedd08ed03e6dc675'
@@ -143,7 +143,7 @@ prerm() {
 postrm() {
   rm -f /etc/zextras/service-discover/carbonio-tasks.hcl
   if [ "$1" = "purge" ]; then
-    rm -f /etc/zextras/service-discover/carbonio-tasks.env /etc/zextras/service-discover/carbonio-tasks.hcl.bak
+    rm -f /etc/zextras/service-discover/carbonio-tasks.env
   fi
 
   if [ -d /run/systemd/system ]; then
