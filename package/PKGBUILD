@@ -15,12 +15,14 @@ url="https://www.zextras.com/"
 depends=(
   "service-discover"
   "service-discover-base"
+  "service-discover-template"
   "pending-setups"
 )
 source=(
   "421-carbonio-tasks.sh"
   "carbonio-tasks"
-  "carbonio-tasks.hcl"
+  "carbonio-tasks-template.hcl"
+  "carbonio-tasks-hcl"
   "carbonio-tasks.service"
   "carbonio-tasks-setup"
   "carbonio-tasks-sidecar.service"
@@ -33,9 +35,10 @@ source=(
 sha256sums=(
   'c0b090cf42d0b0c59815261f9b14141ca234916e6edef30f9777d0decb9dce44'
   'c1c16b0da317b2deca259b52b483651c8fe471b0f6bd0227fbaec707b0a67408'
-  '9eb02ed27fdda1413323b0c18cf965128a843af7d0a9e7f8c635ff4c4c6a4d60'
+  '03135ec028143825a2c22ebbd42c709d24f233297ae9c01ffa83ae78020a8777'
+  '46409e179e09924412aaa8f9846edf396d37ee0cbd91dc6f403dc761a15028b3'
   'aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893'
-  '24e386632ccb84b6f5deb64638a4d850cbb9d375f90815e04ba69c40af0bce12'
+  'a35e2e35e15e320972c56d1c801c057ed441b1a4bff4fcbbf21d1f215f6cb762'
   '73133d352f760168abac729527db277b5d9f69ed69323c9bedd08ed03e6dc675'
   'bbaf345de429834394cc58d2fc66c9d0f1df2bc9accffabd9c13c184a3447d34'
   'SKIP'
@@ -62,8 +65,11 @@ _package_common() {
   install -Dm 644 carbonio-tasks.service \
     "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
 
-  install -Dm 644 carbonio-tasks.hcl \
-    "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
+  install -Dm 644 carbonio-tasks-template.hcl \
+    "${pkgdir}/etc/zextras/service-discover/templates/carbonio-tasks-template.hcl"
+
+  install -Dm 755 carbonio-tasks-hcl \
+    "${pkgdir}/usr/bin/carbonio-tasks-hcl"
 
   install -Dm 644 421-carbonio-tasks.sh \
     "${pkgdir}/etc/zextras/pending-setups.d/421-carbonio-tasks.sh"
@@ -111,10 +117,20 @@ postinst() {
     systemctl enable carbonio-tasks-sidecar.service >/dev/null 2>&1 || :
   fi
 
+  if [ "$1" = "configure" ]; then
+    carbonio-tasks-hcl migrate || :
+    carbonio-tasks-hcl render || echo "WARNING: hcl render failed, run carbonio-tasks-setup"
+  fi
+
   echo "======================================================"
   echo "Carbonio Tasks installed successfully!                "
   echo "You must run pending-setups to configure it correctly."
   echo "======================================================"
+}
+
+posttrans() {
+  carbonio-tasks-hcl migrate || :
+  carbonio-tasks-hcl render || echo "WARNING: hcl render failed, run carbonio-tasks-setup"
 }
 
 prerm() {
@@ -127,6 +143,11 @@ prerm() {
 }
 
 postrm() {
+  rm -f /etc/zextras/service-discover/carbonio-tasks.hcl
+  if [ "$1" = "purge" ]; then
+    rm -f /etc/zextras/service-discover/carbonio-tasks.env /etc/zextras/service-discover/carbonio-tasks.hcl.bak
+  fi
+
   if [ -d /run/systemd/system ]; then
     systemctl daemon-reload >/dev/null 2>&1 || :
   fi

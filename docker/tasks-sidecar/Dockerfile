@@ -20,10 +20,16 @@ RUN set -eu; mkdir -p /out; \
     esac; \
     cp "${src}"/*-runner /out/carbonio-tasks-runner
 
+FROM --platform=$BUILDPLATFORM docker.io/library/alpine:3.20 AS hcl
+COPY package/carbonio-tasks-template.hcl /carbonio-tasks-template.hcl
+RUN sed -E 's/\{\{ or \(env "[A-Z0-9_]+"\) "([^"]*)" \}\}/\1/g' \
+    /carbonio-tasks-template.hcl > /carbonio-tasks.hcl \
+    && ! grep -q '{{' /carbonio-tasks.hcl
+
 FROM ${SIDECAR_IMAGE}
 
 # Service registration
-COPY package/carbonio-tasks.hcl /consul/config/
+COPY --from=hcl /carbonio-tasks.hcl /consul/config/
 
 # Setup files
 COPY package/service-protocol.json /etc/carbonio/tasks/service-discover/
