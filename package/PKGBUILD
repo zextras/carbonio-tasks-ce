@@ -66,7 +66,6 @@ _package_common() {
   install -Dm 644 carbonio-tasks-template.hcl \
     "${pkgdir}/etc/zextras/service-discover/templates/carbonio-tasks-template.hcl"
 
-
   install -Dm 644 421-carbonio-tasks.sh \
     "${pkgdir}/etc/zextras/pending-setups.d/421-carbonio-tasks.sh"
 
@@ -113,26 +112,10 @@ postinst() {
     systemctl enable carbonio-tasks-sidecar.service >/dev/null 2>&1 || :
   fi
 
-  if [ "$1" = "configure" ]; then
-    env -i PATH=/usr/bin:/bin bash -c 'set -a; [ -r "$1" ] && . "$1"; exec consul-template -once -template "$2:$3"' _ \
-      /etc/zextras/service-discover/carbonio-tasks.env \
-      /etc/zextras/service-discover/templates/carbonio-tasks-template.hcl \
-      /etc/zextras/service-discover/carbonio-tasks.hcl > /dev/null \
-      || echo "WARNING: cannot render /etc/zextras/service-discover/carbonio-tasks.hcl, run carbonio-tasks-setup"
-  fi
-
   echo "======================================================"
   echo "Carbonio Tasks installed successfully!                "
   echo "You must run pending-setups to configure it correctly."
   echo "======================================================"
-}
-
-posttrans() {
-  env -i PATH=/usr/bin:/bin bash -c 'set -a; [ -r "$1" ] && . "$1"; exec consul-template -once -template "$2:$3"' _ \
-    /etc/zextras/service-discover/carbonio-tasks.env \
-    /etc/zextras/service-discover/templates/carbonio-tasks-template.hcl \
-    /etc/zextras/service-discover/carbonio-tasks.hcl > /dev/null \
-    || echo "WARNING: cannot render /etc/zextras/service-discover/carbonio-tasks.hcl, run carbonio-tasks-setup"
 }
 
 prerm() {
