@@ -2,12 +2,19 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
+
+// Generated from the packaged template on every upgrade and setup:
+// local edits to this file are overwritten.
+// To change the values, set them in /etc/zextras/service-discover/carbonio-tasks.env
+// (KEY=value lines; keys and defaults are printed at the end of carbonio-tasks-setup),
+// then run carbonio-tasks-setup.
+
 services {
   check {
     http     = "http://127.78.0.16:10000/q/health/live"
     method   = "GET"
-    timeout  = "1s"
-    interval = "5s"
+    timeout  = "{{ or (env "CHECK_TIMEOUT") "1s" }}"
+    interval = "{{ or (env "CHECK_INTERVAL") "5s" }}"
   }
   connect {
     sidecar_service {

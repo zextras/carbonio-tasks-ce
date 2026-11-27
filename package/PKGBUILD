@@ -15,12 +15,13 @@ url="https://www.zextras.com/"
 depends=(
   "service-discover"
   "service-discover-base"
+  "service-discover-template"
   "pending-setups"
 )
 source=(
   "421-carbonio-tasks.sh"
   "carbonio-tasks"
-  "carbonio-tasks.hcl"
+  "carbonio-tasks-template.hcl"
   "carbonio-tasks.service"
   "carbonio-tasks-setup"
   "carbonio-tasks-sidecar.service"
@@ -33,9 +34,9 @@ source=(
 sha256sums=(
   'c0b090cf42d0b0c59815261f9b14141ca234916e6edef30f9777d0decb9dce44'
   'c1c16b0da317b2deca259b52b483651c8fe471b0f6bd0227fbaec707b0a67408'
-  '9eb02ed27fdda1413323b0c18cf965128a843af7d0a9e7f8c635ff4c4c6a4d60'
+  '4e8a8ec3f959b4777d90b47bdde3378e2d9cc1f144ff204e9941123dff8f26f9'
   'aa31e3837f2d3b24b839689018cadb18b8db868047c427cc1df064f8f7dab893'
-  '24e386632ccb84b6f5deb64638a4d850cbb9d375f90815e04ba69c40af0bce12'
+  'e10c5d5a019454a7d27ed60482f505112858631f8e8890d30d73a6fe3403a2ce'
   '73133d352f760168abac729527db277b5d9f69ed69323c9bedd08ed03e6dc675'
   'bbaf345de429834394cc58d2fc66c9d0f1df2bc9accffabd9c13c184a3447d34'
   'SKIP'
@@ -44,7 +45,6 @@ sha256sums=(
   'a45fe200ed97b28cb6251f42daa73756dddbdcf595346c2bd9fb34deeb673d1e'
 )
 backup=(
-  "etc/zextras/service-discover/carbonio-tasks.hcl"
   "etc/carbonio/tasks/config.properties"
 )
 
@@ -63,8 +63,8 @@ _package_common() {
   install -Dm 644 carbonio-tasks.service \
     "${pkgdir}/lib/systemd/system/carbonio-tasks.service"
 
-  install -Dm 644 carbonio-tasks.hcl \
-    "${pkgdir}/etc/zextras/service-discover/carbonio-tasks.hcl"
+  install -Dm 644 carbonio-tasks-template.hcl \
+    "${pkgdir}/etc/zextras/service-discover/templates/carbonio-tasks-template.hcl"
 
   install -Dm 644 421-carbonio-tasks.sh \
     "${pkgdir}/etc/zextras/pending-setups.d/421-carbonio-tasks.sh"
@@ -128,6 +128,11 @@ prerm() {
 }
 
 postrm() {
+  rm -f /etc/zextras/service-discover/carbonio-tasks.hcl
+  if [ "$1" = "purge" ]; then
+    rm -f /etc/zextras/service-discover/carbonio-tasks.env
+  fi
+
   if [ -d /run/systemd/system ]; then
     systemctl daemon-reload >/dev/null 2>&1 || :
   fi
